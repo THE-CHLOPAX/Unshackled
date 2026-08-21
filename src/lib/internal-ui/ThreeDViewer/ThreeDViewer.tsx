@@ -2,7 +2,7 @@ import Stats from 'stats.js';
 import * as THREE from 'three';
 import { Input, Scene, useGraphicsStore } from '@tgdf';
 import { Pass } from 'three/examples/jsm/postprocessing/Pass';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 
 import { ThreeDViewerDebugInfo } from './ThreeDViewerDebugInfo';
 import { useWebGLRenderer, UseWebGLRendererOptions } from './useWebGLRenderer';
@@ -17,6 +17,7 @@ export type ThreeDViewerProps = {
   isPaused?: boolean;
   debug?: boolean;
   postProcessingPasses?: Pass[];
+  overlay?: ReactNode;
 };
 
 export function ThreeDViewer({
@@ -28,6 +29,7 @@ export function ThreeDViewer({
   isPaused,
   debug,
   postProcessingPasses = [],
+  overlay,
 }: ThreeDViewerProps) {
   const clockRef = useRef<THREE.Clock>(new THREE.Clock());
   const statsRef = useRef<Stats | null>(null);
@@ -151,6 +153,7 @@ export function ThreeDViewer({
           onStatsChange={handleStatsChange}
         />
       )}
+      {overlay}
     </div>
   );
 }

@@ -14,6 +14,10 @@ import {
   HealthPointsControllerOptions,
 } from '../gameObjectComponents/HealthPointsController';
 import {
+  HealthBarRenderer,
+  HealthBarRendererOptions,
+} from '../gameObjectComponents/HealthBarRenderer/HealthBarRenderer';
+import {
   AnimationController,
   AnimationControllerOptions,
 } from '../gameObjectComponents/AnimationController/AnimationController';
@@ -27,6 +31,7 @@ export type EntityMovementOptions = {
 export type EntityOptions = {
   modelOptions: ModelRendererOptions;
   healthOptions: HealthPointsControllerOptions;
+  healthBarOptions?: HealthBarRendererOptions;
   rigidBodyOptions?: RigidBodyOptions;
   animationControllerOptions?: AnimationControllerOptions;
   movementOptions?: EntityMovementOptions;
@@ -41,6 +46,7 @@ export class Entity extends GameSceneObject {
   public animationController: AnimationController;
   public damageHitboxController: DamageHitboxController;
   public healthPointsController: HealthPointsController;
+  public healthBarRenderer: HealthBarRenderer;
   public movementController: MovementController;
   public defaultSpeed: number;
   public sprintSpeed: number;
@@ -85,6 +91,11 @@ export class Entity extends GameSceneObject {
     this.healthPointsController = this.addComponent(
       'HealthPointsController',
       new HealthPointsController(this, options.healthOptions)
+    );
+
+    this.healthBarRenderer = this.addComponent(
+      'HealthBarRenderer',
+      new HealthBarRenderer(this, this.healthPointsController, options.healthBarOptions)
     );
 
     this.damageHitboxController = this.addComponent(

@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { useState } from 'react';
-import { InternalLoader, useAssetStore, useGraphicsStore } from '@tgdf';
+import { useAssetStore, useGraphicsStore } from '@tgdf';
 
+import { LoadingView } from './LoadingView';
 import { CHECKERBOARD_TEXTURE } from '../../3D/constants';
 import { useLoadScene } from '../../3D/hooks/useLoadScene';
 import { TestScene } from '../../3D/classes/scenes/TestScene';
@@ -34,10 +35,7 @@ export function TestView() {
   return (
     <BackToViewLayout backToView="MenuView">
       {!loadingFinished || scene === null ? (
-        <InternalLoader
-          progress={loadingProgress * 100}
-          onComplete={() => setLoadingFinished(true)}
-        />
+        <LoadingView progress={loadingProgress} onComplete={() => setLoadingFinished(true)} />
       ) : (
         <ThreeDViewerPixelated
           scene={scene}

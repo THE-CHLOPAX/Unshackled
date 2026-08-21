@@ -13,7 +13,7 @@ import {
   setChannelMuted,
 } from '@tgdf';
 
-import { COLORS } from '../../constants';
+import { COLORS, GRADIENTS } from '../../constants';
 import { BackToViewLayout } from '../layouts/BackToViewLayout';
 
 export function SettingsView() {
@@ -30,7 +30,7 @@ export function SettingsView() {
         direction="column"
         align="center"
         justify="center"
-        style={{ gap: '20px', background: COLORS.BG_COLOR, height: '100vh' }}
+        style={{ gap: '20px', background: GRADIENTS.BACKGROUND, height: '100vh' }}
       >
         <InternalText size="xl" weight="bold" color={COLORS.FONT_COLOR_PRIMARY}>
           Settings

@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 import * as THREE from 'three';
-import { Emitter, GameObjectComponent, logger } from '@tgdf';
+import { assert, Emitter, GameObjectComponent, logger } from '@tgdf';
 
 import { Entity } from '../gameObjects/Entity';
 
@@ -16,15 +16,22 @@ export type HealthPointsControllerOptions = {
 
 export class HealthPointsController extends GameObjectComponent {
   private _healthPoints: number;
-  private _initialHealthPoints: number;
   private _isDead: boolean = false;
   private _isImmuneToDamage: boolean = false;
 
   public events: Emitter<HealthPointsControllerEvents> = new Emitter();
 
-  constructor(gameObject: Entity, options: HealthPointsControllerOptions) {
+  constructor(
+    gameObject: Entity,
+    public readonly options: HealthPointsControllerOptions
+  ) {
     super(gameObject);
-    this._initialHealthPoints = options.initialHealthPoints;
+
+    assert(
+      options.initialHealthPoints > 0,
+      '[HealthPointsController] Initial health points must be greater than zero.'
+    );
+
     this._healthPoints = options.initialHealthPoints;
   }
 
@@ -41,7 +48,7 @@ export class HealthPointsController extends GameObjectComponent {
   }
 
   public get initialHealthPoints(): number {
-    return this._initialHealthPoints;
+    return this.options.initialHealthPoints;
   }
 
   public override get gameObject(): Entity {
@@ -86,7 +93,7 @@ export class HealthPointsController extends GameObjectComponent {
   }
 
   public resetHealth(): void {
-    this._healthPoints = this._initialHealthPoints;
+    this._healthPoints = this.options.initialHealthPoints;
     this._isDead = false;
   }
 

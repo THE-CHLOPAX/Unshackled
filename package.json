@@ -1,6 +1,6 @@
 {
   "name": "unshackled",
-  "version": "0.2.11",
+  "version": "0.2.14",
   "description": "A roguelike game where you have to fight your way through a hostile world to defeat the final boss.",
   "main": "main.js",
   "homepage": "./",

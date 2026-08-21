@@ -17,6 +17,9 @@ export * from './internal-ui/ViewManager';
 export * from './internal-ui/types/native';
 export * from './internal-ui/types/graphics';
 export * from './internal-ui/hooks/useClickOutside';
+export * from './internal-ui/hooks/useDebounce';
+export * from './internal-ui/hooks/useDebouncedCallback';
+export * from './internal-ui/hooks/useDebounceWithQueueing';
 export { logger } from './internal-ui/utils/logger';
 
 // Internal Input
@@ -43,6 +46,7 @@ export * from './internal-3d/types/physics';
 export * from './internal-3d/types/scene';
 export * from './internal-3d/utils/traverseFind';
 export * from './internal-3d/utils/isMesh';
+export * from './internal-3d/utils/worldToScreen';
 
 const ResourceTrackerInstance = ResourceTracker.getInstance();
 export { ResourceTrackerInstance as ResourceTracker };
