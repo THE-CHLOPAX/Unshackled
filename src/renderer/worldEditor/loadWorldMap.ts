@@ -1,6 +1,6 @@
 import { ipc } from '@tgdf';
 
-import { WorldGeneratorOutput } from '3D/classes/worldGenerator/types';
+import { WorldGeneratorOutput } from './types';
 
 export function deserializeWorldMap(input: string): WorldGeneratorOutput {
   return JSON.parse(input);

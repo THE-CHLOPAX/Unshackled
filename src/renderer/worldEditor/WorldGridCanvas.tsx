@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { WorldGeneratorCell } from '3D/classes/worldGenerator/types';
-import { vec2toIndex } from '3D/classes/worldGenerator/utils/vec2ToIndex';
-import { codeToCssHex, EMPTY_CELL_CODE } from '3D/classes/worldGenerator/const';
+import { WorldGeneratorCell } from './types';
+import { vec2toIndex } from './utils/vec2ToIndex';
+import { codeToCssHex, EMPTY_CELL_CODE } from './const';
 
 const CELL_PX = 12;
 const GRID_LINE_COLOR = 'rgba(255, 255, 255, 0.12)';

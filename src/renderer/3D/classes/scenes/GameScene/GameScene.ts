@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { AssetRecord, Scene } from '@tgdf';
 
+import { WorldGeneratorOutput } from 'renderer/worldEditor/types';
 import { MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
 
 import { loadAssetRecord } from './loadAssetRecord';
@@ -47,7 +48,7 @@ export abstract class GameScene extends Scene {
     return Promise.resolve();
   }
 
-  public async buildSceneContent(): Promise<void> {}
+  public async generateLevel(_worldEditorData: WorldGeneratorOutput): Promise<void> {}
 
   public async completeLevelInitialization(): Promise<void> {
     if (!this.navMeshManager || !this.physics) {

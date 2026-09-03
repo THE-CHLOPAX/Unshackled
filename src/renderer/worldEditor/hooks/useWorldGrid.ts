@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { EMPTY_CELL_CODE, WORLD_GEN_GRID_SIZE } from '3D/classes/worldGenerator/const';
-import { WorldGeneratorCell, WorldGeneratorOutput } from '3D/classes/worldGenerator/types';
+import { EMPTY_CELL_CODE, WORLD_GEN_GRID_SIZE } from '../const';
+import { WorldGeneratorCell, WorldGeneratorOutput } from '../types';
 
 const CELL_COUNT = WORLD_GEN_GRID_SIZE * WORLD_GEN_GRID_SIZE;
 

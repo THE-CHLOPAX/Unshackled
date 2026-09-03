@@ -1,10 +1,9 @@
 import * as THREE from 'three';
-import { Scene, SceneCamera } from '@tgdf';
+import { SceneCamera } from '@tgdf';
 
 import { State } from './classes/states';
 import { Entity } from './classes/gameObjects/Entity';
 import { Player } from './classes/gameObjects/players/Player';
-import { WorldGeneratorOutput } from './classes/worldGenerator/types';
 
 export enum AnimationClipNamesShared {
   SPAWN = 'spawn',
@@ -79,12 +78,3 @@ export type GameCamera = SceneCamera & {
   addShake: (intensity: number) => void;
   pivotPoint: THREE.Vector3;
 };
-
-export type LevelSceneData = {
-  floorMesh: THREE.Object3D; // Used for NavMesh calculation
-};
-
-export type LevelSceneBuilder = (
-  scene: Scene,
-  worldGenOutput: WorldGeneratorOutput
-) => Promise<LevelSceneData>;

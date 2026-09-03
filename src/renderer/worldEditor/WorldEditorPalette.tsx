@@ -1,14 +1,13 @@
 import styled from 'styled-components';
 import { InternalButton, InternalFlex, InternalInput, InternalText } from '@tgdf';
 
+import { COLORS } from '../constants';
 import {
   CELL_ROTATIONS,
   codeToCssHex,
   EMPTY_CELL_CODE,
   WORLD_GEN_TILE_DEFINITIONS,
-} from '3D/classes/worldGenerator/const';
-
-import { COLORS } from '../../../constants';
+} from './const';
 
 type WorldEditorPaletteProps = {
   selectedCode: number;

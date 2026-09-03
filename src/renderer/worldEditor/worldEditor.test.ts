@@ -1,10 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 
-import { WORLD_GEN_GRID_SIZE, EMPTY_CELL_CODE } from '3D/classes/worldGenerator/const';
-
-import { useWorldGrid } from '../../hooks/useWorldGrid';
-import { serializeWorldMap } from '../../utils/saveWorldMap';
+import { serializeWorldMap } from './saveWorldMap';
+import { useWorldGrid } from './hooks/useWorldGrid';
+import { WORLD_GEN_GRID_SIZE, EMPTY_CELL_CODE } from './const';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), once: vi.fn(), removeListener: vi.fn() },

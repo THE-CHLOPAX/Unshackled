@@ -1,6 +1,6 @@
 import { ipc, NativeSaveFileResponse } from '@tgdf';
 
-import { WorldGeneratorOutput } from '3D/classes/worldGenerator/types';
+import { WorldGeneratorOutput } from './types';
 
 export function serializeWorldMap(output: WorldGeneratorOutput): string {
   return JSON.stringify(output, null, 2);
