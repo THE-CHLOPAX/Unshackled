@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useGraphicsStore } from '@tgdf';
 
-import { buildDungeonLevelScene } from '3D/classes/worldGenerator/sceneBuilder/dungeon/buildDungeonLevelScene';
-
 import { LoadingView } from './LoadingView';
 import { MODELS, TEXTURES } from '../../3D/constants';
 import { useLoadScene } from '../../3D/hooks/useLoadScene';
@@ -14,7 +12,7 @@ export function DungeonTestView() {
   const { resolution } = useGraphicsStore();
   const { scene, loadingProgress } = useLoadScene({
     sceneClass: DungeonLevelScene,
-    sceneBuilder: buildDungeonLevelScene,
+    sceneBuilder: () => new Promise((resolve) => resolve()),
     preloadAssets: [
       MODELS.MONK,
       MODELS.DUNGEON_DOOR,

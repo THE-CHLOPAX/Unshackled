@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useGraphicsStore } from '@tgdf';
 
-import { buildTestScene } from 'renderer/3D/classes/worldGenerator/sceneBuilder/buildTestScene';
-
 import { LoadingView } from './LoadingView';
 import { MODELS, TEXTURES } from '../../3D/constants';
 import { useLoadScene } from '../../3D/hooks/useLoadScene';
@@ -14,7 +12,7 @@ export function TestView() {
   const { resolution } = useGraphicsStore();
   const { scene, loadingProgress } = useLoadScene({
     sceneClass: TestScene,
-    sceneBuilder: buildTestScene,
+    sceneBuilder: () => new Promise((resolve) => resolve()),
     preloadAssets: [
       MODELS.MONK,
       MODELS.SKELETON,

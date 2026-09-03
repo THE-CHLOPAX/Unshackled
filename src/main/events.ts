@@ -1,4 +1,7 @@
-import { screen } from 'electron';
+import path from 'path';
+import { NativeSaveFileRequest } from '@tgdf';
+import { app, dialog, screen } from 'electron';
+import { readFile, mkdir, writeFile } from 'fs/promises';
 import { Resolution } from '@tgdf/internal-ui/types/graphics';
 
 import { mainWindow, main } from './main';
@@ -6,11 +9,15 @@ import { getZoomFactorForResolution } from './utils/getZoomFactorForResolution';
 
 const currentResolution: Resolution = { width: 1280, height: 720 };
 
+const WORLD_MAPS_DIR = 'src/renderer/assets/worldMaps';
+
 export function bindUserEvents(): void {
   main.on('app-quit-request', onCloseAppRequest);
   main.on('set-resolution-request', onResolutionRequest);
   main.on('set-fullscreen-request', onFullscreenRequest);
   main.on('get-fullscreen-state-request', onGetFullscreenStateRequest);
+  main.on('save-file-request', onSaveWorldMapRequest);
+  main.on('load-file-request', onLoadWorldMapRequest);
 
   if (!mainWindow) {
     return;
@@ -81,6 +88,44 @@ export function onFullscreenRequest(request: {
   }
 
   mainWindow.setFullScreen(fullscreen);
+}
+
+export async function onSaveWorldMapRequest(request: NativeSaveFileRequest): Promise<void> {
+  try {
+    const slug =
+      request.name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]+/g, '-') || 'untitled';
+    const directory = path.join(app.getAppPath(), WORLD_MAPS_DIR);
+
+    await mkdir(directory, { recursive: true });
+
+    const filePath = path.join(directory, `${slug}.json`);
+    await writeFile(filePath, request.json, 'utf-8');
+
+    main.send('save-file-response', { ok: true, path: filePath });
+  } catch (error) {
+    main.send('save-file-response', { ok: false, error: String(error) });
+  }
+}
+
+export async function onLoadWorldMapRequest(): Promise<void> {
+  try {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'Json files', extensions: ['json'] }],
+    });
+
+    if (result.canceled) return;
+
+    const path = result.filePaths[0];
+    const contents = await readFile(path, 'utf8');
+
+    main.send('load-file-response', { ok: true, path, contents });
+  } catch (_error) {
+    main.send('load-file-response', { ok: false, path: null, contents: null });
+  }
 }
 
 export function onEnterFullscreen() {
