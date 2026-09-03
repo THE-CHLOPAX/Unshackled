@@ -1,8 +1,8 @@
 import { NavMeshAgent } from '@tgdf';
 import { NavMesh, Crowd } from '@recast-navigation/core';
 
-import { GameScene } from '../scenes/GameScene';
 import { Entity, EntityOptions } from './Entity';
+import { GameScene } from '../scenes/GameScene/GameScene';
 import { AIAttackOptions, AIRoamingOptions } from '../../types';
 
 export type EntityAIOptions = EntityOptions & {

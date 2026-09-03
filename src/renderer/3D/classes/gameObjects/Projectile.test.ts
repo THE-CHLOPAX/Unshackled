@@ -10,11 +10,11 @@ vi.mock('electron', () => ({
 import { Mock } from 'moq.ts';
 
 import { Entity } from './Entity';
-import { GameScene } from '../scenes/GameScene';
 import { Projectile, ProjectileOptions } from './Projectile';
+import { MockGameScene } from '../scenes/GameScene/MockGameScene';
 import { ModelRenderer } from '../gameObjectComponents/ModelRenderer/ModelRenderer';
 
-class MockScene extends GameScene {}
+class MockScene extends MockGameScene {}
 
 /**
  * Exposes Projectile's overridable onCollision/onMaxRangeReached hooks as spies,

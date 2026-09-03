@@ -3,11 +3,11 @@ import { useCallback, useState } from 'react';
 
 import { WORLD_GEN_TILE_DEFINITIONS } from '3D/classes/worldGenerator/const';
 
-import { useWorldGrid } from './useWorldGrid';
-import { saveWorldMap } from './saveWorldMap';
-import { loadWorldMap } from './loadWorldMap';
 import { GRADIENTS } from '../../../constants';
 import { WorldGridCanvas } from './WorldGridCanvas';
+import { useWorldGrid } from '../../hooks/useWorldGrid';
+import { saveWorldMap } from '../../utils/saveWorldMap';
+import { loadWorldMap } from '../../utils/loadWorldMap';
 import { WorldEditorPalette } from './WorldEditorPalette';
 import { BackToViewLayout } from '../../layouts/BackToViewLayout';
 

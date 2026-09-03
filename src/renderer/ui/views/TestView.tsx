@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useGraphicsStore } from '@tgdf';
 
 import { LoadingView } from './LoadingView';
-import { MODELS, TEXTURES } from '../../3D/constants';
 import { useLoadScene } from '../../3D/hooks/useLoadScene';
 import { TestScene } from '../../3D/classes/scenes/TestScene';
 import { BackToViewLayout } from '../layouts/BackToViewLayout';
@@ -10,17 +9,7 @@ import { ThreeDViewerPixelated } from '../components/ThreeDViewerPixelated';
 
 export function TestView() {
   const { resolution } = useGraphicsStore();
-  const { scene, loadingProgress } = useLoadScene({
-    sceneClass: TestScene,
-    sceneBuilder: () => new Promise((resolve) => resolve()),
-    preloadAssets: [
-      MODELS.MONK,
-      MODELS.SKELETON,
-      TEXTURES.EXPLOSION,
-      TEXTURES.ARCANE_CIRCLE,
-      MODELS.DUNGEON_WALL_TORCH,
-    ],
-  });
+  const { scene, loadingProgress } = useLoadScene(TestScene);
 
   const [loadingFinished, setLoadingFinished] = useState(false);
 

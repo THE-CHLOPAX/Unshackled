@@ -3,7 +3,7 @@ import { NavMesh, Crowd } from '@recast-navigation/core';
 import { config } from './config';
 import { EntityAI } from '../../EntityAI';
 import { AIIdleState } from '../../../states';
-import { GameScene } from '../../../scenes/GameScene';
+import { GameScene } from '../../../scenes/GameScene/GameScene';
 
 export class Skeleton extends EntityAI {
   constructor(

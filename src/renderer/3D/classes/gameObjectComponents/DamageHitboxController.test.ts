@@ -4,16 +4,16 @@ import { Emitter, GameObjectEventMap } from '@tgdf';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { Entity } from '../gameObjects/Entity';
-import { GameScene } from '../scenes/GameScene';
 import { ModelRenderer } from './ModelRenderer/ModelRenderer';
 import { DamageHitboxController } from './DamageHitboxController';
+import { MockGameScene } from '../scenes/GameScene/MockGameScene';
 import { HealthPointsController, HealthPointsControllerEvents } from './HealthPointsController';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
 }));
 
-class TestScene extends GameScene {}
+class TestScene extends MockGameScene {}
 
 const SIZE = new THREE.Vector3(1, 1, 1);
 const DAMAGE = 10;

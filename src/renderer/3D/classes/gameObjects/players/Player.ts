@@ -1,6 +1,6 @@
 import { IdleState, State } from '../../states';
 import { Entity, EntityOptions } from '../Entity';
-import { GameScene } from '../../scenes/GameScene';
+import { GameScene } from '../../scenes/GameScene/GameScene';
 import { PlayerActionType, SequenceSkill } from '../../../../../renderer/3D/types';
 import { InputSequenceTracker } from './InputSequenceTracker/InputSequenceTracker';
 

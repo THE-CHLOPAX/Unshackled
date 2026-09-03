@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { assert, RigidBody, RigidBodyCollisionParams, RigidBodyOptions } from '@tgdf';
 
 import { Entity } from './Entity';
-import { GameScene } from '../scenes/GameScene';
 import { GameSceneObject } from './GameSceneObject';
+import { GameScene } from '../scenes/GameScene/GameScene';
 import { ModelRenderer } from '../gameObjectComponents/ModelRenderer/ModelRenderer';
 
 export type ProjectileOptions = {

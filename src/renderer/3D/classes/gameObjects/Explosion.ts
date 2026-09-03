@@ -7,8 +7,8 @@ import { COLORS } from 'renderer/constants';
 import { isEntity } from 'renderer/3D/utils/isEntity';
 import { EXPLOSION_SPRITESHEET_TEXTURE } from 'renderer/3D/constants';
 
-import { GameScene } from '../scenes/GameScene';
 import { GameSceneObject } from './GameSceneObject';
+import { GameScene } from '../scenes/GameScene/GameScene';
 import { SpriteFlipbookRenderer } from '../gameObjectComponents/SpriteFlipbookRenderer/SpriteFlipbookRenderer';
 
 export type ExplosionOptions = {

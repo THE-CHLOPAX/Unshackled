@@ -1,6 +1,6 @@
 import { GameObject, GameObjectConstructorOptions } from '@tgdf';
 
-import { GameScene } from '../scenes/GameScene';
+import { GameScene } from '../scenes/GameScene/GameScene';
 
 export type GameSceneObjectConstructorOptions = GameObjectConstructorOptions & {
   scene: GameScene;

@@ -1,20 +1,24 @@
-import { assert } from '@tgdf';
-import { NavMeshManager } from '@tgdf/internal-3d/NavMeshManager';
+import { AssetRecord } from '@tgdf';
 
-import { GameScene } from './GameScene';
+import { GameScene } from './GameScene/GameScene';
 import { Monk } from '../gameObjects/players/Monk/Monk';
-import { MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS, SPAWNER_IDS } from '../../constants';
+import { MODELS, SPAWNER_IDS, TEXTURES } from '../../constants';
 
 export class DungeonLevelScene extends GameScene {
-  protected override onInit(navMeshManager: NavMeshManager): void {
-    navMeshManager.addCrowd(MAIN_CROWD_ID, {
-      maxAgents: 100,
-      maxAgentRadius: NAVMESH_AGENT_RADIUS,
-    });
+  public readonly preloadedAssets: AssetRecord[] = [
+    MODELS.MONK,
+    MODELS.DUNGEON_DOOR,
+    MODELS.DUNGEON_DOOR_FRAME,
+    MODELS.DUNGEON_PILLAR,
+    MODELS.DUNGEON_WALL_TORCH,
+    MODELS.DUNGEON_WALL_BRICK_TALL,
+    MODELS.DUNGEON_FLOOR,
+    MODELS.DUNGEON_PLINTH,
+    TEXTURES.ARCANE_CIRCLE,
+    TEXTURES.EXPLOSION,
+  ];
 
-    const navMesh = navMeshManager.navMesh;
-    assert(navMesh, 'NavMesh is not initialized');
-
+  protected override onInit(): void {
     const spawner = this.getObjectByName(SPAWNER_IDS.PLAYER);
 
     if (spawner) {

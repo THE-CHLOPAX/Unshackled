@@ -41,10 +41,7 @@ export function createFlameParticlesGeometry(
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
 
-  geometry.boundingSphere = new THREE.Sphere(
-    new THREE.Vector3(0, 1.5, 0),
-    FLAME_BOUNDING_RADIUS
-  );
+  geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 1.5, 0), FLAME_BOUNDING_RADIUS);
   geometry.boundingBox = new THREE.Box3(
     new THREE.Vector3(-FLAME_BOUNDING_RADIUS, -1, -FLAME_BOUNDING_RADIUS),
     new THREE.Vector3(FLAME_BOUNDING_RADIUS, FLAME_BOUNDING_RADIUS, FLAME_BOUNDING_RADIUS)

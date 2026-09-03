@@ -309,9 +309,7 @@ export class RigidBody extends GameObjectComponent<RigidBodyOptions> {
     const mesh = getMeshFromCollider(collider);
 
     this.gameObject.updateWorldMatrix(true, false);
-    const parentWorldMatrixInverse = new THREE.Matrix4()
-      .copy(this.gameObject.matrixWorld)
-      .invert();
+    const parentWorldMatrixInverse = new THREE.Matrix4().copy(this.gameObject.matrixWorld).invert();
 
     const t = collider.translation();
     const r = collider.rotation();

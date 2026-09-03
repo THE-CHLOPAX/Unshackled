@@ -168,13 +168,13 @@ export const TEXTURES: Record<string, TextureRecord> = {
   EXPLOSION: {
     type: 'texture',
     id: EXPLOSION_SPRITESHEET_TEXTURE,
-    path: './assets/explosion.png',
+    path: './assets/textures/explosion.png',
     colorSpace: THREE.SRGBColorSpace,
   },
   ARCANE_CIRCLE: {
     type: 'texture',
     id: ARCANE_CIRCLE_TEXTURE,
-    path: './assets/arcane-circle.png',
+    path: './assets/textures/arcane-circle.png',
   },
   DUNGEON_BLOCKS: {
     type: 'texture',

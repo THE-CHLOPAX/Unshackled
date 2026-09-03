@@ -1,19 +1,7 @@
 import { useEffect, useState } from 'react';
-import {
-  executeAsyncOperationsWithProgress,
-  useAssetStore,
-  AssetRecord,
-  ModelRecord,
-  Scene,
-} from '@tgdf';
+import { executeAsyncOperationsWithProgress } from '@tgdf';
 
-import { GameScene } from '../classes/scenes/GameScene';
-
-export type UseLoadSceneProps = {
-  sceneClass: new () => GameScene;
-  sceneBuilder: (scene: Scene) => Promise<void>;
-  preloadAssets?: AssetRecord[];
-};
+import { GameScene } from '../classes/scenes/GameScene/GameScene';
 
 export type UseLoadSceneResult = {
   scene: GameScene | null;
@@ -21,37 +9,7 @@ export type UseLoadSceneResult = {
   loading: boolean;
 };
 
-function loadModelRecord(record: ModelRecord): Promise<unknown> {
-  const { loadModelGLTF, loadModelFBX, loadModelJSON } = useAssetStore.getState();
-  const extension = record.path.split('.').pop()?.toLowerCase();
-
-  const modelOptions = {
-    nameExtractor: record.nameExtractor,
-    centerOrigin: record.centerOrigin ?? true,
-  };
-
-  switch (extension) {
-    case 'fbx':
-      return loadModelFBX(record.id, record.path, modelOptions);
-    case 'json':
-      return loadModelJSON(record.id, record.path, record.nameExtractor);
-    default:
-      return loadModelGLTF(record.id, record.path, modelOptions);
-  }
-}
-
-function loadAssetRecord(record: AssetRecord): Promise<unknown> {
-  if (record.type === 'texture') {
-    return useAssetStore.getState().loadTexture(record.id, record.path, record.colorSpace);
-  }
-  return loadModelRecord(record);
-}
-
-export function useLoadScene({
-  sceneClass,
-  sceneBuilder,
-  preloadAssets = [],
-}: UseLoadSceneProps): UseLoadSceneResult {
+export function useLoadScene(sceneClass: new () => GameScene): UseLoadSceneResult {
   const [scene, setScene] = useState<GameScene | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -61,15 +19,12 @@ export function useLoadScene({
 
     const nextScene = new sceneClass();
 
-    const preloadAssetOperations = preloadAssets.map(loadAssetRecord);
-
     const buildPromise = nextScene
       .initializePhysics()
-      .then(() => Promise.all(preloadAssetOperations))
-      .then(() => sceneBuilder(nextScene))
+      .then(() => nextScene.preloadAssets())
       .then(() => nextScene.completeLevelInitialization());
 
-    const trackedOperations: Array<Promise<unknown>> = [...preloadAssetOperations, buildPromise];
+    const trackedOperations: Array<Promise<unknown>> = [nextScene.preloadAssets(), buildPromise];
 
     const reportProgress = (progress: number): void => {
       if (!cancelled) setLoadingProgress(progress);

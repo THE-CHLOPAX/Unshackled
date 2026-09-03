@@ -3,7 +3,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 
 import { createSkinnedMesh } from 'renderer/3D/utils/createSkinnedMesh';
 
-import { MATERIALS } from '../../../constants';
+import { MATERIALS } from '../../../../constants';
 import { ShadersManager } from './ShadersManager';
 
 vi.mock('electron', () => ({
