@@ -4,9 +4,9 @@ import { assert } from '@tgdf';
 import { vec2toIndex } from './vec2ToIndex';
 import { isInstancedCell } from './isInstancedCell';
 import { getChunkBoundaries } from './getChunkBoundaries';
-import { FLOOR_TILE_CODES, WORLD_CELL_SIZE } from '../constants';
 import { GameScene } from '../classes/scenes/GameScene/GameScene';
 import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from '../worldDefinitions';
+import { FLOOR_TILE_CODES, MODEL_NATIVE_TILE_SIZE, WORLD_CELL_SIZE } from '../constants';
 import {
   WorldChunkBoundary,
   WorldCell,
@@ -17,8 +17,6 @@ import {
 
 export const GENERATED_LEVEL_GROUP_NAME = 'generated-level';
 export const LEVEL_FLOOR_GROUP_NAME = 'level-floor-group';
-
-const MODEL_NATIVE_TILE_SIZE = 5;
 
 const MODEL_TILE_SCALE = new THREE.Vector3().setScalar(WORLD_CELL_SIZE / MODEL_NATIVE_TILE_SIZE);
 const UNIT_SCALE = new THREE.Vector3(1, 1, 1);

@@ -198,4 +198,6 @@ export const TEXTURES: Record<string, TextureRecord> = {
 
 export const WORLD_CELL_SIZE = 4;
 
+export const MODEL_NATIVE_TILE_SIZE = 5;
+
 export const FLOOR_TILE_CODES = [WorldTileCodes.DungeonFloorFull, WorldTileCodes.DungeonFloorFlat];

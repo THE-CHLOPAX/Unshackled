@@ -10,17 +10,20 @@ export function deserializeWorldMap(input: string): WorldOutputData {
   return JSON.parse(input, reviveDataAsMap);
 }
 
-export function loadWorldMap(path?: string): Promise<WorldOutputData> {
+export function loadWorldMap(
+  fileName?: string
+): Promise<{ fileName: string; map: WorldOutputData }> {
   return new Promise((resolve, reject) => {
     ipc.once('load-file-response', (data) => {
-      const { ok, contents } = data;
-      if (!ok || contents === null) reject('Failed to load world map data.');
+      const { ok, contents, path } = data;
+      if (!ok || contents === null || path === null) reject('Failed to load world map data.');
       else {
-        const deserializedData = deserializeWorldMap(contents);
-        resolve(deserializedData);
+        const pathSegments = path.split('/');
+        const fileNameReturned = pathSegments[pathSegments.length - 1];
+        resolve({ fileName: fileNameReturned, map: deserializeWorldMap(contents) });
       }
     });
 
-    ipc.send('load-file-request', { path });
+    ipc.send('load-file-request', { path: fileName });
   });
 }

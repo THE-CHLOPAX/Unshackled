@@ -1,9 +1,10 @@
 import styled from 'styled-components';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { saveWorldMap } from '3D/utils/saveWorldMap';
 import { loadWorldMap } from '3D/utils/loadWorldMap';
 import { WORLD_TILE_DEFINITIONS } from '3D/worldDefinitions';
+import { useWorldEditorStore } from 'renderer/store/useWorldEditorStore';
 
 import { GRADIENTS } from '../constants';
 import { WorldGridCanvas } from './WorldGridCanvas';
@@ -16,6 +17,8 @@ const FIRST_TILE_CODE = WORLD_TILE_DEFINITIONS[0]?.code ?? 0;
 export function WorldEditorView() {
   const grid = useWorldGrid();
 
+  const { lastEditedMapName, setLastEditedMapName } = useWorldEditorStore();
+
   const [selectedCode, setSelectedCode] = useState(FIRST_TILE_CODE);
   const [brushRotation, setBrushRotation] = useState(0);
   const [mapName, setMapName] = useState('untitled');
@@ -27,19 +30,39 @@ export function WorldEditorView() {
     [grid, selectedCode, brushRotation]
   );
 
+  const loadMap = useCallback(
+    async (fileName?: string) => {
+      try {
+        const result = await loadWorldMap(fileName);
+        grid.clear();
+        grid.paintBatch(result.map.data);
+        setMapName(result.fileName.replace('.json', ''));
+        setLastEditedMapName(result.fileName);
+      } catch (error) {
+        window.alert(error + '\nFile name: ' + fileName);
+        setLastEditedMapName(null);
+      }
+    },
+    [grid]
+  );
+
   const handleSave = useCallback(async () => {
     setSaving(true);
     setSaveStatus('Saving…');
-    const result = await saveWorldMap(mapName, grid.toOutput());
+    const { ok, path, error } = await saveWorldMap(mapName, grid.toOutput());
     setSaving(false);
-    setSaveStatus(result.ok ? `Saved to ${result.path}` : `Save failed: ${result.error}`);
+
+    if (ok && path !== undefined) {
+      setSaveStatus(`Saved to ${path}`);
+      setLastEditedMapName(mapName + '.json');
+    } else {
+      setSaveStatus(`Save failed: ${error}`);
+    }
   }, [mapName, grid]);
 
   const handleLoad = useCallback(async () => {
     try {
-      const result = await loadWorldMap();
-      grid.clear();
-      grid.paintBatch(result.data);
+      await loadMap();
     } catch (error) {
       window.alert(error);
     }
@@ -48,6 +71,12 @@ export function WorldEditorView() {
   const handleClear = useCallback(() => {
     if (window.confirm('Clear the whole grid?')) grid.clear();
   }, [grid]);
+
+  // Check if there's lastEditedMapName in store on mount.
+  // If so, load map data file with this name.
+  useEffect(() => {
+    if (lastEditedMapName !== null) loadMap(lastEditedMapName);
+  }, []);
 
   return (
     <BackToViewLayout backToView="MenuView">

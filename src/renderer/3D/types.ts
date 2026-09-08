@@ -84,6 +84,7 @@ export enum WorldTileCodes {
   DungeonFloorFlat = 0x773333,
   DungeonFloorFull = 0x552222,
   DungeonWallBrickTall = 0x888888,
+  DungeonWallBrickTallCorner = 0xaaaaaa,
   DungeonWallTorch = 0xffaa33,
   DungeonDoor = 0x8a5a2b,
   DungeonPillar = 0x5a5a5a,
