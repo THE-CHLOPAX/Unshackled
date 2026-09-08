@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { executeAsyncOperationsWithProgress } from '@tgdf';
 
 import { GameScene } from '../classes/scenes/GameScene/GameScene';
 
@@ -19,25 +18,33 @@ export function useLoadScene(sceneClass: new () => GameScene): UseLoadSceneResul
 
     const nextScene = new sceneClass();
 
-    const buildPromise = nextScene
-      .initializePhysics()
-      .then(() => nextScene.preloadAssets())
-      .then(() => nextScene.completeLevelInitialization());
-
-    const trackedOperations: Array<Promise<unknown>> = [nextScene.preloadAssets(), buildPromise];
-
     const reportProgress = (progress: number): void => {
       if (!cancelled) setLoadingProgress(progress);
     };
 
-    executeAsyncOperationsWithProgress(trackedOperations, reportProgress).then(() => {
-      if (cancelled) {
-        nextScene.dispose();
-        return;
-      }
-      setScene(nextScene);
-      setLoading(false);
-    });
+    nextScene
+      .initializePhysics()
+      .then(() => {
+        reportProgress(0.25);
+        return nextScene.preloadAssets();
+      })
+      .then(() => {
+        reportProgress(0.5);
+        return nextScene.generateLevel();
+      })
+      .then(() => {
+        reportProgress(0.75);
+        return nextScene.completeLevelInitialization();
+      })
+      .then(() => {
+        if (cancelled) {
+          nextScene.dispose();
+          return;
+        }
+        reportProgress(1);
+        setScene(nextScene);
+        setLoading(false);
+      });
 
     return () => {
       cancelled = true;

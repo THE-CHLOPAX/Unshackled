@@ -28,8 +28,9 @@ export class Input {
       isKeyPressed: (key: string) => this._keyboard.isKeyPressed(key),
     },
     mouse: {
-      x: this._mouse.mouseX,
-      y: this._mouse.mouseY,
+      getX: () => this._mouse.mouseX,
+      getY: () => this._mouse.mouseY,
+      getWheelDelta: () => this._mouse.wheelDelta,
       isButtonPressed: (button) => this._mouse.isButtonPressed(button),
     },
     gamepad: {

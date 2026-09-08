@@ -1,10 +1,13 @@
 import { AssetRecord } from '@tgdf';
 
+import { LevelRecord } from '../../types';
 import { GameScene } from './GameScene/GameScene';
 import { Monk } from '../gameObjects/players/Monk/Monk';
 import { MODELS, SPAWNER_IDS, TEXTURES } from '../../constants';
 
 export class DungeonLevelScene extends GameScene {
+  public readonly levelVariants: LevelRecord[] = [];
+
   public readonly preloadedAssets: AssetRecord[] = [
     MODELS.MONK,
     MODELS.DUNGEON_DOOR,

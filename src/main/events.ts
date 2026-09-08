@@ -1,8 +1,8 @@
 import path from 'path';
-import { NativeSaveFileRequest } from '@tgdf';
 import { app, dialog, screen } from 'electron';
 import { readFile, mkdir, writeFile } from 'fs/promises';
 import { Resolution } from '@tgdf/internal-ui/types/graphics';
+import { NativeLoadFileRequest, NativeSaveFileRequest } from '@tgdf';
 
 import { mainWindow, main } from './main';
 import { getZoomFactorForResolution } from './utils/getZoomFactorForResolution';
@@ -16,8 +16,8 @@ export function bindUserEvents(): void {
   main.on('set-resolution-request', onResolutionRequest);
   main.on('set-fullscreen-request', onFullscreenRequest);
   main.on('get-fullscreen-state-request', onGetFullscreenStateRequest);
-  main.on('save-file-request', onSaveWorldMapRequest);
-  main.on('load-file-request', onLoadWorldMapRequest);
+  main.on('save-file-request', onSaveFileRequest);
+  main.on('load-file-request', onLoadFileRequest);
 
   if (!mainWindow) {
     return;
@@ -90,7 +90,7 @@ export function onFullscreenRequest(request: {
   mainWindow.setFullScreen(fullscreen);
 }
 
-export async function onSaveWorldMapRequest(request: NativeSaveFileRequest): Promise<void> {
+export async function onSaveFileRequest(request: NativeSaveFileRequest): Promise<void> {
   try {
     const slug =
       request.name
@@ -110,19 +110,26 @@ export async function onSaveWorldMapRequest(request: NativeSaveFileRequest): Pro
   }
 }
 
-export async function onLoadWorldMapRequest(): Promise<void> {
+export async function onLoadFileRequest(request: NativeLoadFileRequest): Promise<void> {
   try {
-    const result = await dialog.showOpenDialog({
-      properties: ['openFile'],
-      filters: [{ name: 'Json files', extensions: ['json'] }],
-    });
+    let filePath: string;
+    const directory = path.join(app.getAppPath(), WORLD_MAPS_DIR);
 
-    if (result.canceled) return;
+    if (request.path !== undefined) {
+      filePath = path.join(directory, request.path);
+    } else {
+      const result = await dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [{ name: 'Json files', extensions: ['json'] }],
+      });
 
-    const path = result.filePaths[0];
-    const contents = await readFile(path, 'utf8');
+      if (result.canceled) return;
+      filePath = result.filePaths[0];
+    }
 
-    main.send('load-file-response', { ok: true, path, contents });
+    const contents = await readFile(filePath, 'utf8');
+
+    main.send('load-file-response', { ok: true, path: filePath, contents });
   } catch (_error) {
     main.send('load-file-response', { ok: false, path: null, contents: null });
   }

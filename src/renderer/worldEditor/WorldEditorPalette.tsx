@@ -1,13 +1,12 @@
 import styled from 'styled-components';
 import { InternalButton, InternalFlex, InternalInput, InternalText } from '@tgdf';
 
+import { WorldObjectDefinition, WorldTileCodes } from 'renderer/3D/types';
+import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from '3D/worldDefinitions';
+
 import { COLORS } from '../constants';
-import {
-  CELL_ROTATIONS,
-  codeToCssHex,
-  EMPTY_CELL_CODE,
-  WORLD_GEN_TILE_DEFINITIONS,
-} from './const';
+import { CELL_ROTATIONS } from './const';
+import { codeToCssHex } from './utils/codeToCssHex';
 
 type WorldEditorPaletteProps = {
   selectedCode: number;
@@ -22,6 +21,63 @@ type WorldEditorPaletteProps = {
   saving: boolean;
   saveStatus: string | null;
 };
+
+type DefinitionRowProps = {
+  definition: WorldObjectDefinition;
+  active: boolean;
+  onSelect: (code: number) => void;
+};
+
+function DefinitionRow({ definition, active, onSelect }: DefinitionRowProps) {
+  return (
+    <PaletteRow $active={active} onClick={() => onSelect(definition.code)}>
+      <Swatch style={{ background: codeToCssHex(definition.code) }} />
+      <InternalFlex direction="column">
+        <InternalText size="sm" color={COLORS.FONT_COLOR_HIGHLIGHT}>
+          {definition.label}
+        </InternalText>
+        <InternalText size="xs" color={COLORS.FONT_COLOR_PRIMARY}>
+          {codeToCssHex(definition.code)}
+        </InternalText>
+      </InternalFlex>
+    </PaletteRow>
+  );
+}
+
+type PaletteSectionProps = {
+  title: string;
+  definitions: WorldObjectDefinition[];
+  selectedCode: number;
+  onSelectCode: (code: number) => void;
+  children?: React.ReactNode;
+};
+
+function PaletteSection({
+  title,
+  definitions,
+  selectedCode,
+  onSelectCode,
+  children,
+}: PaletteSectionProps) {
+  return (
+    <InternalFlex direction="column" gap={8}>
+      <InternalText size="lg" weight="semibold" color={COLORS.FONT_COLOR_PRIMARY}>
+        {title}
+      </InternalText>
+      <InternalFlex direction="column" gap={4}>
+        {children}
+        {definitions.map((definition) => (
+          <DefinitionRow
+            key={definition.code}
+            definition={definition}
+            active={selectedCode === definition.code}
+            onSelect={onSelectCode}
+          />
+        ))}
+      </InternalFlex>
+    </InternalFlex>
+  );
+}
 
 export function WorldEditorPalette({
   selectedCode,
@@ -38,40 +94,29 @@ export function WorldEditorPalette({
 }: WorldEditorPaletteProps) {
   return (
     <InternalFlex direction="column" gap={16} style={{ width: 260 }}>
-      <InternalText size="lg" weight="semibold" color={COLORS.FONT_COLOR_PRIMARY}>
-        Tiles
-      </InternalText>
-
-      <InternalFlex direction="column" gap={4}>
+      <PaletteSection
+        title="Tiles"
+        definitions={WORLD_TILE_DEFINITIONS}
+        selectedCode={selectedCode}
+        onSelectCode={onSelectCode}
+      >
         <PaletteRow
-          $active={selectedCode === EMPTY_CELL_CODE}
-          onClick={() => onSelectCode(EMPTY_CELL_CODE)}
+          $active={selectedCode === WorldTileCodes.Empty}
+          onClick={() => onSelectCode(WorldTileCodes.Empty)}
         >
           <Swatch style={{ background: 'transparent', borderStyle: 'dashed' }} />
           <InternalText size="sm" color={COLORS.FONT_COLOR_HIGHLIGHT}>
             Eraser
           </InternalText>
         </PaletteRow>
+      </PaletteSection>
 
-        {WORLD_GEN_TILE_DEFINITIONS.map((definition) => (
-          <PaletteRow
-            key={definition.code}
-            $active={selectedCode === definition.code}
-            onClick={() => onSelectCode(definition.code)}
-          >
-            <Swatch style={{ background: codeToCssHex(definition.code) }} />
-            <InternalFlex direction="column">
-              <InternalText size="sm" color={COLORS.FONT_COLOR_HIGHLIGHT}>
-                {definition.label}
-              </InternalText>
-              <InternalText size="xs" color={COLORS.FONT_COLOR_PRIMARY}>
-                {codeToCssHex(definition.code)}
-                {definition.modelId ? ` · ${definition.modelId}` : ' · marker'}
-              </InternalText>
-            </InternalFlex>
-          </PaletteRow>
-        ))}
-      </InternalFlex>
+      <PaletteSection
+        title="Props"
+        definitions={WORLD_PROP_DEFINITIONS}
+        selectedCode={selectedCode}
+        onSelectCode={onSelectCode}
+      />
 
       <InternalFlex direction="column" gap={6}>
         <InternalText size="sm" weight="medium">

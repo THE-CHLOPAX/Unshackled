@@ -6,6 +6,8 @@ export type NativeLoadFileResponse = { ok: boolean; path: string | null; content
 
 export type NativeSaveFileRequest = { name: string; json: string };
 
+export type NativeLoadFileRequest = { path: string | undefined };
+
 export type NativeEventMainMap = {
   'set-resolution-response': { resolution: Resolution };
   'set-fullscreen-response': { fullscreen: boolean };
@@ -20,5 +22,5 @@ export type NativeEventRendererMap = {
   'set-fullscreen-request': { fullscreen: boolean; resolution: Resolution };
   'get-fullscreen-state-request': undefined;
   'save-file-request': NativeSaveFileRequest;
-  'load-file-request': undefined;
+  'load-file-request': NativeLoadFileRequest;
 };

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { RigidBodyOptions } from '@tgdf';
 
-import { ModelRecord, TextureRecord } from './types';
+import { ModelRecord, TextureRecord, WorldTileCodes } from './types';
 
 // Default camera position relative to its pivot point, e.g. for an isometric-style view.
 export const CAMERA_POSITION_OFFSET = new THREE.Vector3(6, 6, 6);
@@ -139,14 +139,12 @@ export const MODELS: Record<string, ModelRecord> = {
     id: 'model_dungeon_wall_brick_tall',
     path: './assets/models/model_dungeon_wall_brick_tall.fbx',
     nameExtractor: 'WallBrick_Tall_01_001',
-    centerOrigin: false,
   },
   DUNGEON_FLOOR: {
     type: 'model',
     id: 'model_dungeon_floor',
     path: './assets/models/model_dungeon_floor.fbx',
     nameExtractor: 'Floor_Corner_01_001',
-    centerOrigin: false,
   },
   DUNGEON_PLINTH: {
     type: 'model',
@@ -197,3 +195,7 @@ export const TEXTURES: Record<string, TextureRecord> = {
     path: './assets/textures/BAKE_Walls_DiffuseMap-%204K.png',
   },
 };
+
+export const WORLD_CELL_SIZE = 4;
+
+export const FLOOR_TILE_CODES = [WorldTileCodes.DungeonFloorFull, WorldTileCodes.DungeonFloorFlat];

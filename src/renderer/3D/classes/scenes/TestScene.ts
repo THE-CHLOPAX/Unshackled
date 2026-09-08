@@ -1,19 +1,31 @@
 import * as THREE from 'three';
-import { AssetRecord } from '@tgdf';
+import { assert, AssetRecord } from '@tgdf';
 
+import { LevelRecord } from 'renderer/3D/types';
 import { MODELS, TEXTURES } from 'renderer/3D/constants';
+import { GENERATED_LEVEL_GROUP_NAME } from 'renderer/3D/utils/generateChunkedLevel';
 
 import { GameScene } from './GameScene/GameScene';
-import { Monk } from '../gameObjects/players/Monk/Monk';
+import { OrtographicCameraOptions } from '../cameras/OrtographicCamera';
+import { FreeOrtographicCamera } from '../cameras/FreeOrtographicCamera';
+//import { Monk } from '../gameObjects/players/Monk/Monk';
 
 export class TestScene extends GameScene {
+  public readonly levelVariants: LevelRecord[] = [{ url: 'test.json' }];
+
   public readonly preloadedAssets: AssetRecord[] = [
     MODELS.MONK,
     MODELS.SKELETON,
     TEXTURES.EXPLOSION,
     TEXTURES.ARCANE_CIRCLE,
+    MODELS.DUNGEON_FLOOR,
+    MODELS.DUNGEON_WALL_BRICK_TALL,
     MODELS.DUNGEON_WALL_TORCH,
   ];
+
+  protected override createCamera(options: OrtographicCameraOptions): FreeOrtographicCamera {
+    return new FreeOrtographicCamera(options);
+  }
 
   constructor() {
     super();
@@ -28,9 +40,15 @@ export class TestScene extends GameScene {
   }
 
   protected override onInit(): void {
-    const monk = new Monk(this);
-    this.add(monk);
+    const levelGroup = this.getObjectByName(GENERATED_LEVEL_GROUP_NAME);
+    assert(levelGroup !== undefined, 'Generated level group not found in scene');
 
-    this.camera.follow(monk);
+    const bbox = new THREE.Box3().setFromObject(levelGroup);
+    const levelCenter = new THREE.Vector3();
+    bbox.getCenter(levelCenter);
+
+    this.camera.setZoom(0.5);
+
+    this.camera.moveTo(levelCenter);
   }
 }

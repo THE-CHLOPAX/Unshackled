@@ -1,9 +1,10 @@
 import styled from 'styled-components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { WorldGeneratorCell } from './types';
-import { vec2toIndex } from './utils/vec2ToIndex';
-import { codeToCssHex, EMPTY_CELL_CODE } from './const';
+import { vec2toIndex } from '3D/utils/vec2ToIndex';
+import { WorldCell, WorldTileCodes } from '3D/types';
+
+import { codeToCssHex } from './utils/codeToCssHex';
 
 const CELL_PX = 12;
 const GRID_LINE_COLOR = 'rgba(255, 255, 255, 0.12)';
@@ -12,7 +13,7 @@ const HOVER_COLOR = 'rgba(255, 255, 255, 0.6)';
 const EMPTY_FILL = '#1b1712';
 
 type WorldGridCanvasProps = {
-  cellsRef: React.MutableRefObject<WorldGeneratorCell[]>;
+  cellsRef: React.MutableRefObject<WorldCell[]>;
   version: number;
   gridSize: number;
   paintAt: (index: number) => void;
@@ -98,7 +99,7 @@ export function WorldGridCanvas({
 
     for (let index = 0; index < cells.length; index++) {
       const cell = cells[index];
-      if (cell.code === EMPTY_CELL_CODE) continue;
+      if (cell.code === WorldTileCodes.Empty) continue;
 
       const col = index % gridSize;
       const row = Math.floor(index / gridSize);
@@ -111,7 +112,7 @@ export function WorldGridCanvas({
     ctx.lineWidth = 2;
     for (let index = 0; index < cells.length; index++) {
       const cell = cells[index];
-      if (cell.code === EMPTY_CELL_CODE) continue;
+      if (cell.code === WorldTileCodes.Empty) continue;
       drawRotationTick(ctx, index % gridSize, Math.floor(index / gridSize), cell.rotation);
     }
 

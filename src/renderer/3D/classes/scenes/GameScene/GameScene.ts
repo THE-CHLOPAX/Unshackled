@@ -1,17 +1,22 @@
 import * as THREE from 'three';
-import { AssetRecord, Scene } from '@tgdf';
+import { assert, AssetRecord, Scene } from '@tgdf';
 
-import { WorldGeneratorOutput } from 'renderer/worldEditor/types';
+import { LevelRecord } from '3D/types';
+import { loadWorldMap } from '3D/utils/loadWorldMap';
 import { MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
+import { generateChunkedLevel } from '3D/utils/generateChunkedLevel';
 
 import { loadAssetRecord } from './loadAssetRecord';
 import { ShadersManager } from './ShadersManager/ShadersManager';
-import { OrtographicCamera } from '../../cameras/OrtographicCamera';
+import { OrtographicCamera, OrtographicCameraOptions } from '../../cameras/OrtographicCamera';
 
 const GAME_GRAVITY = new THREE.Vector3(0, -9.81, 0);
+const LEVEL_CHUNK_SIZE = 8;
 
 export abstract class GameScene extends Scene {
   public camera: OrtographicCamera;
+
+  public abstract readonly levelVariants: LevelRecord[];
   public abstract readonly preloadedAssets: AssetRecord[];
 
   private _shadersManager = new ShadersManager();
@@ -22,7 +27,7 @@ export abstract class GameScene extends Scene {
     const aspectRatio = window.innerWidth / window.innerHeight;
     const frustumSize = 9;
 
-    this.camera = new OrtographicCamera({
+    this.camera = this.createCamera({
       left: (-frustumSize * aspectRatio) / 2,
       right: (frustumSize * aspectRatio) / 2,
       top: frustumSize / 2,
@@ -39,6 +44,10 @@ export abstract class GameScene extends Scene {
     );
   }
 
+  protected createCamera(options: OrtographicCameraOptions): OrtographicCamera {
+    return new OrtographicCamera(options);
+  }
+
   public async initializePhysics(): Promise<void> {
     await this.initializePhysicsWorld(GAME_GRAVITY);
   }
@@ -48,7 +57,20 @@ export abstract class GameScene extends Scene {
     return Promise.resolve();
   }
 
-  public async generateLevel(_worldEditorData: WorldGeneratorOutput): Promise<void> {}
+  public async generateLevel(): Promise<void> {
+    try {
+      const randomizedIndex = Math.floor(Math.random() * this.levelVariants.length);
+      const randomizedLevelVariant = this.levelVariants[randomizedIndex];
+
+      const levelData = await loadWorldMap(randomizedLevelVariant.url);
+      const { floorGroup } = await generateChunkedLevel(this, levelData, LEVEL_CHUNK_SIZE);
+      assert(floorGroup.isGroup);
+      await this.initializeNavMeshManager(floorGroup);
+      return Promise.resolve();
+    } catch (error) {
+      throw new Error(String(error));
+    }
+  }
 
   public async completeLevelInitialization(): Promise<void> {
     if (!this.navMeshManager || !this.physics) {

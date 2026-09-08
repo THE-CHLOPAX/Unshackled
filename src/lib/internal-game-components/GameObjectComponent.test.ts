@@ -58,7 +58,12 @@ describe('GameObjectComponent', () => {
   beforeEach(() => {
     inputState = {
       keyboard: { isKeyPressed: vi.fn().mockReturnValue(false) },
-      mouse: { x: 0, y: 0, isButtonPressed: vi.fn().mockReturnValue(false) },
+      mouse: {
+        getX: () => 0,
+        getY: () => 0,
+        getWheelDelta: () => 0,
+        isButtonPressed: vi.fn().mockReturnValue(false),
+      },
       gamepad: {
         isButtonPressed: vi.fn().mockReturnValue(false),
         getAxisValue: vi.fn().mockReturnValue(0),

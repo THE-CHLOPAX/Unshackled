@@ -1,28 +1,29 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { EMPTY_CELL_CODE, WORLD_GEN_GRID_SIZE } from '../const';
-import { WorldGeneratorCell, WorldGeneratorOutput } from '../types';
+import { WorldCell, WorldOutputData, WorldTileCodes } from '3D/types';
 
-const CELL_COUNT = WORLD_GEN_GRID_SIZE * WORLD_GEN_GRID_SIZE;
+import { WORLD_GRID_SIZE } from '../const';
 
-function createEmptyCells(): WorldGeneratorCell[] {
-  return Array.from({ length: CELL_COUNT }, () => ({ code: EMPTY_CELL_CODE, rotation: 0 }));
+const CELL_COUNT = WORLD_GRID_SIZE * WORLD_GRID_SIZE;
+
+function createEmptyCells(): WorldCell[] {
+  return Array.from({ length: CELL_COUNT }, () => ({ code: WorldTileCodes.Empty, rotation: 0 }));
 }
 
 export type WorldGridApi = {
-  cellsRef: React.MutableRefObject<WorldGeneratorCell[]>;
+  cellsRef: React.MutableRefObject<WorldCell[]>;
   version: number;
   gridSize: number;
   paint: (index: number, code: number, rotation: number) => void;
-  paintBatch: (cells: WorldGeneratorCell[]) => void;
+  paintBatch: (cells: WorldCell[]) => void;
   erase: (index: number) => void;
   rotateAt: (index: number) => void;
   clear: () => void;
-  toOutput: () => WorldGeneratorOutput;
+  toOutput: () => WorldOutputData;
 };
 
 export function useWorldGrid(): WorldGridApi {
-  const cellsRef = useRef<WorldGeneratorCell[]>(createEmptyCells());
+  const cellsRef = useRef<WorldCell[]>(createEmptyCells());
   const [version, setVersion] = useState(0);
 
   const bump = useCallback(() => setVersion((value) => value + 1), []);
@@ -38,7 +39,7 @@ export function useWorldGrid(): WorldGridApi {
   );
 
   const paintBatch = useCallback(
-    (cells: WorldGeneratorCell[]) => {
+    (cells: WorldCell[]) => {
       cells.forEach((cell, index) => {
         const { code, rotation } = cell;
         cellsRef.current[index] = { code, rotation };
@@ -51,8 +52,8 @@ export function useWorldGrid(): WorldGridApi {
   const erase = useCallback(
     (index: number) => {
       const cell = cellsRef.current[index];
-      if (!cell || cell.code === EMPTY_CELL_CODE) return;
-      cellsRef.current[index] = { code: EMPTY_CELL_CODE, rotation: 0 };
+      if (!cell || cell.code === WorldTileCodes.Empty) return;
+      cellsRef.current[index] = { code: WorldTileCodes.Empty, rotation: 0 };
       bump();
     },
     [bump]
@@ -61,7 +62,7 @@ export function useWorldGrid(): WorldGridApi {
   const rotateAt = useCallback(
     (index: number) => {
       const cell = cellsRef.current[index];
-      if (!cell || cell.code === EMPTY_CELL_CODE) return;
+      if (!cell || cell.code === WorldTileCodes.Empty) return;
       cellsRef.current[index] = { code: cell.code, rotation: (cell.rotation + 90) % 360 };
       bump();
     },
@@ -73,20 +74,25 @@ export function useWorldGrid(): WorldGridApi {
     bump();
   }, [bump]);
 
-  const toOutput = useCallback(
-    (): WorldGeneratorOutput => ({
-      width: WORLD_GEN_GRID_SIZE,
-      height: WORLD_GEN_GRID_SIZE,
-      data: cellsRef.current.map((cell) => ({ code: cell.code, rotation: cell.rotation })),
-    }),
-    []
-  );
+  const toOutput = useCallback((): WorldOutputData => {
+    const data = new Map<number, WorldCell>();
+
+    cellsRef.current.forEach((cell, index) =>
+      data.set(index, { code: cell.code, rotation: cell.rotation })
+    );
+
+    return {
+      width: WORLD_GRID_SIZE,
+      height: WORLD_GRID_SIZE,
+      data,
+    };
+  }, []);
 
   return useMemo(
     () => ({
       cellsRef,
       version,
-      gridSize: WORLD_GEN_GRID_SIZE,
+      gridSize: WORLD_GRID_SIZE,
       paint,
       paintBatch,
       erase,

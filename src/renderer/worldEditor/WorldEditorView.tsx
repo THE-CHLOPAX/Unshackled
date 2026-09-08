@@ -1,16 +1,17 @@
 import styled from 'styled-components';
 import { useCallback, useState } from 'react';
 
+import { saveWorldMap } from '3D/utils/saveWorldMap';
+import { loadWorldMap } from '3D/utils/loadWorldMap';
+import { WORLD_TILE_DEFINITIONS } from '3D/worldDefinitions';
+
 import { GRADIENTS } from '../constants';
-import { saveWorldMap } from './saveWorldMap';
-import { loadWorldMap } from './loadWorldMap';
 import { WorldGridCanvas } from './WorldGridCanvas';
 import { useWorldGrid } from './hooks/useWorldGrid';
-import { WORLD_GEN_TILE_DEFINITIONS } from './const';
 import { WorldEditorPalette } from './WorldEditorPalette';
 import { BackToViewLayout } from '../ui/layouts/BackToViewLayout';
 
-const FIRST_TILE_CODE = WORLD_GEN_TILE_DEFINITIONS[0]?.code ?? 0;
+const FIRST_TILE_CODE = WORLD_TILE_DEFINITIONS[0]?.code ?? 0;
 
 export function WorldEditorView() {
   const grid = useWorldGrid();
@@ -38,7 +39,7 @@ export function WorldEditorView() {
     try {
       const result = await loadWorldMap();
       grid.clear();
-      grid.paintBatch(result.data);
+      grid.paintBatch(Array.from(result.data.values()));
     } catch (error) {
       window.alert(error);
     }
