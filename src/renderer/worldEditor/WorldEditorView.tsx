@@ -21,21 +21,37 @@ export function WorldEditorView() {
 
   const [selectedCode, setSelectedCode] = useState(FIRST_TILE_CODE);
   const [brushRotation, setBrushRotation] = useState(0);
+  const [activeLayer, setActiveLayer] = useState(0);
   const [mapName, setMapName] = useState('untitled');
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
+  const changeLayer = useCallback(
+    (layer: number) => setActiveLayer(Math.max(0, Math.min(grid.layerCount - 1, layer))),
+    [grid.layerCount]
+  );
+
   const paintAt = useCallback(
-    (index: number) => grid.paint(index, selectedCode, brushRotation),
-    [grid, selectedCode, brushRotation]
+    (index: number) => grid.paint(activeLayer, index, selectedCode, brushRotation),
+    [grid, activeLayer, selectedCode, brushRotation]
+  );
+
+  const eraseAt = useCallback(
+    (index: number) => grid.erase(activeLayer, index),
+    [grid, activeLayer]
+  );
+
+  const rotateAt = useCallback(
+    (index: number) => grid.rotateAt(activeLayer, index),
+    [grid, activeLayer]
   );
 
   const loadMap = useCallback(
     async (fileName?: string) => {
       try {
         const result = await loadWorldMap(fileName);
-        grid.clear();
-        grid.paintBatch(result.map.data);
+        grid.clearAll();
+        grid.paintBatch(result.map.layers);
         setMapName(result.fileName.replace('.json', ''));
         setLastEditedMapName(result.fileName);
       } catch (error) {
@@ -68,8 +84,12 @@ export function WorldEditorView() {
     }
   }, []);
 
-  const handleClear = useCallback(() => {
-    if (window.confirm('Clear the whole grid?')) grid.clear();
+  const handleClearLayer = useCallback(() => {
+    if (window.confirm(`Clear layer ${activeLayer}?`)) grid.clearLayer(activeLayer);
+  }, [grid, activeLayer]);
+
+  const handleClearAll = useCallback(() => {
+    if (window.confirm('Clear every layer?')) grid.clearAll();
   }, [grid]);
 
   // Check if there's lastEditedMapName in store on mount.
@@ -83,12 +103,13 @@ export function WorldEditorView() {
       <StyledWrapper>
         <CanvasArea>
           <WorldGridCanvas
-            cellsRef={grid.cellsRef}
+            layersRef={grid.layersRef}
             version={grid.version}
             gridSize={grid.gridSize}
+            activeLayer={activeLayer}
             paintAt={paintAt}
-            eraseAt={grid.erase}
-            rotateAt={grid.rotateAt}
+            eraseAt={eraseAt}
+            rotateAt={rotateAt}
           />
         </CanvasArea>
 
@@ -98,11 +119,15 @@ export function WorldEditorView() {
             onSelectCode={setSelectedCode}
             brushRotation={brushRotation}
             onSelectRotation={setBrushRotation}
+            activeLayer={activeLayer}
+            layerCount={grid.layerCount}
+            onChangeLayer={changeLayer}
             mapName={mapName}
             onMapNameChange={setMapName}
             onSave={handleSave}
             onLoad={handleLoad}
-            onClear={handleClear}
+            onClearLayer={handleClearLayer}
+            onClearAll={handleClearAll}
             saving={saving}
             saveStatus={saveStatus}
           />

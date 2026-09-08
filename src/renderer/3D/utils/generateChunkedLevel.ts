@@ -55,15 +55,17 @@ function getChunkedCells(
   worldData: WorldOutputData,
   chunkBoundaries: WorldChunkBoundary[]
 ): ChunkCell[][] {
-  const { data, width } = worldData;
+  const { layers, width } = worldData;
   return chunkBoundaries.map(({ start, end }) => {
     const chunkCells: ChunkCell[] = [];
     for (let x = start.x; x < end.x; x++) {
       for (let z = start.z; z < end.z; z++) {
         const index = vec2toIndex(x, z, width);
-        const cell = data.get(index);
-        if (cell === undefined) continue;
-        chunkCells.push({ ...cell, x, z });
+        for (const layer of layers) {
+          const cell = layer.get(index);
+          if (cell === undefined) continue;
+          chunkCells.push({ ...cell, x, z });
+        }
       }
     }
     return chunkCells;

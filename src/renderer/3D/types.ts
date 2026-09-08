@@ -115,15 +115,18 @@ export type WorldObjectDefinition = InstancedWorldObjectDefinition | EntityWorld
 
 export type WorldVec2 = { x: number; z: number };
 
+export const WORLD_LAYER_COUNT = 3;
+
 export type WorldCell = {
   code: number;
   rotation: number;
 };
 
 export type WorldOutputData = {
+  version: 2;
   width: number;
   height: number;
-  data: Map<number, WorldCell>;
+  layers: Map<number, WorldCell>[];
 };
 
 export type WorldChunkBoundary = {

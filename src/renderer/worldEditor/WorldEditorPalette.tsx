@@ -13,10 +13,14 @@ type WorldEditorPaletteProps = {
   onSelectCode: (code: number) => void;
   brushRotation: number;
   onSelectRotation: (rotation: number) => void;
+  activeLayer: number;
+  layerCount: number;
+  onChangeLayer: (layer: number) => void;
   mapName: string;
   onMapNameChange: (name: string) => void;
   onSave: () => void;
-  onClear: () => void;
+  onClearLayer: () => void;
+  onClearAll: () => void;
   onLoad: () => void;
   saving: boolean;
   saveStatus: string | null;
@@ -84,10 +88,14 @@ export function WorldEditorPalette({
   onSelectCode,
   brushRotation,
   onSelectRotation,
+  activeLayer,
+  layerCount,
+  onChangeLayer,
   mapName,
   onMapNameChange,
   onSave,
-  onClear,
+  onClearLayer,
+  onClearAll,
   onLoad,
   saving,
   saveStatus,
@@ -117,6 +125,32 @@ export function WorldEditorPalette({
         selectedCode={selectedCode}
         onSelectCode={onSelectCode}
       />
+
+      <InternalFlex direction="column" gap={6}>
+        <InternalText size="sm" color={COLORS.FONT_COLOR_HIGHLIGHT} weight="medium">
+          Active layer
+        </InternalText>
+        <InternalFlex direction="row" gap={8} align="center">
+          <InternalButton
+            label="−"
+            variant="outline"
+            onClick={() => onChangeLayer(activeLayer - 1)}
+            disabled={activeLayer <= 0}
+          />
+          <InternalText size="sm" weight="semibold" color={COLORS.FONT_COLOR_HIGHLIGHT}>
+            {activeLayer} / {layerCount - 1}
+          </InternalText>
+          <InternalButton
+            label="+"
+            variant="outline"
+            onClick={() => onChangeLayer(activeLayer + 1)}
+            disabled={activeLayer >= layerCount - 1}
+          />
+        </InternalFlex>
+        <InternalText size="xs" color={COLORS.FONT_COLOR_DIMMED}>
+          Painting affects the active layer only · lower layers stay visible dimmed
+        </InternalText>
+      </InternalFlex>
 
       <InternalFlex direction="column" gap={6}>
         <InternalText size="sm" weight="medium">
@@ -151,7 +185,15 @@ export function WorldEditorPalette({
       <InternalFlex direction="row" gap={8}>
         <InternalButton label="Load" onClick={onLoad} />
         <InternalButton label={saving ? 'Saving…' : 'Save'} onClick={onSave} disabled={saving} />
-        <InternalButton label="Clear" variant="outline" onClick={onClear} />
+      </InternalFlex>
+
+      <InternalFlex direction="row" gap={8}>
+        <InternalButton
+          label={`Clear layer ${activeLayer}`}
+          variant="outline"
+          onClick={onClearLayer}
+        />
+        <InternalButton label="Clear all" variant="outline" onClick={onClearAll} />
       </InternalFlex>
 
       {saveStatus ? (

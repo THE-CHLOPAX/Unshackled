@@ -1,13 +1,35 @@
 import { ipc } from '@tgdf';
 
-import { WorldCell, WorldOutputData } from '../types';
+import { WorldCell, WorldOutputData, WORLD_LAYER_COUNT } from '../types';
 
-function reviveDataAsMap(key: string, value: unknown): unknown {
-  return key === 'data' ? new Map(value as [number, WorldCell][]) : value;
+type RawWorldData = {
+  version?: number;
+  width: number;
+  height: number;
+  data?: Map<number, WorldCell>;
+  layers?: Map<number, WorldCell>[];
+};
+
+function reviveWorldMap(key: string, value: unknown): unknown {
+  if (key === 'data' && Array.isArray(value)) {
+    return new Map(value as [number, WorldCell][]);
+  }
+  if (key === 'layers' && Array.isArray(value)) {
+    return (value as [number, WorldCell][][]).map((entries) => new Map(entries));
+  }
+  return value;
+}
+
+function migrateWorldMap(parsed: RawWorldData): WorldOutputData {
+  const source = parsed.layers ?? [parsed.data ?? new Map<number, WorldCell>()];
+  const layers = source.slice(0, WORLD_LAYER_COUNT);
+  while (layers.length < WORLD_LAYER_COUNT) layers.push(new Map<number, WorldCell>());
+
+  return { version: 2, width: parsed.width, height: parsed.height, layers };
 }
 
 export function deserializeWorldMap(input: string): WorldOutputData {
-  return JSON.parse(input, reviveDataAsMap);
+  return migrateWorldMap(JSON.parse(input, reviveWorldMap) as RawWorldData);
 }
 
 export function loadWorldMap(

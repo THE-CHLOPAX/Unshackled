@@ -11,11 +11,13 @@ const GRID_LINE_COLOR = 'rgba(255, 255, 255, 0.12)';
 const ROTATION_TICK_COLOR = 'rgba(255, 255, 255, 0.85)';
 const HOVER_COLOR = 'rgba(255, 255, 255, 0.6)';
 const EMPTY_FILL = '#1b1712';
+const UNDERLAY_ALPHA = 0.4;
 
 type WorldGridCanvasProps = {
-  cellsRef: React.MutableRefObject<WorldCell[]>;
+  layersRef: React.MutableRefObject<WorldCell[][]>;
   version: number;
   gridSize: number;
+  activeLayer: number;
   paintAt: (index: number) => void;
   eraseAt: (index: number) => void;
   rotateAt: (index: number) => void;
@@ -46,9 +48,10 @@ function drawRotationTick(
 }
 
 export function WorldGridCanvas({
-  cellsRef,
+  layersRef,
   version,
   gridSize,
+  activeLayer,
   paintAt,
   eraseAt,
   rotateAt,
@@ -92,30 +95,40 @@ export function WorldGridCanvas({
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
 
-    const cells = cellsRef.current;
+    const layers = layersRef.current;
 
+    ctx.globalAlpha = 1;
     ctx.fillStyle = EMPTY_FILL;
     ctx.fillRect(0, 0, pixelSize, pixelSize);
 
-    for (let index = 0; index < cells.length; index++) {
-      const cell = cells[index];
-      if (cell.code === WorldTileCodes.Empty) continue;
+    for (let layer = 0; layer <= activeLayer && layer < layers.length; layer++) {
+      const cells = layers[layer];
+      const isActive = layer === activeLayer;
 
-      const col = index % gridSize;
-      const row = Math.floor(index / gridSize);
+      ctx.globalAlpha = isActive ? 1 : UNDERLAY_ALPHA;
+      for (let index = 0; index < cells.length; index++) {
+        const cell = cells[index];
+        if (cell.code === WorldTileCodes.Empty) continue;
 
-      ctx.fillStyle = codeToCssHex(cell.code);
-      ctx.fillRect(col * CELL_PX, row * CELL_PX, CELL_PX, CELL_PX);
+        const col = index % gridSize;
+        const row = Math.floor(index / gridSize);
+
+        ctx.fillStyle = codeToCssHex(cell.code);
+        ctx.fillRect(col * CELL_PX, row * CELL_PX, CELL_PX, CELL_PX);
+      }
+
+      if (!isActive) continue;
+
+      ctx.strokeStyle = ROTATION_TICK_COLOR;
+      ctx.lineWidth = 2;
+      for (let index = 0; index < cells.length; index++) {
+        const cell = cells[index];
+        if (cell.code === WorldTileCodes.Empty) continue;
+        drawRotationTick(ctx, index % gridSize, Math.floor(index / gridSize), cell.rotation);
+      }
     }
 
-    ctx.strokeStyle = ROTATION_TICK_COLOR;
-    ctx.lineWidth = 2;
-    for (let index = 0; index < cells.length; index++) {
-      const cell = cells[index];
-      if (cell.code === WorldTileCodes.Empty) continue;
-      drawRotationTick(ctx, index % gridSize, Math.floor(index / gridSize), cell.rotation);
-    }
-
+    ctx.globalAlpha = 1;
     ctx.strokeStyle = GRID_LINE_COLOR;
     ctx.lineWidth = 1;
     for (let line = 0; line <= gridSize; line++) {
@@ -140,7 +153,7 @@ export function WorldGridCanvas({
         CELL_PX - 2
       );
     }
-  }, [version, gridSize, pixelSize, cellsRef, hoveredIndex]);
+  }, [version, gridSize, pixelSize, layersRef, hoveredIndex, activeLayer]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
