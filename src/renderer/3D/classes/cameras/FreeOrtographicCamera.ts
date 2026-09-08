@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { OrtographicCamera, OrtographicCameraOptions } from './OrtographicCamera';
 
 const WORLD_UP = new THREE.Vector3(0, 1, 0);
-const DEFAULT_PAN_SPEED = 12;
+const DEFAULT_PAN_SPEED = 18;
 
 export type FreeOrtographicCameraOptions = OrtographicCameraOptions & {
   panSpeed?: number;

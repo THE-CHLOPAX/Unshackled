@@ -80,16 +80,21 @@ export type GameCamera = SceneCamera & {
 };
 
 export enum WorldTileCodes {
-  Empty = 0,
+  // Dungeon
   DungeonFloorFlat = 0x773333,
   DungeonFloorFull = 0x552222,
+  DungeonFloorFullElevated = 0x663333,
   DungeonWallBrickTall = 0x888888,
   DungeonWallBrickTallCorner = 0xaaaaaa,
   DungeonWallTorch = 0xffaa33,
   DungeonDoor = 0x8a5a2b,
   DungeonPillar = 0x5a5a5a,
+  DungeonPillarCorner = 0x6b6b6b,
+  // Shared
+  Empty = 0,
   SpawnMarker = 0x00ff00,
   LevelEndMarker = 0xff00ff,
+  Flame = 0xff0000,
 }
 
 export type WorldObjectDefitionBase = {

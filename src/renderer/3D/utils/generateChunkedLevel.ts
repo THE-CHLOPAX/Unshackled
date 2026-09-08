@@ -13,6 +13,7 @@ import {
   WorldOutputData,
   WorldTileCodes,
   LevelGeneratedData,
+  EntityWorldObjectDefinition,
 } from '../types';
 
 export const GENERATED_LEVEL_GROUP_NAME = 'generated-level';
@@ -79,6 +80,7 @@ function buildChunk(
 ): void {
   const instancedCellsByCode = groupInstancedCellsByCode(chunkCells);
 
+  // Build instanced objects
   instancedCellsByCode.forEach((cells, code) => {
     const definition = WORLD_OBJECT_DEFINITIONS.find((def) => def.code === code);
     assert(
@@ -120,7 +122,29 @@ function buildChunk(
     parent.add(instancedMesh);
   });
 
-  // Build entity world objects
+  // Build entity objects
+  const entityCells = chunkCells.filter((cell) => !isInstancedCell(cell.code));
+  entityCells.forEach((cell) => {
+    const definition = WORLD_OBJECT_DEFINITIONS.find(
+      (definition): definition is EntityWorldObjectDefinition => definition.code === cell.code
+    );
+    assert(definition !== undefined, `Definition not found for cell code: ${cell.code}`);
+
+    const offset = new THREE.Vector3();
+    const yaw = THREE.MathUtils.degToRad(-cell.rotation);
+
+    offset.copy(definition.offset ?? NO_OFFSET).applyAxisAngle(Y_AXIS, yaw);
+
+    const object = new definition.object();
+    object.position.set(
+      cell.x * WORLD_CELL_SIZE + offset.x,
+      offset.y,
+      cell.z * WORLD_CELL_SIZE + offset.z
+    );
+
+    const parent = FLOOR_TILE_CODES.includes(cell.code) ? floorGroup : levelGroup;
+    parent.add(object);
+  });
 }
 
 function groupInstancedCellsByCode(chunkCells: ChunkCell[]): Map<WorldTileCodes, ChunkCell[]> {

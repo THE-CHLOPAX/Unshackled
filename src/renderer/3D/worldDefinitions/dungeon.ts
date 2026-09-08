@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 
 import { DungeonDoor } from '3D/classes/gameObjects/props/DungeonDoor';
-import { SpawnMarker } from '3D/classes/gameObjects/props/SpawnMarker';
-import { LevelEndMarker } from '3D/classes/gameObjects/props/LevelEndMarker';
 import { DungeonWallTorch } from '3D/classes/gameObjects/props/DungeonWallTorch';
 
 import { MODELS, WORLD_CELL_SIZE } from '../constants';
@@ -12,12 +10,22 @@ import { WorldObjectDefinition, WorldTileCodes } from '../types';
 import { getWallCornerGeometry } from '../utils/getWallCornerGeometry';
 import { getModelTextureForNormalDirection } from '../utils/getModelTextureForNormalDirection';
 
+const FLOOR_FULL_DEPTH = 0.4;
+
 export const WORLD_TILE_DEFINITIONS_DUNGEON: WorldObjectDefinition[] = [
   {
     type: 'instanced',
     code: WorldTileCodes.DungeonFloorFull,
     label: 'Dungeon Floor full',
-    offset: new THREE.Vector3(0, -0.4, 0),
+    offset: new THREE.Vector3(0, -FLOOR_FULL_DEPTH, 0),
+    getGeometry: () => getModelGeometry(MODELS.DUNGEON_FLOOR.id),
+    getMaterial: () => getModelMaterial(MODELS.DUNGEON_FLOOR.id),
+  },
+  {
+    type: 'instanced',
+    code: WorldTileCodes.DungeonFloorFullElevated,
+    label: 'Dungeon Floor full elevated',
+    offset: new THREE.Vector3(0, -FLOOR_FULL_DEPTH + WORLD_CELL_SIZE, 0),
     getGeometry: () => getModelGeometry(MODELS.DUNGEON_FLOOR.id),
     getMaterial: () => getModelMaterial(MODELS.DUNGEON_FLOOR.id),
   },
@@ -86,11 +94,12 @@ export const WORLD_PROP_DEFINITIONS_DUNGEON: WorldObjectDefinition[] = [
     getGeometry: () => getModelGeometry(MODELS.DUNGEON_PILLAR.id),
     getMaterial: () => getModelMaterial(MODELS.DUNGEON_PILLAR.id),
   },
-  { type: 'entity', code: WorldTileCodes.SpawnMarker, label: 'Spawn', object: SpawnMarker },
   {
-    type: 'entity',
-    code: WorldTileCodes.LevelEndMarker,
-    label: 'Level end',
-    object: LevelEndMarker,
+    type: 'instanced',
+    code: WorldTileCodes.DungeonPillarCorner,
+    label: 'Pillar corner',
+    offset: new THREE.Vector3(WORLD_CELL_SIZE / 2, 0, -WORLD_CELL_SIZE / 2),
+    getGeometry: () => getModelGeometry(MODELS.DUNGEON_PILLAR.id),
+    getMaterial: () => getModelMaterial(MODELS.DUNGEON_PILLAR.id),
   },
 ];
