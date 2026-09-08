@@ -15,7 +15,7 @@ export type WorldGridApi = {
   version: number;
   gridSize: number;
   paint: (index: number, code: number, rotation: number) => void;
-  paintBatch: (cells: WorldCell[]) => void;
+  paintBatch: (cells: Map<number, WorldCell>) => void;
   erase: (index: number) => void;
   rotateAt: (index: number) => void;
   clear: () => void;
@@ -39,9 +39,9 @@ export function useWorldGrid(): WorldGridApi {
   );
 
   const paintBatch = useCallback(
-    (cells: WorldCell[]) => {
-      cells.forEach((cell, index) => {
-        const { code, rotation } = cell;
+    (cells: Map<number, WorldCell>) => {
+      cells.forEach(({ code, rotation }, index) => {
+        if (index < 0 || index >= CELL_COUNT) return;
         cellsRef.current[index] = { code, rotation };
       });
       bump();
@@ -77,9 +77,10 @@ export function useWorldGrid(): WorldGridApi {
   const toOutput = useCallback((): WorldOutputData => {
     const data = new Map<number, WorldCell>();
 
-    cellsRef.current.forEach((cell, index) =>
-      data.set(index, { code: cell.code, rotation: cell.rotation })
-    );
+    cellsRef.current.forEach((cell, index) => {
+      if (cell.code === WorldTileCodes.Empty) return;
+      data.set(index, { code: cell.code, rotation: cell.rotation });
+    });
 
     return {
       width: WORLD_GRID_SIZE,

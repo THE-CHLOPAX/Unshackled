@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 
-import { WorldTileCodes } from '3D/types';
 import { serializeWorldMap } from '3D/utils/saveWorldMap';
 import { deserializeWorldMap } from '3D/utils/loadWorldMap';
 
@@ -12,21 +11,14 @@ vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), once: vi.fn(), removeListener: vi.fn() },
 }));
 
-const CELL_COUNT = WORLD_GRID_SIZE * WORLD_GRID_SIZE;
-
 describe('useWorldGrid', () => {
-  it('starts as a dense fully-empty grid', () => {
+  it('starts with no cells and reports its grid size', () => {
     const { result } = renderHook(() => useWorldGrid());
     const output = result.current.toOutput();
 
     expect(output.width).toBe(WORLD_GRID_SIZE);
     expect(output.height).toBe(WORLD_GRID_SIZE);
-    expect(output.data.size).toBe(CELL_COUNT);
-    expect(
-      Array.from(output.data.values()).every(
-        (cell) => cell.code === WorldTileCodes.Empty && cell.rotation === 0
-      )
-    ).toBe(true);
+    expect(output.data.size).toBe(0);
   });
 
   it('paints a single cell without touching its neighbours', () => {
@@ -36,20 +28,17 @@ describe('useWorldGrid', () => {
     const output = result.current.toOutput();
 
     expect(output.data.get(10)).toEqual({ code: 0x888888, rotation: 90 });
-    expect(output.data.get(9)).toEqual({ code: WorldTileCodes.Empty, rotation: 0 });
-    expect(output.data.get(11)).toEqual({ code: WorldTileCodes.Empty, rotation: 0 });
+    expect(output.data.has(9)).toBe(false);
+    expect(output.data.has(11)).toBe(false);
   });
 
-  it('erases a painted cell back to empty', () => {
+  it('omits an erased cell from the output', () => {
     const { result } = renderHook(() => useWorldGrid());
 
     act(() => result.current.paint(5, 0x123456, 180));
     act(() => result.current.erase(5));
 
-    expect(result.current.toOutput().data.get(5)).toEqual({
-      code: WorldTileCodes.Empty,
-      rotation: 0,
-    });
+    expect(result.current.toOutput().data.has(5)).toBe(false);
   });
 
   it('cycles rotation in 90 degree steps and wraps at 360', () => {
@@ -66,10 +55,7 @@ describe('useWorldGrid', () => {
 
     act(() => result.current.rotateAt(20));
 
-    expect(result.current.toOutput().data.get(20)).toEqual({
-      code: WorldTileCodes.Empty,
-      rotation: 0,
-    });
+    expect(result.current.toOutput().data.has(20)).toBe(false);
   });
 
   it('clears every painted cell', () => {
@@ -79,10 +65,7 @@ describe('useWorldGrid', () => {
     act(() => result.current.paint(2000, 0x222222, 90));
     act(() => result.current.clear());
 
-    const allEmpty = Array.from(result.current.toOutput().data.values()).every(
-      (cell) => cell.code === WorldTileCodes.Empty
-    );
-    expect(allEmpty).toBe(true);
+    expect(result.current.toOutput().data.size).toBe(0);
   });
 });
 

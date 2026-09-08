@@ -64,7 +64,7 @@ function getChunkedCells(
       for (let z = start.z; z < end.z; z++) {
         const index = vec2toIndex(x, z, width);
         const cell = data.get(index);
-        assert(cell !== undefined, `Cell with index: ${index} not found in world data map`);
+        if (cell === undefined) continue;
         chunkCells.push({ ...cell, x, z });
       }
     }

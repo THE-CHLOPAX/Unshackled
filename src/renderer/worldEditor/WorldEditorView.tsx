@@ -39,7 +39,7 @@ export function WorldEditorView() {
     try {
       const result = await loadWorldMap();
       grid.clear();
-      grid.paintBatch(Array.from(result.data.values()));
+      grid.paintBatch(result.data);
     } catch (error) {
       window.alert(error);
     }
