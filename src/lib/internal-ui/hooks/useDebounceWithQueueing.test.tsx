@@ -99,7 +99,7 @@ describe('useDebounceWithQueueing', () => {
         }, [debounced]);
         return debounced;
       },
-      { initialProps: { value: 0 } },
+      { initialProps: { value: 0 } }
     );
 
     rerender({ value: 1 });

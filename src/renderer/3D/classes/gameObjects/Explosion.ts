@@ -3,11 +3,12 @@ import * as THREE from 'three';
 import { clamp, useAssetStore } from '@tgdf';
 import { RigidBody, RigidBodyCollisionParams } from '@tgdf';
 
+import { COLORS } from 'renderer/constants';
 import { isEntity } from 'renderer/3D/utils/isEntity';
 import { EXPLOSION_SPRITESHEET_TEXTURE } from 'renderer/3D/constants';
 
-import { GameScene } from '../scenes/GameScene';
 import { GameSceneObject } from './GameSceneObject';
+import { GameScene } from '../scenes/GameScene/GameScene';
 import { SpriteFlipbookRenderer } from '../gameObjectComponents/SpriteFlipbookRenderer/SpriteFlipbookRenderer';
 
 export type ExplosionOptions = {
@@ -68,7 +69,6 @@ export class Explosion extends GameSceneObject {
         })
       );
     }
-
   }
 
   protected override onAwake(): void {
@@ -83,13 +83,13 @@ export class Explosion extends GameSceneObject {
 
     this._explosionFlash = this.scene.lightPool.acquire(this);
     if (this._explosionFlash) {
-      this._explosionFlash.color.set(0xffaa33);
+      this._explosionFlash.color.set(COLORS.ORANGE);
       this._explosionFlash.intensity = 0;
-      this._explosionFlash.distance = 10;
+      this._explosionFlash.distance = 20;
       this._explosionFlash.decay = 2;
 
       this._flashTimeline = gsap.timeline();
-      this._flashTimeline.to(this._explosionFlash, { intensity: 2, duration: 0.25 });
+      this._flashTimeline.to(this._explosionFlash, { intensity: 10, duration: 0.25 });
       this._flashTimeline.to(this._explosionFlash, { intensity: 0, duration: 0.4 });
     }
 

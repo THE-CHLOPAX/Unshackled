@@ -1,75 +1,49 @@
 import * as THREE from 'three';
-import { assert, useAssetStore } from '@tgdf';
-import { NavMeshManager } from '@tgdf/internal-3d/NavMeshManager';
+import { AssetRecord } from '@tgdf';
 
-import { GameScene } from './GameScene';
-import { CHECKERBOARD_TEXTURE } from '../../constants';
-import { Monk } from '../gameObjects/players/Monk/Monk';
-import { pixelateTexture } from '../../utils/pixelateTexture';
-import { Skeleton } from '../gameObjects/mobs/Skeleton/Skeleton';
-import { MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '../../constants';
+import { LevelRecord } from 'renderer/3D/types';
+import { MODELS, SPAWN_MARKER_NAME, TEXTURES } from 'renderer/3D/constants';
 
-export type TestSceneConstructorOptions = {
-  width?: number;
-  height?: number;
-  checkerboardRepeat?: number;
-};
-
-const DEFAULT_WIDTH = 30;
-const DEFAULT_HEIGHT = 30;
-
-const DEFAULT_CHECKERBOARD_REPEAT = 3;
+import { GameScene } from './GameScene/GameScene';
+import { OrtographicCameraOptions } from '../cameras/OrtographicCamera';
+import { FreeOrtographicCamera } from '../cameras/FreeOrtographicCamera';
 
 export class TestScene extends GameScene {
-  constructor(options?: TestSceneConstructorOptions) {
-    const checkerboardTexture = pixelateTexture(
-      useAssetStore.getState().textureCache.get(CHECKERBOARD_TEXTURE)
-    );
+  public readonly levelVariants: LevelRecord[] = [{ url: 'test.json' }];
 
-    // This will get replaced with level loader logic - start
-    const planeWidth = options?.width ?? DEFAULT_WIDTH;
-    const planeHeight = options?.height ?? DEFAULT_HEIGHT;
-    const checkerboardRepeat = options?.checkerboardRepeat ?? DEFAULT_CHECKERBOARD_REPEAT;
+  public readonly preloadedAssets: AssetRecord[] = [
+    MODELS.MONK,
+    MODELS.SKELETON,
+    TEXTURES.EXPLOSION,
+    TEXTURES.ARCANE_CIRCLE,
+    MODELS.DUNGEON_FLOOR,
+    MODELS.DUNGEON_PILLAR,
+    MODELS.DUNGEON_PLINTH,
+    MODELS.DUNGEON_WALL_BRICK_TALL,
+    MODELS.DUNGEON_WALL_TORCH,
+    MODELS.DUNGEON_DOOR_FRAME,
+    MODELS.DUNGEON_DOOR,
+  ];
 
-    checkerboardTexture?.repeat.set(checkerboardRepeat, checkerboardRepeat);
+  protected override createCamera(options: OrtographicCameraOptions): FreeOrtographicCamera {
+    return new FreeOrtographicCamera(options);
+  }
 
-    const floorMaterial = new THREE.MeshPhongMaterial({ map: checkerboardTexture });
+  constructor() {
+    super();
 
-    const floorObject = new THREE.Mesh(
-      new THREE.PlaneGeometry(planeWidth, planeHeight),
-      floorMaterial
-    );
-    floorObject.rotation.x = -Math.PI / 2;
-    // This will get replaced with level loader logic - end
-
-    super(floorObject);
-
-    this.background = new THREE.Color(0x151729);
+    this.background = new THREE.Color(0x0a0a0a);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(10, 10, 10);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.set(2048, 2048);
     this.add(directionalLight);
   }
 
-  protected override onInit(navMeshManager: NavMeshManager): void {
-    const crowd = navMeshManager.addCrowd(MAIN_CROWD_ID, {
-      maxAgents: 100,
-      maxAgentRadius: NAVMESH_AGENT_RADIUS,
-    });
+  protected override onInit(): void {
+    const marker = this.getObjectByName(SPAWN_MARKER_NAME);
 
-    const navMesh = navMeshManager.navMesh;
-
-    assert(crowd, 'Crowd is not initialized');
-    assert(navMesh, 'NavMesh is not initialized');
-
-    const monk = new Monk(this);
-    this.add(monk);
-
-    const skeleton = new Skeleton(this, navMesh, crowd);
-    this.add(skeleton);
-
-    this.camera.follow(monk);
+    if (marker !== undefined) {
+      this.camera.moveTo(marker.position);
+    }
   }
 }

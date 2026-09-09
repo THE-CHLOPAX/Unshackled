@@ -5,6 +5,7 @@ export const COLORS = {
   SOFT_FAWN: '#deba6f',
   BLACK: '#000',
   RED: '#a91212',
+  ORANGE: '#ffaa33',
   // Semantic
   BG_COLOR: '#191611',
   BG_COLOR_HIGHLIGHTED_HALF: '#211a0e',

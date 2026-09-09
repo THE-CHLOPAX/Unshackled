@@ -4,9 +4,9 @@ import { PlayerActionType } from '3D/types';
 import { MODELS, DEFAULT_RIGID_BODY_OPTIONS } from '3D/constants';
 
 import { Player, PlayerOptions } from '../Player';
+import { AttackState, RunningState } from '../../../states';
 import { FocusState } from '../../../states/Player/FocusState';
 import { kick, summonOrbs, healingAura, dash } from './actions';
-import { AttackState, RunningState, SprintingState } from '../../../states';
 
 enum MonkAnimationClipNames {
   FOCUS_START = 'praying-start',
@@ -51,9 +51,6 @@ export const config: PlayerOptions = {
     },
     [PlayerActionType.RUN]: (entity: Player) => {
       return new RunningState(entity);
-    },
-    [PlayerActionType.SPRINT]: (entity: Player) => {
-      return new SprintingState(entity);
     },
   },
 };

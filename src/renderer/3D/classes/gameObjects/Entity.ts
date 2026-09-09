@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { MovementController, RigidBody, RigidBodyOptions } from '@tgdf';
 
-import { GameScene } from '../scenes/GameScene';
 import { GameSceneObject } from './GameSceneObject';
+import { GameScene } from '../scenes/GameScene/GameScene';
 import { StateController } from '../gameObjectComponents/StateController';
 import { DamageHitboxController } from '../gameObjectComponents/DamageHitboxController';
 import {

@@ -1,9 +1,8 @@
 import * as THREE from 'three';
 import { logger, assertNever } from '@tgdf';
 
-import { MATERIALS } from 'renderer/3D/constants';
-
-import { createSkinnedMesh } from './createSkinnedMesh';
+import { MATERIALS } from '3D/constants';
+import { createSkinnedMesh } from '3D/utils/createSkinnedMesh';
 
 /**
  * Precompiles every MATERIALS variant during scene entry, and (dev-only)

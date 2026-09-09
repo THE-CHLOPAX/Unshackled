@@ -30,8 +30,23 @@ export class ResourceTracker {
 
   public resourcesForObjects: Map<string, Set<ResourceType>>;
 
+  private _persistent = new WeakSet<object>();
+
   constructor() {
     this.resourcesForObjects = new Map();
+  }
+
+  public markPersistent(resource: ResourceType): void {
+    if (!resource) return;
+    if (Array.isArray(resource)) {
+      resource.forEach((entry) => this.markPersistent(entry));
+      return;
+    }
+    this._persistent.add(resource);
+  }
+
+  public isPersistent(resource: object): boolean {
+    return this._persistent.has(resource);
   }
 
   public trackObject(object: THREE.Object3D): THREE.Object3D {
@@ -40,7 +55,7 @@ export class ResourceTracker {
     object.traverse((child) => {
       if (!isMesh(child)) return;
 
-      objectResources.add(child.geometry);
+      if (!this.isPersistent(child.geometry)) objectResources.add(child.geometry);
       this._trackMaterial(objectResources, child.material);
 
       const skinnedMesh = child as THREE.SkinnedMesh;
@@ -60,10 +75,12 @@ export class ResourceTracker {
       return;
     }
 
+    if (this.isPersistent(material)) return;
+
     objectResources.add(material);
 
     for (const value of Object.values(material)) {
-      if (value instanceof THREE.Texture) {
+      if (value instanceof THREE.Texture && !this.isPersistent(value)) {
         objectResources.add(value);
       }
     }
@@ -73,11 +90,11 @@ export class ResourceTracker {
         if (!uniform) continue;
 
         const uniformValue = uniform.value;
-        if (uniformValue instanceof THREE.Texture) {
+        if (uniformValue instanceof THREE.Texture && !this.isPersistent(uniformValue)) {
           objectResources.add(uniformValue);
         } else if (Array.isArray(uniformValue)) {
           uniformValue.forEach((entry) => {
-            if (entry instanceof THREE.Texture) {
+            if (entry instanceof THREE.Texture && !this.isPersistent(entry)) {
               objectResources.add(entry);
             }
           });

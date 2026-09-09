@@ -37,7 +37,5 @@ export function getMeshFromCollider(collider: RAPIER.Collider): THREE.Mesh {
     wireframe: true,
   });
 
-  const mesh = new THREE.Mesh(geometry, material);
-
-  return mesh;
+  return new THREE.Mesh(geometry, material);
 }

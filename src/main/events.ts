@@ -1,16 +1,23 @@
-import { screen } from 'electron';
+import path from 'path';
+import { app, dialog, screen } from 'electron';
+import { readFile, mkdir, writeFile } from 'fs/promises';
 import { Resolution } from '@tgdf/internal-ui/types/graphics';
+import { NativeLoadFileRequest, NativeSaveFileRequest } from '@tgdf';
 
 import { mainWindow, main } from './main';
 import { getZoomFactorForResolution } from './utils/getZoomFactorForResolution';
 
 const currentResolution: Resolution = { width: 1280, height: 720 };
 
+const WORLD_MAPS_DIR = 'src/renderer/assets/worldMaps';
+
 export function bindUserEvents(): void {
   main.on('app-quit-request', onCloseAppRequest);
   main.on('set-resolution-request', onResolutionRequest);
   main.on('set-fullscreen-request', onFullscreenRequest);
   main.on('get-fullscreen-state-request', onGetFullscreenStateRequest);
+  main.on('save-file-request', onSaveFileRequest);
+  main.on('load-file-request', onLoadFileRequest);
 
   if (!mainWindow) {
     return;
@@ -81,6 +88,53 @@ export function onFullscreenRequest(request: {
   }
 
   mainWindow.setFullScreen(fullscreen);
+}
+
+export async function onSaveFileRequest(request: NativeSaveFileRequest): Promise<void> {
+  try {
+    const slug =
+      request.name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]+/g, '-') || 'untitled';
+    const directory = path.join(app.getAppPath(), WORLD_MAPS_DIR);
+
+    await mkdir(directory, { recursive: true });
+
+    const filePath = path.join(directory, `${slug}.json`);
+    await writeFile(filePath, request.json, 'utf-8');
+
+    main.send('save-file-response', { ok: true, path: filePath });
+  } catch (error) {
+    main.send('save-file-response', { ok: false, error: String(error) });
+  }
+}
+
+export async function onLoadFileRequest(request: NativeLoadFileRequest): Promise<void> {
+  try {
+    let filePath: string;
+    const directory = path.join(app.getAppPath(), WORLD_MAPS_DIR);
+
+    if (request.path !== undefined) {
+      filePath = path.join(directory, request.path);
+    } else {
+      const result = await dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [{ name: 'Json files', extensions: ['json'] }],
+      });
+      if (result.canceled) {
+        main.send('load-file-response', { ok: false, path: null, contents: null });
+        return;
+      }
+      filePath = result.filePaths[0];
+    }
+
+    const contents = await readFile(filePath, 'utf8');
+
+    main.send('load-file-response', { ok: true, path: filePath, contents });
+  } catch (_error) {
+    main.send('load-file-response', { ok: false, path: null, contents: null });
+  }
 }
 
 export function onEnterFullscreen() {

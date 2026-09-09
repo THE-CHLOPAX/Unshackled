@@ -73,7 +73,7 @@ export function ThreeDViewerDebugInfo({
         position: 'absolute',
         zIndex: 1,
         top: 10,
-        left: 10,
+        right: 10,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         padding: '10px',
         color: 'white',

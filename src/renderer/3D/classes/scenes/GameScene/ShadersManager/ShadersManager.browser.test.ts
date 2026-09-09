@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
-import { MATERIALS } from '../../../constants';
+import { createSkinnedMesh } from 'renderer/3D/utils/createSkinnedMesh';
+
+import { MATERIALS } from '../../../../constants';
 import { ShadersManager } from './ShadersManager';
-import { createSkinnedMesh } from './createSkinnedMesh';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },

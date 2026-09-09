@@ -307,6 +307,22 @@ export class RigidBody extends GameObjectComponent<RigidBodyOptions> {
 
   private _createDebugMesh(collider: RAPIER.Collider): THREE.Mesh {
     const mesh = getMeshFromCollider(collider);
+
+    this.gameObject.updateWorldMatrix(true, false);
+    const parentWorldMatrixInverse = new THREE.Matrix4().copy(this.gameObject.matrixWorld).invert();
+
+    const t = collider.translation();
+    const r = collider.rotation();
+    const colliderWorldMatrix = new THREE.Matrix4().compose(
+      new THREE.Vector3(t.x, t.y, t.z),
+      new THREE.Quaternion(r.x, r.y, r.z, r.w),
+      new THREE.Vector3(1, 1, 1)
+    );
+
+    parentWorldMatrixInverse
+      .multiply(colliderWorldMatrix)
+      .decompose(mesh.position, mesh.quaternion, mesh.scale);
+
     mesh.visible = this._debugMeshVisible;
     mesh.name = `${this.gameObject.name}_ColliderDebugMesh`;
     return mesh;

@@ -63,6 +63,17 @@ describe('Scene', () => {
       expect(gameObjectB.onUpdateSpy).toHaveBeenCalledWith(0.16);
     });
 
+    it('skips GameObjects constructed with skipUpdate', () => {
+      const updated = new TestGameObject({ scene });
+      const skipped = new TestGameObject({ scene, skipUpdate: true });
+      scene.add(updated, skipped);
+
+      scene.update(0.16, null);
+
+      expect(updated.onUpdateSpy).toHaveBeenCalledWith(0.16);
+      expect(skipped.onUpdateSpy).not.toHaveBeenCalled();
+    });
+
     it('updates and syncs the physics manager', () => {
       const mockPhysicsManager = new Mock<PhysicsManager>()
         .setup((m) => m.update)

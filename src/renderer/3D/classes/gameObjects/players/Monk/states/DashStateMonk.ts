@@ -137,9 +137,8 @@ export class DashStateMonk extends DashState {
       child.geometry = child.geometry.clone();
     });
 
-    this.entity.getWorldPosition(ghost.position);
-    this.entity.getWorldQuaternion(ghost.quaternion);
-    this.entity.getWorldScale(ghost.scale);
+    model.updateWorldMatrix(true, false);
+    model.matrixWorld.decompose(ghost.position, ghost.quaternion, ghost.scale);
 
     this.entity.scene.add(ghost);
 

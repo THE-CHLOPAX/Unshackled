@@ -4,11 +4,17 @@ export abstract class GameObjectComponent<T = unknown> {
   private _gameObject: GameObject;
   protected options: Partial<T>;
 
+  private _isAwake = false;
+
   constructor(gameObject: GameObject, options?: Partial<T>) {
     this._gameObject = gameObject;
     this.options = options ?? {};
 
     this._bindGameObjectEvents();
+  }
+
+  public wake(): void {
+    this._onAwakeHandler();
   }
 
   public get gameObject(): GameObject {
@@ -32,18 +38,15 @@ export abstract class GameObjectComponent<T = unknown> {
   protected onInput(_inputState: InputState): void {}
 
   private _bindGameObjectEvents(): void {
-    if (this._gameObject.isAwake) {
-      this._onAwakeHandler();
-    } else {
-      this._gameObject.events.once('awake', this._onAwakeHandler);
-    }
-
+    this._gameObject.events.once('awake', this._onAwakeHandler);
     this._gameObject.events.on('input', this._onInputHandler);
     this._gameObject.events.on('update', this._onUpdateHandler);
     this._gameObject.events.on('destroyed', this._onDestroyedHandler);
   }
 
   private _onAwakeHandler = () => {
+    if (this._isAwake) return;
+    this._isAwake = true;
     this.onAwake();
   };
 

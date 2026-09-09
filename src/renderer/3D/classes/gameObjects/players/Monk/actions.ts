@@ -75,7 +75,7 @@ export const summonOrbs: SequenceSkill = {
             colliderRadius: 3,
             damageAmount: 10,
             knockbackAmount: 0.8,
-            shakeIntensity: 1,
+            shakeIntensity: 3,
             size: new THREE.Vector2(3, 3),
           },
         });

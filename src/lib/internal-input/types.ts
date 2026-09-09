@@ -13,8 +13,9 @@ export type InputState = {
     isKeyPressed: (key: string) => boolean;
   };
   mouse: {
-    x: number;
-    y: number;
+    getX: () => number;
+    getY: () => number;
+    getWheelDelta: () => number;
     isButtonPressed: (button: MouseButton) => boolean;
   };
   gamepad: {

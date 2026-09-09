@@ -139,20 +139,19 @@ describe('GameObject', () => {
   });
 
   describe('awake', () => {
-    it('awakes when added to the scene and update is called', () => {
+    it('awakes synchronously when added to the scene', () => {
       const gameObject = new TestGameObject({ scene });
       const awakeHandler = vi.fn();
       gameObject.events.on('awake', awakeHandler);
 
       scene.add(gameObject);
-      gameObject.update(0.16);
 
       expect(gameObject.isAwake).toBe(true);
       expect(awakeHandler).toHaveBeenCalledOnce();
       expect(gameObject.onAwakeSpy).toHaveBeenCalledOnce();
     });
 
-    it('does not awake when update is called before being added to the scene', () => {
+    it('does not awake before being added to a parent', () => {
       const gameObject = new TestGameObject({ scene });
       const awakeHandler = vi.fn();
       gameObject.events.on('awake', awakeHandler);
@@ -164,13 +163,74 @@ describe('GameObject', () => {
       expect(gameObject.onAwakeSpy).not.toHaveBeenCalled();
     });
 
+    it('does not awake as a side effect of update once added', () => {
+      const gameObject = new TestGameObject({ scene });
+      scene.add(gameObject);
+      gameObject.onAwakeSpy.mockClear();
+
+      gameObject.update(0.16);
+      gameObject.update(0.16);
+
+      expect(gameObject.onAwakeSpy).not.toHaveBeenCalled();
+      expect(gameObject.isAwake).toBe(true);
+    });
+
+    it('awakes when added to a parent that is not attached to the scene', () => {
+      const parent = new THREE.Group();
+      const gameObject = new TestGameObject({ scene });
+
+      parent.add(gameObject);
+
+      expect(gameObject.isAwake).toBe(true);
+      expect(gameObject.onAwakeSpy).toHaveBeenCalledOnce();
+    });
+
+    it('awakes only once when re-parented between plain Object3D parents', () => {
+      const parentA = new THREE.Group();
+      const parentB = new THREE.Group();
+      const gameObject = new TestGameObject({ scene });
+      const awakeHandler = vi.fn();
+      gameObject.events.on('awake', awakeHandler);
+
+      parentA.add(gameObject);
+      parentB.add(gameObject);
+
+      expect(gameObject.onAwakeSpy).toHaveBeenCalledOnce();
+      expect(awakeHandler).toHaveBeenCalledOnce();
+    });
+
+    it('does not re-awake when removed from and re-added to a plain parent', () => {
+      const parent = new THREE.Group();
+      const gameObject = new TestGameObject({ scene });
+
+      parent.add(gameObject);
+      parent.remove(gameObject);
+      parent.add(gameObject);
+
+      expect(gameObject.onAwakeSpy).toHaveBeenCalledOnce();
+    });
+
+    it('does not awake again when re-added to a parent after being destroyed', () => {
+      const parent = new THREE.Group();
+      const gameObject = new TestGameObject({ scene });
+
+      parent.add(gameObject);
+      gameObject.destroy();
+      parent.remove(gameObject);
+      gameObject.onAwakeSpy.mockClear();
+
+      parent.add(gameObject);
+
+      expect(gameObject.onAwakeSpy).not.toHaveBeenCalled();
+      expect(gameObject.isAwake).toBe(false);
+    });
+
     it('awakes attached components when the game object awakes', () => {
       const gameObject = new TestGameObject({ scene });
       const component = new TestComponent(gameObject);
       gameObject.addComponent('TestComponent', component);
 
       scene.add(gameObject);
-      gameObject.update(0.16);
 
       expect(component.awakeCalls).toBe(1);
     });
@@ -178,7 +238,6 @@ describe('GameObject', () => {
     it('awakes components added after the game object is already awake', () => {
       const gameObject = new TestGameObject({ scene });
       scene.add(gameObject);
-      gameObject.update(0.16);
 
       const component = new TestComponent(gameObject);
       gameObject.addComponent('TestComponent', component);
@@ -350,7 +409,6 @@ describe('GameObject', () => {
     it('resets isAwake to false when destroyed', () => {
       const gameObject = new TestGameObject({ scene });
       scene.add(gameObject);
-      gameObject.update(0);
 
       gameObject.destroy();
 

@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { RigidBodyOptions } from '@tgdf';
 
-import { ModelRecord } from './types';
+import { ModelRecord, TextureRecord, WorldTileCodes } from './types';
 
-export const CAMERA_POSITION_OFFSET = new THREE.Vector3(0, 8, 11.5);
+// Default camera position relative to its pivot point, e.g. for an isometric-style view.
+export const CAMERA_POSITION_OFFSET = new THREE.Vector3(6, 6, 6);
 
 export const FLOOR_OBJECT_MESH_NAME = 'test-floor-plane-mesh';
 
@@ -32,10 +33,6 @@ type StructuralMaterialParameter =
   | 'displacementMap';
 
 /**
- * The reusable material variants gameplay objects are allowed to use.
- * Options only carry uniform-level values (colors, intensities, opacity,
- * which texture) — those never create a new program.
- *
  * Adding a new variant? Warm it in ShadersManager's
  * _createShaderWarmupGroup too, or it'll compile mid-gameplay on first use
  * instead of at load — that switch is exhaustive over keyof MATERIALS, so
@@ -96,21 +93,120 @@ export const DEFAULT_RIGID_BODY_OPTIONS: RigidBodyOptions = {
   enableCollisionDetection: true,
 };
 
+export const SPAWNER_IDS = {
+  PLAYER: 'player-spawner',
+};
+
 // Model records
 export const MODELS: Record<string, ModelRecord> = {
   SKELETON: {
+    type: 'model',
     id: 'model-skeleton',
     path: './assets/models/skeleton.glb',
     nameExtractor: 'Armature',
   },
   MONK: {
+    type: 'model',
     id: 'model-monk',
     path: './assets/models/monk.glb',
     nameExtractor: 'Armature',
   },
   KNIGHT: {
+    type: 'model',
     id: 'model-knight',
     path: './assets/models/knight.glb',
     nameExtractor: 'Knight',
   },
+  DUNGEON_DOOR: {
+    type: 'model',
+    id: 'model_dungeon_door',
+    path: './assets/models/model_dungeon_door.fbx',
+    nameExtractor: 'Door_03_001',
+  },
+  DUNGEON_DOOR_FRAME: {
+    type: 'model',
+    id: 'model_dungeon_door_frame',
+    path: './assets/models/model_dungeon_door_frame.fbx',
+    nameExtractor: 'DoorFrame_02_001',
+  },
+  DUNGEON_PILLAR: {
+    type: 'model',
+    id: 'model_dungeon_pillar',
+    path: './assets/models/model_dungeon_pillar.fbx',
+    nameExtractor: 'Pillar_03_001',
+    centerOrigin: false,
+  },
+  DUNGEON_WALL_BRICK_TALL: {
+    type: 'model',
+    id: 'model_dungeon_wall_brick_tall',
+    path: './assets/models/model_dungeon_wall_brick_tall.fbx',
+    nameExtractor: 'WallBrick_Tall_01_001',
+  },
+  DUNGEON_FLOOR: {
+    type: 'model',
+    id: 'model_dungeon_floor',
+    path: './assets/models/model_dungeon_floor.fbx',
+    nameExtractor: 'Floor_Corner_01_001',
+  },
+  DUNGEON_PLINTH: {
+    type: 'model',
+    id: 'model_dungeon_plinth',
+    path: './assets/models/model_dungeon_plinth.fbx',
+    nameExtractor: 'Plinth_Big_01_001',
+  },
+  DUNGEON_WALL_TORCH: {
+    type: 'model',
+    id: 'model_dungeon_torch_wall',
+    path: './assets/models/model_dungeon_wall_torch.glb',
+    centerOrigin: false,
+    nameExtractor: 'dungeon_wall_torch_body',
+  },
 };
+
+export const TEXTURES: Record<string, TextureRecord> = {
+  EXPLOSION: {
+    type: 'texture',
+    id: EXPLOSION_SPRITESHEET_TEXTURE,
+    path: './assets/textures/explosion.png',
+    colorSpace: THREE.SRGBColorSpace,
+  },
+  ARCANE_CIRCLE: {
+    type: 'texture',
+    id: ARCANE_CIRCLE_TEXTURE,
+    path: './assets/textures/arcane-circle.png',
+  },
+  DUNGEON_BLOCKS: {
+    type: 'texture',
+    id: 'texture-dungeon-blocks',
+    path: './assets/textures/BAKE_Blocks_DiffuseMap-%204K.png',
+  },
+  DUNGEON_PROPS_1: {
+    type: 'texture',
+    id: 'texture-dungeon-props-1',
+    path: './assets/textures/BAKE_Props_grp1_DiffuseMap-%204K.png',
+  },
+  DUNGEON_PROPS_2: {
+    type: 'texture',
+    id: 'texture-dungeon-props-2',
+    path: './assets/textures/BAKE_Props_grp2_DiffuseMap-%204K.png',
+  },
+  DUNGEON_WALLS: {
+    type: 'texture',
+    id: 'texture-dungeon-walls',
+    path: './assets/textures/BAKE_Walls_DiffuseMap-%204K.png',
+  },
+};
+
+export const WORLD_LAYER_COUNT = 4;
+
+export const WORLD_CELL_SIZE = 4;
+
+export const MODEL_NATIVE_TILE_SIZE = 5;
+
+export const MODEL_TILE_SCALE = new THREE.Vector3().setScalar(
+  WORLD_CELL_SIZE / MODEL_NATIVE_TILE_SIZE
+);
+
+export const FLOOR_TILE_CODES = [WorldTileCodes.DungeonFloorFull, WorldTileCodes.DungeonFloorFlat];
+
+export const SPAWN_MARKER_NAME = 'spawn-marker';
