@@ -15,6 +15,8 @@ import { GAME_OBJECT_MESSAGES } from './constants';
 import { InputNotifiable } from '../../internal-input/Input';
 
 export class GameObject extends THREE.Object3D implements InputNotifiable {
+  public readonly skipUpdate: boolean;
+
   private _gameObjectComponents: Map<string, GameObjectComponent>;
   private _scene: Scene;
   private _emitter: Emitter<GameObjectEventMap> = new Emitter<GameObjectEventMap>();
@@ -22,9 +24,10 @@ export class GameObject extends THREE.Object3D implements InputNotifiable {
   private _isDestroyed: boolean = false;
   private _inputEnabled: boolean = true;
 
-  constructor({ scene }: GameObjectConstructorOptions) {
+  constructor({ scene, skipUpdate = false }: GameObjectConstructorOptions) {
     super();
     this._scene = scene;
+    this.skipUpdate = skipUpdate;
     this._gameObjectComponents = new Map<string, GameObjectComponent>();
 
     this.addEventListener('added', this._onAwakeHandler);

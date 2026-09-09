@@ -17,7 +17,6 @@ import {
   EntityWorldObjectDefinition,
 } from '../types';
 
-export const GENERATED_LEVEL_GROUP_NAME = 'generated-level';
 export const LEVEL_FLOOR_GROUP_NAME = 'level-floor-group';
 
 const UNIT_SCALE = new THREE.Vector3(1, 1, 1);
@@ -29,7 +28,7 @@ const WORLD_OBJECT_DEFINITIONS = [...WORLD_TILE_DEFINITIONS, ...WORLD_PROP_DEFIN
 
 type ChunkCell = WorldCell & { x: number; z: number };
 
-export function generateChunkedLevel(
+export async function generateChunkedLevel(
   scene: GameScene,
   worldData: WorldOutputData,
   chunkSize: number

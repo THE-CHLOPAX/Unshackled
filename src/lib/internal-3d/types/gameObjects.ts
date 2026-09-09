@@ -8,6 +8,7 @@ export type GameObjectComponentTemplate = {
 
 export type GameObjectConstructorOptions = {
   scene: Scene;
+  skipUpdate?: boolean;
 };
 
 /**

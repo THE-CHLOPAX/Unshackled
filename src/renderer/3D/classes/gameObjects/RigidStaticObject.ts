@@ -45,10 +45,8 @@ function axisAlignedBoxFromObject(
 }
 
 export class RigidStaticObject extends GameObject {
-  private _rigidBody: RigidBody;
-
   constructor(scene: Scene, options: RigidStaticObjectOptions) {
-    super({ scene });
+    super({ scene, skipUpdate: true });
 
     const { position, quaternion, colliderSize } =
       'geometry' in options
@@ -58,7 +56,7 @@ export class RigidStaticObject extends GameObject {
     this.position.copy(position);
     this.quaternion.copy(quaternion);
 
-    this._rigidBody = this.addComponent(
+    this.addComponent(
       'RigidBodyComponent',
       new RigidBody(this, {
         type: 'static',
@@ -67,10 +65,5 @@ export class RigidStaticObject extends GameObject {
         colliderSize,
       })
     );
-  }
-
-  protected override onAwake(): void {
-    super.onAwake();
-    //this._rigidBody.toggleDebug(true);
   }
 }

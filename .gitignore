@@ -9,6 +9,9 @@ dist/
 build/
 release/
 
+# Assets folder
+src/renderer/assets/
+
 # Environment variables
 .env
 .env.local

@@ -61,7 +61,7 @@ export abstract class Scene extends THREE.Scene {
     // corrupt the in-progress traversal.
     const gameObjectsToUpdate: GameObject[] = [];
     this.traverse((child) => {
-      if (child instanceof GameObject) {
+      if (child instanceof GameObject && !child.skipUpdate) {
         gameObjectsToUpdate.push(child);
       }
     });
