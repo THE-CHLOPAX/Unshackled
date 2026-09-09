@@ -29,6 +29,37 @@ describe('ResourceTracker', () => {
       expect(resources.has(material)).toBe(true);
     });
 
+    it('skips resources marked persistent', () => {
+      const sharedGeometry = new THREE.BoxGeometry(1, 1, 1);
+      const sharedTexture = new THREE.Texture();
+      const sharedMaterial = new THREE.MeshBasicMaterial({ map: sharedTexture });
+      tracker.markPersistent(sharedGeometry);
+      tracker.markPersistent(sharedMaterial);
+
+      const ownMaterial = new THREE.MeshBasicMaterial();
+      const mesh = new THREE.Mesh(sharedGeometry, [sharedMaterial, ownMaterial]);
+
+      tracker.trackObject(mesh);
+      const resources = getTrackedResources(tracker, mesh);
+
+      expect(resources.has(sharedGeometry)).toBe(false);
+      expect(resources.has(sharedMaterial)).toBe(false);
+      expect(resources.has(sharedTexture)).toBe(false);
+      expect(resources.has(ownMaterial)).toBe(true);
+    });
+
+    it('does not dispose persistent resources on disposeObjectResources', () => {
+      const sharedGeometry = new THREE.BoxGeometry(1, 1, 1);
+      const disposeSpy = vi.spyOn(sharedGeometry, 'dispose');
+      tracker.markPersistent(sharedGeometry);
+      const mesh = new THREE.Mesh(sharedGeometry, new THREE.MeshBasicMaterial());
+
+      tracker.trackObject(mesh);
+      tracker.disposeObjectResources(mesh);
+
+      expect(disposeSpy).not.toHaveBeenCalled();
+    });
+
     it('stores all disposable resources for nested meshes on a parent object', () => {
       const geometryA = new THREE.BoxGeometry(1, 1, 1);
       const materialA = new THREE.MeshBasicMaterial();

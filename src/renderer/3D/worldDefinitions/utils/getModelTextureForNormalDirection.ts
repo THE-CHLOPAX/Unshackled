@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { assert, getModelFromStore, isMesh } from '@tgdf';
+import { assert, getModelFromStore, isMesh, ResourceTracker } from '@tgdf';
 
 type Options = {
   angleThresholdDeg?: number;
@@ -121,6 +121,7 @@ export function getModelTextureForNormalDirection(
   texture.generateMipmaps = false;
   texture.needsUpdate = true;
 
+  ResourceTracker.markPersistent(texture);
   textureCache.set(cacheKey, texture);
   return texture;
 }

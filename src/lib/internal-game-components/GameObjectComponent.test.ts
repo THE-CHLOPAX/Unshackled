@@ -72,13 +72,38 @@ describe('GameObjectComponent', () => {
   });
 
   describe('when added to a game object', () => {
-    it('calls onAwake immediately when the game object is already awake', () => {
+    it('does not call onAwake from the constructor, even when the game object is already awake', () => {
       const gameObject = createMockGameObject(true);
       const component = new TestComponent(gameObject);
 
-      expect(component.awakeCalls).toBe(1);
+      expect(component.awakeCalls ?? 0).toBe(0);
       expect(component.gameObject).toBe(gameObject);
       expect(component.scene).toBe(gameObject.scene);
+    });
+
+    it('calls onAwake when attached to an already-awake game object via addComponent', () => {
+      const scene = new TestScene();
+      const gameObject = new GameObject({ scene });
+      scene.add(gameObject);
+
+      const component = new TestComponent(gameObject);
+      expect(component.awakeCalls ?? 0).toBe(0);
+
+      gameObject.addComponent('TestComponent', component);
+
+      expect(component.awakeCalls).toBe(1);
+    });
+
+    it('calls onAwake only once when the game object later emits awake after addComponent', () => {
+      const scene = new TestScene();
+      const gameObject = new GameObject({ scene });
+      scene.add(gameObject);
+      const component = new TestComponent(gameObject);
+      gameObject.addComponent('TestComponent', component);
+
+      gameObject.events.trigger('awake');
+
+      expect(component.awakeCalls).toBe(1);
     });
 
     it('calls onAwake when the game object later emits awake', () => {

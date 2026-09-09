@@ -5,6 +5,8 @@ import { clone } from 'three/examples/jsm/utils/SkeletonUtils';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
+import { ResourceTracker } from '../internal-3d/ResourceTracker/ResourceTracker';
+
 export type AssetState = {
   textureCache: Map<string, THREE.Texture>;
   modelCacheJSON: Map<string, THREE.Object3D>;
@@ -254,25 +256,53 @@ export const useAssetStore = create<AssetState>((set, get) => ({
   },
 }));
 
+function markModelResourcesPersistent(model: THREE.Object3D): void {
+  const tracker = ResourceTracker.getInstance();
+  model.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return;
+    tracker.markPersistent(child.geometry);
+    tracker.markPersistent(child.material);
+    const materials = Array.isArray(child.material) ? child.material : [child.material];
+    materials.forEach((material) => {
+      for (const value of Object.values(material)) {
+        if (value instanceof THREE.Texture) tracker.markPersistent(value);
+      }
+    });
+  });
+}
+
 export const getModelFromStore = (id: string): THREE.Object3D | undefined => {
   const modelObject =
     useAssetStore.getState().modelCacheJSON.get(id) ||
     useAssetStore.getState().modelCacheGLTF.get(id) ||
     useAssetStore.getState().modelCacheFBX.get(id);
+  if (!modelObject) return undefined;
+
+  markModelResourcesPersistent(modelObject);
   // Model has to be copied using skeleton utils
-  return modelObject ? clone(modelObject) : undefined;
+  return clone(modelObject);
 };
 
 const MODEL_CACHE_KEYS = ['modelCacheJSON', 'modelCacheGLTF', 'modelCacheFBX'] as const;
 
 function disposeModel(model: THREE.Object3D): void {
+  const disposedTextures = new Set<THREE.Texture>();
+
   model.traverse((child) => {
     if (!(child instanceof THREE.Mesh)) return;
 
     child.geometry.dispose();
 
     const materials = Array.isArray(child.material) ? child.material : [child.material];
-    materials.forEach((material) => material.dispose());
+    materials.forEach((material) => {
+      for (const value of Object.values(material)) {
+        if (value instanceof THREE.Texture && !disposedTextures.has(value)) {
+          disposedTextures.add(value);
+          value.dispose();
+        }
+      }
+      material.dispose();
+    });
   });
 }
 

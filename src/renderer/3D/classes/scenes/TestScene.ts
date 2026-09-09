@@ -40,8 +40,6 @@ export class TestScene extends GameScene {
   }
 
   protected override onInit(): void {
-    this.camera.setZoom(0.75);
-
     const marker = this.getObjectByName(SPAWN_MARKER_NAME);
 
     if (marker !== undefined) {

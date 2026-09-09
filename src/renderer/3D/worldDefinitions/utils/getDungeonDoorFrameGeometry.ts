@@ -3,7 +3,12 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
 import { MODEL_NATIVE_TILE_SIZE } from 'renderer/3D/constants';
 
-import { DungeonWallParts, getSingleMaterial, getSourceGeometry } from './getDungeonWallGeometry';
+import {
+  DungeonWallParts,
+  getSingleMaterial,
+  getSourceGeometry,
+  markPartsPersistent,
+} from './getDungeonWallGeometry';
 
 export type GetDungeonDoorFrameArgs = {
   doorFrameModelId: string;
@@ -33,6 +38,7 @@ export function getDungeonDoorFrameParts({
     materials: [getSingleMaterial(doorFrameModelId), getSingleMaterial(plinthModelId)],
   };
 
+  markPartsPersistent(parts);
   partsCache.set(cacheKey, parts);
   return parts;
 }

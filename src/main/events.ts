@@ -122,8 +122,10 @@ export async function onLoadFileRequest(request: NativeLoadFileRequest): Promise
         properties: ['openFile'],
         filters: [{ name: 'Json files', extensions: ['json'] }],
       });
-
-      if (result.canceled) return;
+      if (result.canceled) {
+        main.send('load-file-response', { ok: false, path: null, contents: null });
+        return;
+      }
       filePath = result.filePaths[0];
     }
 

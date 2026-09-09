@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { GameObject, logger, Scene } from '@tgdf';
+import { GameObject, logger, ResourceTracker, Scene } from '@tgdf';
 
 import { COLORS } from 'renderer/constants';
 import { WorldObjectArgs } from 'renderer/3D/types';
@@ -28,19 +28,24 @@ export const DEFAULT_FLAME_PARTICLE_COUNT = 64;
 export const DEFAULT_FLAME_LIGHT_OPTIONS: FlameLightOptions = {
   useLightPool: false,
   color: COLORS.ORANGE,
-  intensity: 1,
-  distance: 10,
+  intensity: 4,
+  distance: 15,
   decay: 0.2,
 };
 
 const FLAME_RENDER_ORDER = 10;
 
+const TIME_SYNC_MIN_INTERVAL_MS = 4;
+
 let sharedGeometry: THREE.BufferGeometry | null = null;
 let sharedMaterial: FlameMaterial | null = null;
+
+const lastTimeSyncMs = new WeakMap<FlameMaterial, number>();
 
 function resolveSharedGeometry(particleCount: number): THREE.BufferGeometry {
   if (!sharedGeometry) {
     sharedGeometry = createFlameParticlesGeometry(particleCount);
+    ResourceTracker.markPersistent(sharedGeometry);
   }
   return sharedGeometry;
 }
@@ -48,12 +53,17 @@ function resolveSharedGeometry(particleCount: number): THREE.BufferGeometry {
 function resolveSharedMaterial(): FlameMaterial {
   if (!sharedMaterial) {
     sharedMaterial = createFlameMaterial(COLORS.ORANGE);
+    ResourceTracker.markPersistent(sharedMaterial);
   }
   return sharedMaterial;
 }
 
 function syncTime(material: FlameMaterial): void {
-  updateFlameMaterialTime(material, performance.now() * 0.001);
+  const now = performance.now();
+  const last = lastTimeSyncMs.get(material);
+  if (last !== undefined && now - last < TIME_SYNC_MIN_INTERVAL_MS) return;
+  lastTimeSyncMs.set(material, now);
+  updateFlameMaterialTime(material, now * 0.001);
 }
 
 function applyLightOptions(light: THREE.PointLight, options: FlameLightOptions): void {
@@ -95,7 +105,13 @@ export class Flame extends GameObject {
     if (options.scale !== undefined) {
       this.scale.setScalar(options.scale);
     }
+
+    this.addEventListener('removed', this._handleRemoved);
   }
+
+  private _handleRemoved = (): void => {
+    if (this.parent === null) this.destroy();
+  };
 
   protected override onAwake(): void {
     if (this._lightOptions.useLightPool) {
@@ -118,8 +134,12 @@ export class Flame extends GameObject {
   }
 
   protected override onDestroyed(): void {
-    this.scene.lightPool.release(this._pooledLight);
-    this._pooledLight = null;
+    this.removeEventListener('removed', this._handleRemoved);
+
+    if (this._pooledLight !== null) {
+      this.scene.lightPool.release(this._pooledLight);
+      this._pooledLight = null;
+    }
     this._ownLight = null;
 
     if (this._ownsResources) {

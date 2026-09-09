@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { assert, getModelFromStore, isMesh } from '@tgdf';
+import { assert, getModelFromStore, isMesh, ResourceTracker } from '@tgdf';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
 import { MODEL_NATIVE_TILE_SIZE } from 'renderer/3D/constants';
@@ -19,6 +19,12 @@ export type DungeonWallParts = {
 };
 
 const partsCache = new Map<string, DungeonWallParts>();
+
+export function markPartsPersistent(parts: DungeonWallParts): DungeonWallParts {
+  ResourceTracker.markPersistent(parts.geometry);
+  ResourceTracker.markPersistent(parts.materials);
+  return parts;
+}
 
 export function getSourceGeometry(modelId: string): THREE.BufferGeometry {
   const model = getModelFromStore(modelId);
@@ -64,6 +70,7 @@ export function getDungeonWallParts({
     ],
   };
 
+  markPartsPersistent(parts);
   partsCache.set(cacheKey, parts);
   return parts;
 }

@@ -32,11 +32,11 @@ export abstract class GameScene extends Scene {
       right: (frustumSize * aspectRatio) / 2,
       top: frustumSize / 2,
       bottom: -frustumSize / 2,
-      near: 0.1,
-      far: 40,
+      near: -6,
+      far: 20,
     });
 
-    this.camera.setZoom(1);
+    this.camera.setZoom(0.75);
 
     this.add(this._shadersManager.warmupGroup);
     this.events.on('rendererChange', ({ renderer }) =>
@@ -59,6 +59,10 @@ export abstract class GameScene extends Scene {
 
   public async generateLevel(): Promise<void> {
     try {
+      if (this.levelVariants.length === 0) {
+        throw new Error('No level variants available for this scene');
+      }
+
       const randomizedIndex = Math.floor(Math.random() * this.levelVariants.length);
       const randomizedLevelVariant = this.levelVariants[randomizedIndex];
 

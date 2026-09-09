@@ -4,7 +4,12 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
 import { MODEL_NATIVE_TILE_SIZE } from 'renderer/3D/constants';
 
-import { DungeonWallParts, GetDungeonWallArgs, getDungeonWallParts } from './getDungeonWallGeometry';
+import {
+  DungeonWallParts,
+  GetDungeonWallArgs,
+  getDungeonWallParts,
+  markPartsPersistent,
+} from './getDungeonWallGeometry';
 
 const cornerCache = new Map<string, DungeonWallParts>();
 
@@ -45,6 +50,7 @@ export function getDungeonWallCornerParts(args: GetDungeonWallArgs): DungeonWall
     materials: segment.materials,
   };
 
+  markPartsPersistent(parts);
   cornerCache.set(cacheKey, parts);
   return parts;
 }

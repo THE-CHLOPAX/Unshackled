@@ -1,3 +1,4 @@
+import { logger } from '@tgdf';
 import { useEffect, useState } from 'react';
 
 import { GameScene } from '../classes/scenes/GameScene/GameScene';
@@ -22,29 +23,34 @@ export function useLoadScene(sceneClass: new () => GameScene): UseLoadSceneResul
       if (!cancelled) setLoadingProgress(progress);
     };
 
-    nextScene
-      .initializePhysics()
-      .then(() => {
+    const runLoading = async () => {
+      try {
+        await nextScene.initializePhysics();
+        if (cancelled) return;
         reportProgress(0.25);
-        return nextScene.preloadAssets();
-      })
-      .then(() => {
+        await nextScene.preloadAssets();
+        if (cancelled) return;
         reportProgress(0.5);
-        return nextScene.generateLevel();
-      })
-      .then(() => {
+        await nextScene.generateLevel();
+        if (cancelled) return;
         reportProgress(0.75);
-        return nextScene.completeLevelInitialization();
-      })
-      .then(() => {
-        if (cancelled) {
-          nextScene.dispose();
-          return;
-        }
+        await nextScene.completeLevelInitialization();
+        if (cancelled) return;
         reportProgress(1);
         setScene(nextScene);
         setLoading(false);
-      });
+      } catch (error) {
+        if (!cancelled) {
+          logger({ message: `Failed to load scene: ${error}`, type: 'error' });
+        }
+      } finally {
+        if (cancelled) {
+          nextScene.dispose();
+        }
+      }
+    };
+
+    runLoading();
 
     return () => {
       cancelled = true;

@@ -67,6 +67,30 @@ describe('unloadAssets', () => {
     expect(useAssetStore.getState().modelCacheGLTF.has('model-a')).toBe(false);
   });
 
+  it('disposes embedded textures once, even when shared across the model materials', () => {
+    const model = new THREE.Group();
+    const sharedTexture = new THREE.Texture();
+    const disposeSpy = vi.spyOn(sharedTexture, 'dispose');
+
+    const meshA = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshStandardMaterial({ map: sharedTexture })
+    );
+    const meshB = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshStandardMaterial({ map: sharedTexture, normalMap: sharedTexture })
+    );
+    model.add(meshA, meshB);
+
+    useAssetStore.setState((state) => ({
+      modelCacheGLTF: new Map(state.modelCacheGLTF).set('model-tex', model),
+    }));
+
+    unloadAssets([modelRecord('model-tex')]);
+
+    expect(disposeSpy).toHaveBeenCalledOnce();
+  });
+
   it('removes a model from whichever cache (JSON/GLTF/FBX) it was loaded into', () => {
     const jsonModel = createModelObject();
     const fbxModel = createModelObject();

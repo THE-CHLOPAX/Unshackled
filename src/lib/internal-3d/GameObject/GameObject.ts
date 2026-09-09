@@ -89,6 +89,7 @@ export class GameObject extends THREE.Object3D implements InputNotifiable {
     }
 
     this._gameObjectComponents.set(name, component);
+    if (this._isAwake) component.wake();
     return component;
   }
 
