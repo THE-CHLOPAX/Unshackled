@@ -38,15 +38,11 @@ export function generateChunkedLevel(
   const chunkBoundaries = getChunkBoundaries(width, height, chunkSize);
   const chunkedCells = getChunkedCells(worldData, chunkBoundaries);
 
-  const levelGroup = new THREE.Group();
-  levelGroup.name = GENERATED_LEVEL_GROUP_NAME;
-
   const floorGroup = new THREE.Group();
   floorGroup.name = LEVEL_FLOOR_GROUP_NAME;
-  levelGroup.add(floorGroup);
+  scene.add(floorGroup);
 
-  chunkedCells.forEach((chunkCells) => buildChunk(scene, levelGroup, chunkCells, floorGroup));
-  scene.add(levelGroup);
+  chunkedCells.forEach((chunkCells) => buildChunk(scene, chunkCells, floorGroup));
 
   return Promise.resolve({ floorGroup });
 }
@@ -72,12 +68,7 @@ function getChunkedCells(
   });
 }
 
-function buildChunk(
-  scene: Scene,
-  levelGroup: THREE.Group,
-  chunkCells: ChunkCell[],
-  floorGroup: THREE.Group
-): void {
+function buildChunk(scene: Scene, chunkCells: ChunkCell[], floorGroup: THREE.Group): void {
   const instancedCellsByCode = groupInstancedCellsByCode(chunkCells);
 
   // Build instanced objects
@@ -130,7 +121,7 @@ function buildChunk(
     instancedMesh.instanceMatrix.needsUpdate = true;
     instancedMesh.computeBoundingSphere();
 
-    const parent = FLOOR_TILE_CODES.includes(code) ? floorGroup : levelGroup;
+    const parent = FLOOR_TILE_CODES.includes(code) ? floorGroup : scene;
     parent.add(instancedMesh);
   });
 
@@ -147,7 +138,7 @@ function buildChunk(
 
     offset.copy(definition.offset ?? NO_OFFSET).applyAxisAngle(Y_AXIS, yaw);
 
-    const object = new definition.object({ cell });
+    const object = new definition.object(scene, { cell });
     const position = new THREE.Vector3(
       cell.x * WORLD_CELL_SIZE + offset.x,
       offset.y,
@@ -160,7 +151,7 @@ function buildChunk(
 
     object.position.copy(position);
 
-    const parent = FLOOR_TILE_CODES.includes(cell.code) ? floorGroup : levelGroup;
+    const parent = FLOOR_TILE_CODES.includes(cell.code) ? floorGroup : scene;
     parent.add(object);
 
     if (definition.collider) {

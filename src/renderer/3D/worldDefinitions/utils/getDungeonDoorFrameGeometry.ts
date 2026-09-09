@@ -1,13 +1,9 @@
 import { assert } from '@tgdf';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
-import { MODEL_TILE_SCALE_SCALAR } from 'renderer/3D/constants';
+import { MODEL_NATIVE_TILE_SIZE } from 'renderer/3D/constants';
 
-import {
-  DungeonWallParts,
-  getSingleMaterial,
-  getSourceGeometry,
-} from './getDungeonWallGeometry';
+import { DungeonWallParts, getSingleMaterial, getSourceGeometry } from './getDungeonWallGeometry';
 
 export type GetDungeonDoorFrameArgs = {
   doorFrameModelId: string;
@@ -27,7 +23,7 @@ export function getDungeonDoorFrameParts({
   const doorFrameGeometry = getSourceGeometry(doorFrameModelId);
   const plinthGeometry = getSourceGeometry(plinthModelId);
 
-  plinthGeometry.translate(0, 0, MODEL_TILE_SCALE_SCALAR / 2 + 2.5 * MODEL_TILE_SCALE_SCALAR);
+  plinthGeometry.translate(0, 0, MODEL_NATIVE_TILE_SIZE / 2);
 
   const geometry = mergeGeometries([doorFrameGeometry, plinthGeometry], true);
   assert(geometry !== null, 'Failed to merge dungeon door frame geometries');

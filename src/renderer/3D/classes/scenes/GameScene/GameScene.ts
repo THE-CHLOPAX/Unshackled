@@ -11,7 +11,7 @@ import { ShadersManager } from './ShadersManager/ShadersManager';
 import { OrtographicCamera, OrtographicCameraOptions } from '../../cameras/OrtographicCamera';
 
 const GAME_GRAVITY = new THREE.Vector3(0, -9.81, 0);
-const LEVEL_CHUNK_SIZE = 8;
+const LEVEL_CHUNK_SIZE = 16;
 
 export abstract class GameScene extends Scene {
   public camera: OrtographicCamera;

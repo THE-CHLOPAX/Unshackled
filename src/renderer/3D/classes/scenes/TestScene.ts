@@ -1,12 +1,10 @@
 import * as THREE from 'three';
-import { assert, AssetRecord } from '@tgdf';
+import { AssetRecord } from '@tgdf';
 
 import { LevelRecord } from 'renderer/3D/types';
 import { MODELS, SPAWN_MARKER_NAME, TEXTURES } from 'renderer/3D/constants';
-import { GENERATED_LEVEL_GROUP_NAME } from 'renderer/3D/utils/generateChunkedLevel';
 
 import { GameScene } from './GameScene/GameScene';
-//import { Monk } from '../gameObjects/players/Monk/Monk';
 import { OrtographicCameraOptions } from '../cameras/OrtographicCamera';
 import { FreeOrtographicCamera } from '../cameras/FreeOrtographicCamera';
 
@@ -34,7 +32,7 @@ export class TestScene extends GameScene {
   constructor() {
     super();
 
-    this.background = new THREE.Color(0x080808);
+    this.background = new THREE.Color(0x0a0a0a);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(10, 10, 10);
@@ -42,19 +40,11 @@ export class TestScene extends GameScene {
   }
 
   protected override onInit(): void {
-    const levelGroup = this.getObjectByName(GENERATED_LEVEL_GROUP_NAME);
-    assert(levelGroup !== undefined, 'Generated level group not found in scene');
-
     this.camera.setZoom(0.75);
 
-    const marker = levelGroup.getObjectByName(SPAWN_MARKER_NAME);
+    const marker = this.getObjectByName(SPAWN_MARKER_NAME);
 
     if (marker !== undefined) {
-      /* const monk = new Monk(this);
-      const { x, z } = marker.position;
-      monk.position.set(x, 1, z);
-      this.add(monk);
-      this.camera.follow(monk); */
       this.camera.moveTo(marker.position);
     }
   }

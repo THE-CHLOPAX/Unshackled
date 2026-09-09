@@ -1,10 +1,11 @@
 import * as THREE from 'three';
-import { assert, getModelFromStore, isMesh } from '@tgdf';
+import { assert, getModelFromStore, isMesh, Scene } from '@tgdf';
 
 import { MODELS } from '3D/constants';
+import { WorldObjectArgs } from '3D/types';
 
 export class DungeonDoor extends THREE.Mesh {
-  constructor() {
+  constructor(_scene: Scene, _args: WorldObjectArgs) {
     const doorModel = getModelFromStore(MODELS.DUNGEON_DOOR.id);
     assert(isMesh(doorModel), 'Model is not a mesh');
 

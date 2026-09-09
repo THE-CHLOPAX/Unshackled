@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { SceneCamera } from '@tgdf';
+import { Scene, SceneCamera } from '@tgdf';
 
 import { State } from './classes/states';
 import { Entity } from './classes/gameObjects/Entity';
@@ -116,7 +116,7 @@ export type InstancedWorldObjectDefinition = WorldObjectDefitionBase & {
 
 export type EntityWorldObjectDefinition = WorldObjectDefitionBase & {
   type: 'entity';
-  object: new (args: WorldObjectArgs) => THREE.Object3D;
+  object: new (scene: Scene, args: WorldObjectArgs) => THREE.Object3D;
 };
 
 export type WorldObjectDefinition = InstancedWorldObjectDefinition | EntityWorldObjectDefinition;

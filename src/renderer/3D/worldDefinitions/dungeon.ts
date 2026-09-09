@@ -12,7 +12,7 @@ import { getDungeonDoorFrameParts } from './utils/getDungeonDoorFrameGeometry';
 import { getDungeonWallCornerParts } from './utils/getDungeonWallCornerGeometry';
 import { getModelTextureForNormalDirection } from './utils/getModelTextureForNormalDirection';
 
-export const FLOOR_FULL_DEPTH = 0.4;
+export const FLOOR_FULL_DEPTH = 0.1 * WORLD_CELL_SIZE;
 
 const BRICK_WALL_PARTS_ARGS = {
   pillarModelId: MODELS.DUNGEON_PILLAR.id,

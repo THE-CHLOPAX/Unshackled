@@ -203,8 +203,6 @@ export const WORLD_CELL_SIZE = 4;
 
 export const MODEL_NATIVE_TILE_SIZE = 5;
 
-export const MODEL_TILE_SCALE_SCALAR = WORLD_CELL_SIZE / MODEL_NATIVE_TILE_SIZE;
-
 export const MODEL_TILE_SCALE = new THREE.Vector3().setScalar(
   WORLD_CELL_SIZE / MODEL_NATIVE_TILE_SIZE
 );

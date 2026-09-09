@@ -1,12 +1,38 @@
 import * as THREE from 'three';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
-import { createFlameMaterial, updateFlameMaterialTime } from './flameMaterial';
+vi.mock('electron', () => ({
+  ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
+}));
+
+import { GameObject, Scene } from '@tgdf';
+import { MockCamera } from '@tgdf/internal-3d/testUtils/MockCamera';
+
 import { createFlameParticlesGeometry, FLAME_BOUNDING_RADIUS } from './flameGeometry';
 import { Flame, createFlameInstancedMesh, DEFAULT_FLAME_PARTICLE_COUNT } from './Flame';
+import { FlameMaterial, createFlameMaterial, updateFlameMaterialTime } from './flameMaterial';
 
 const CONSTANT_RANDOM = () => 0.5;
 const VERTICES_PER_PARTICLE = 6;
+
+class MockScene extends Scene {
+  camera = new MockCamera();
+}
+
+function flameMesh(flame: Flame): THREE.Mesh<THREE.BufferGeometry, FlameMaterial> {
+  const mesh = flame.children.find(
+    (child): child is THREE.Mesh<THREE.BufferGeometry, FlameMaterial> =>
+      (child as THREE.Mesh).isMesh === true
+  );
+  if (!mesh) throw new Error('Flame has no mesh child');
+  return mesh;
+}
+
+function flamePointLight(flame: Flame): THREE.PointLight | undefined {
+  return flame.children.find(
+    (child): child is THREE.PointLight => (child as THREE.PointLight).isPointLight === true
+  );
+}
 
 describe('createFlameParticlesGeometry', () => {
   it('builds one square (6 vertices) per particle', () => {
@@ -83,46 +109,72 @@ describe('createFlameMaterial', () => {
 });
 
 describe('Flame', () => {
-  it('is a THREE.Mesh that can be added straight to a scene', () => {
-    const flame = new Flame();
+  it('is a GameObject carrying a private flame mesh child', () => {
+    const flame = new Flame(new MockScene());
 
-    expect(flame).toBeInstanceOf(THREE.Mesh);
+    expect(flame).toBeInstanceOf(GameObject);
+    expect(flameMesh(flame)).toBeInstanceOf(THREE.Mesh);
   });
 
   it('reuses one shared geometry and material across default instances', () => {
-    const a = new Flame();
-    const b = new Flame();
+    const scene = new MockScene();
+    const a = flameMesh(new Flame(scene));
+    const b = flameMesh(new Flame(scene));
 
     expect(a.geometry).toBe(b.geometry);
     expect(a.material).toBe(b.material);
   });
 
   it('creates a private material when given a custom color', () => {
-    const shared = new Flame();
-    const custom = new Flame({ color: '#00ff00' });
+    const scene = new MockScene();
+    const shared = flameMesh(new Flame(scene));
+    const custom = flameMesh(new Flame(scene, { color: '#00ff00' }));
 
     expect(custom.material).not.toBe(shared.material);
     expect(custom.material.uniforms.uColor.value.getHexString()).toBe('00ff00');
   });
 
   it('applies scale through the object transform', () => {
-    const flame = new Flame({ color: '#ffaa33', scale: 3 });
+    const flame = new Flame(new MockScene(), { color: '#ffaa33', scale: 3 });
 
     expect(flame.scale.x).toBe(3);
   });
 
-  it('advances its own uTime on render', () => {
-    const flame = new Flame({ color: '#ffaa33' });
+  it('advances uTime from its update loop', () => {
+    const flame = new Flame(new MockScene(), { color: '#ffaa33' });
 
-    flame.onBeforeRender();
+    flame.update(0.016);
 
-    expect(flame.material.uniforms.uTime.value).toBeGreaterThan(0);
+    expect(flameMesh(flame).material.uniforms.uTime.value).toBeGreaterThan(0);
+  });
+
+  it('adds its own point light once awake by default', () => {
+    const scene = new MockScene();
+    const flame = new Flame(scene, { light: { intensity: 3, distance: 7 } });
+    scene.add(flame);
+
+    const light = flamePointLight(flame);
+    expect(light).toBeDefined();
+    expect(light?.intensity).toBe(3);
+    expect(light?.distance).toBe(7);
+  });
+
+  it('borrows from the scene light pool when asked and releases it on destroy', () => {
+    const scene = new MockScene();
+    const flame = new Flame(scene, { light: { useLightPool: true, intensity: 4 } });
+    scene.add(flame);
+
+    expect(flamePointLight(flame)?.intensity).toBe(4);
+
+    scene.remove(flame);
+
+    expect(flamePointLight(flame)).toBeUndefined();
   });
 
   it('defaults to a full square count', () => {
-    const flame = new Flame({ color: '#ffaa33' });
+    const flame = new Flame(new MockScene(), { color: '#ffaa33' });
 
-    expect(flame.geometry.getAttribute('position').count).toBe(
+    expect(flameMesh(flame).geometry.getAttribute('position').count).toBe(
       DEFAULT_FLAME_PARTICLE_COUNT * VERTICES_PER_PARTICLE
     );
   });

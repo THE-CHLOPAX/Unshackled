@@ -1,25 +1,25 @@
 import * as THREE from 'three';
-import { assert, getModelFromStore, isMesh } from '@tgdf';
+import { assert, getModelFromStore, isMesh, Scene } from '@tgdf';
 
-import { MODELS } from '3D/constants';
 import { WorldObjectArgs } from '3D/types';
+import { MODELS, WORLD_CELL_SIZE } from '3D/constants';
 
 import { Flame } from './Flame';
 export class DungeonWallTorch extends THREE.Mesh {
-  constructor({ cell }: WorldObjectArgs) {
+  constructor(scene: Scene, { cell }: WorldObjectArgs) {
     const torchModel = getModelFromStore(MODELS.DUNGEON_WALL_TORCH.id);
     assert(isMesh(torchModel));
 
     const { geometry, material } = torchModel;
 
     super(geometry, material);
-    this.scale.multiplyScalar(0.4);
+    this.scale.multiplyScalar(0.1 * WORLD_CELL_SIZE);
     if (cell !== undefined) {
       this.rotateY(THREE.MathUtils.degToRad(-cell.rotation));
     }
 
-    const torchFlame = new Flame({ scale: 1.5 });
-    torchFlame.position.set(0, 0.5, 0.5);
+    const torchFlame = new Flame(scene, { scale: 0.35 * WORLD_CELL_SIZE });
+    torchFlame.position.set(0, 0.125 * WORLD_CELL_SIZE, 0.125 * WORLD_CELL_SIZE);
 
     this.add(torchFlame);
   }
