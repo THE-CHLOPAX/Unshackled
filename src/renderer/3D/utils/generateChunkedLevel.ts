@@ -1,10 +1,11 @@
 import * as THREE from 'three';
-import { assert } from '@tgdf';
+import { assert, Scene } from '@tgdf';
 
 import { vec2toIndex } from './vec2ToIndex';
 import { isInstancedCell } from './isInstancedCell';
 import { getChunkBoundaries } from './getChunkBoundaries';
 import { GameScene } from '../classes/scenes/GameScene/GameScene';
+import { RigidStaticObject } from '../classes/gameObjects/RigidStaticObject';
 import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from '../worldDefinitions';
 import { FLOOR_TILE_CODES, MODEL_NATIVE_TILE_SIZE, WORLD_CELL_SIZE } from '../constants';
 import {
@@ -46,7 +47,7 @@ export function generateChunkedLevel(
   floorGroup.name = LEVEL_FLOOR_GROUP_NAME;
   levelGroup.add(floorGroup);
 
-  chunkedCells.forEach((chunkCells) => buildChunk(levelGroup, chunkCells, floorGroup));
+  chunkedCells.forEach((chunkCells) => buildChunk(scene, levelGroup, chunkCells, floorGroup));
   scene.add(levelGroup);
 
   return Promise.resolve({ floorGroup });
@@ -74,6 +75,7 @@ function getChunkedCells(
 }
 
 function buildChunk(
+  scene: Scene,
   levelGroup: THREE.Group,
   chunkCells: ChunkCell[],
   floorGroup: THREE.Group
@@ -88,11 +90,10 @@ function buildChunk(
       `World object definition is not instanced: ${code}`
     );
 
-    const instancedMesh = new THREE.InstancedMesh(
-      definition.getGeometry(),
-      definition.getMaterial(),
-      cells.length
-    );
+    const geometry = definition.getGeometry();
+    const material = definition.getMaterial();
+
+    const instancedMesh = new THREE.InstancedMesh(geometry, material, cells.length);
 
     const matrix = new THREE.Matrix4();
     const position = new THREE.Vector3();
@@ -109,10 +110,19 @@ function buildChunk(
         offset.y,
         cell.z * WORLD_CELL_SIZE + offset.z
       );
+
       euler.set(MODEL_BASE_TILT, 0, yaw);
       quaternion.setFromEuler(euler);
       matrix.compose(position, quaternion, definition.worldSized ? UNIT_SCALE : MODEL_TILE_SCALE);
       instancedMesh.setMatrixAt(index, matrix);
+
+      if (definition.collider) {
+        const rigidStaticObject = new RigidStaticObject(scene, {
+          geometry,
+          matrix: matrix.clone(),
+        });
+        scene.add(rigidStaticObject);
+      }
     });
 
     instancedMesh.instanceMatrix.needsUpdate = true;
@@ -136,14 +146,21 @@ function buildChunk(
     offset.copy(definition.offset ?? NO_OFFSET).applyAxisAngle(Y_AXIS, yaw);
 
     const object = new definition.object();
-    object.position.set(
+    const position = new THREE.Vector3(
       cell.x * WORLD_CELL_SIZE + offset.x,
       offset.y,
       cell.z * WORLD_CELL_SIZE + offset.z
     );
 
+    object.position.copy(position);
+
     const parent = FLOOR_TILE_CODES.includes(cell.code) ? floorGroup : levelGroup;
     parent.add(object);
+
+    if (definition.collider) {
+      const rigidStaticObject = new RigidStaticObject(scene, { position, source: object });
+      scene.add(rigidStaticObject);
+    }
   });
 }
 

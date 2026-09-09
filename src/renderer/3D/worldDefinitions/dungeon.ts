@@ -17,6 +17,7 @@ export const WORLD_TILE_DEFINITIONS_DUNGEON: WorldObjectDefinition[] = [
     type: 'instanced',
     code: WorldTileCodes.DungeonFloorFull,
     label: 'Dungeon Floor full',
+    collider: true,
     offset: new THREE.Vector3(0, -FLOOR_FULL_DEPTH, 0),
     getGeometry: () => getModelGeometry(MODELS.DUNGEON_FLOOR.id),
     getMaterial: () => getModelMaterial(MODELS.DUNGEON_FLOOR.id),
@@ -33,6 +34,7 @@ export const WORLD_TILE_DEFINITIONS_DUNGEON: WorldObjectDefinition[] = [
     type: 'instanced',
     code: WorldTileCodes.DungeonFloorFlat,
     label: 'Dungeon Floor flat',
+    collider: true,
     worldSized: true,
     getGeometry: () => new THREE.PlaneGeometry(WORLD_CELL_SIZE, WORLD_CELL_SIZE),
     getMaterial: () => {
@@ -51,31 +53,19 @@ export const WORLD_TILE_DEFINITIONS_DUNGEON: WorldObjectDefinition[] = [
     type: 'instanced',
     code: WorldTileCodes.DungeonWallBrickTall,
     label: 'Dungeon Brick Wall',
+    collider: true,
     offset: new THREE.Vector3(0, WORLD_CELL_SIZE / 2, -WORLD_CELL_SIZE / 2),
     getGeometry: () => getModelGeometry(MODELS.DUNGEON_WALL_BRICK_TALL.id),
-    getMaterial: () => {
-      const mat = getModelMaterial(MODELS.DUNGEON_WALL_BRICK_TALL.id);
-      if (Array.isArray(mat)) mat.forEach((subMat) => (subMat.side = THREE.DoubleSide));
-      else {
-        mat.side = THREE.DoubleSide;
-      }
-      return mat;
-    },
+    getMaterial: () => getModelMaterial(MODELS.DUNGEON_WALL_BRICK_TALL.id),
   },
   {
     type: 'instanced',
     code: WorldTileCodes.DungeonWallBrickTallCorner,
     label: 'Dungeon Brick Wall Corner',
+    collider: true,
     offset: new THREE.Vector3(0, WORLD_CELL_SIZE / 2, -WORLD_CELL_SIZE / 2),
     getGeometry: () => getWallCornerGeometry(MODELS.DUNGEON_WALL_BRICK_TALL.id),
-    getMaterial: () => {
-      const mat = getModelMaterial(MODELS.DUNGEON_WALL_BRICK_TALL.id);
-      if (Array.isArray(mat)) mat.forEach((subMat) => (subMat.side = THREE.DoubleSide));
-      else {
-        mat.side = THREE.DoubleSide;
-      }
-      return mat;
-    },
+    getMaterial: () => getModelMaterial(MODELS.DUNGEON_WALL_BRICK_TALL.id),
   },
 ];
 

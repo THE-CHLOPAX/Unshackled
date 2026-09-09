@@ -101,11 +101,11 @@ export type WorldObjectDefitionBase = {
   code: number;
   label: string;
   offset?: THREE.Vector3;
+  collider?: boolean;
 };
 
 export type InstancedWorldObjectDefinition = WorldObjectDefitionBase & {
   type: 'instanced';
-  collider?: boolean;
   worldSized?: boolean;
   getGeometry(): THREE.BufferGeometry;
   getMaterial(): THREE.Material | THREE.Material[];

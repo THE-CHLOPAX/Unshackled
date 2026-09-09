@@ -44,7 +44,11 @@ function createRigidStaticObject(
   position: THREE.Vector3,
   size: THREE.Vector3
 ): RigidStaticObject {
-  const rigidStaticObject = new RigidStaticObject(scene, { position, size });
+  const source = new THREE.Mesh(
+    new THREE.BoxGeometry(size.x, size.y, size.z),
+    new THREE.MeshBasicMaterial()
+  );
+  const rigidStaticObject = new RigidStaticObject(scene, { position, source });
   scene.add(rigidStaticObject);
   rigidStaticObject.update(0);
   return rigidStaticObject;
@@ -81,6 +85,42 @@ describe('RigidStaticObject', () => {
     const debugMeshWorldPosition = debugMesh.getWorldPosition(new THREE.Vector3());
     expect(debugMeshWorldPosition.x).toBeCloseTo(100);
     expect(debugMeshWorldPosition.z).toBeCloseTo(100);
+  });
+
+  it('derives an oriented box collider from a geometry and its instance matrix', async () => {
+    const scene = await createScene();
+
+    const geometry = new THREE.BoxGeometry(2, 4, 6);
+    const rotation = new THREE.Quaternion().setFromAxisAngle(
+      new THREE.Vector3(0, 1, 0),
+      Math.PI / 2
+    );
+    const matrix = new THREE.Matrix4().compose(
+      new THREE.Vector3(10, 5, -3),
+      rotation,
+      new THREE.Vector3(1, 1, 3)
+    );
+
+    const object = new RigidStaticObject(scene, { geometry, matrix });
+    scene.add(object);
+    object.update(0);
+
+    const collider = object.getGameObjectComponentByType(RigidBody)?.getPhysicsCollider();
+    assert(collider !== null && collider !== undefined, 'Collider was not created');
+
+    const halfExtents = collider.halfExtents();
+    expect(halfExtents.x * 2).toBeCloseTo(2);
+    expect(halfExtents.y * 2).toBeCloseTo(4);
+    expect(halfExtents.z * 2).toBeCloseTo(18);
+
+    const translation = collider.translation();
+    expect(translation.x).toBeCloseTo(10);
+    expect(translation.y).toBeCloseTo(5);
+    expect(translation.z).toBeCloseTo(-3);
+
+    const colliderRotation = collider.rotation();
+    expect(colliderRotation.y).toBeCloseTo(rotation.y);
+    expect(colliderRotation.w).toBeCloseTo(rotation.w);
   });
 
   it('stops a dynamic body dropped above the floor from falling through it', async () => {
