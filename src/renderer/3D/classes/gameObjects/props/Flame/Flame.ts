@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 
 import { COLORS } from 'renderer/constants';
+import { WorldObjectArgs } from 'renderer/3D/types';
 
 import { createFlameParticlesGeometry } from './flameGeometry';
 import { createFlameMaterial, updateFlameMaterialTime, FlameMaterial } from './flameMaterial';
 
-export type FlameOptions = {
+export type FlameOptions = WorldObjectArgs & {
   scale?: number;
   color?: THREE.ColorRepresentation;
   particleCount?: number;

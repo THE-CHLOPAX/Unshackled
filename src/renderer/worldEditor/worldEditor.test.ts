@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 
-import { WORLD_LAYER_COUNT } from '3D/types';
+import { WORLD_LAYER_COUNT } from '3D/constants';
 import { serializeWorldMap } from '3D/utils/saveWorldMap';
 import { deserializeWorldMap } from '3D/utils/loadWorldMap';
 

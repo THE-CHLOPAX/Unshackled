@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { assert, getModelFromStore, isMesh } from '@tgdf';
 
-import { pixelateModelMaterial } from './pixelateModelMaterial';
+import { pixelateModelMaterial } from '../../utils/pixelateModelMaterial';
 
 export function getModelMaterial(modelId: string): THREE.Material | THREE.Material[] {
   const model = getModelFromStore(modelId);

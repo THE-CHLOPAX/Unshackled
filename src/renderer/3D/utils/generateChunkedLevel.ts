@@ -6,8 +6,8 @@ import { isInstancedCell } from './isInstancedCell';
 import { getChunkBoundaries } from './getChunkBoundaries';
 import { GameScene } from '../classes/scenes/GameScene/GameScene';
 import { RigidStaticObject } from '../classes/gameObjects/RigidStaticObject';
+import { FLOOR_TILE_CODES, MODEL_TILE_SCALE, WORLD_CELL_SIZE } from '../constants';
 import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from '../worldDefinitions';
-import { FLOOR_TILE_CODES, MODEL_NATIVE_TILE_SIZE, WORLD_CELL_SIZE } from '../constants';
 import {
   WorldChunkBoundary,
   WorldCell,
@@ -20,7 +20,6 @@ import {
 export const GENERATED_LEVEL_GROUP_NAME = 'generated-level';
 export const LEVEL_FLOOR_GROUP_NAME = 'level-floor-group';
 
-const MODEL_TILE_SCALE = new THREE.Vector3().setScalar(WORLD_CELL_SIZE / MODEL_NATIVE_TILE_SIZE);
 const UNIT_SCALE = new THREE.Vector3(1, 1, 1);
 const MODEL_BASE_TILT = -Math.PI / 2;
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
@@ -35,7 +34,6 @@ export function generateChunkedLevel(
   worldData: WorldOutputData,
   chunkSize: number
 ): Promise<LevelGeneratedData> {
-  performance.mark('start');
   const { width, height } = worldData;
   const chunkBoundaries = getChunkBoundaries(width, height, chunkSize);
   const chunkedCells = getChunkedCells(worldData, chunkBoundaries);
@@ -113,7 +111,11 @@ function buildChunk(
 
       euler.set(MODEL_BASE_TILT, 0, yaw);
       quaternion.setFromEuler(euler);
-      matrix.compose(position, quaternion, definition.worldSized ? UNIT_SCALE : MODEL_TILE_SCALE);
+      matrix.compose(
+        position,
+        quaternion,
+        definition.disableModelScaling ? UNIT_SCALE : MODEL_TILE_SCALE
+      );
       instancedMesh.setMatrixAt(index, matrix);
 
       if (definition.collider) {
@@ -145,12 +147,16 @@ function buildChunk(
 
     offset.copy(definition.offset ?? NO_OFFSET).applyAxisAngle(Y_AXIS, yaw);
 
-    const object = new definition.object();
+    const object = new definition.object({ cell });
     const position = new THREE.Vector3(
       cell.x * WORLD_CELL_SIZE + offset.x,
       offset.y,
       cell.z * WORLD_CELL_SIZE + offset.z
     );
+
+    if (!definition.disableModelScaling) {
+      object.scale.copy(MODEL_TILE_SCALE);
+    }
 
     object.position.copy(position);
 

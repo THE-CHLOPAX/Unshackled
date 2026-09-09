@@ -121,11 +121,13 @@ export const MODELS: Record<string, ModelRecord> = {
     type: 'model',
     id: 'model_dungeon_door',
     path: './assets/models/model_dungeon_door.fbx',
+    nameExtractor: 'Door_03_001',
   },
   DUNGEON_DOOR_FRAME: {
     type: 'model',
     id: 'model_dungeon_door_frame',
     path: './assets/models/model_dungeon_door_frame.fbx',
+    nameExtractor: 'DoorFrame_02_001',
   },
   DUNGEON_PILLAR: {
     type: 'model',
@@ -151,7 +153,6 @@ export const MODELS: Record<string, ModelRecord> = {
     id: 'model_dungeon_plinth',
     path: './assets/models/model_dungeon_plinth.fbx',
     nameExtractor: 'Plinth_Big_01_001',
-    centerOrigin: false,
   },
   DUNGEON_WALL_TORCH: {
     type: 'model',
@@ -196,9 +197,17 @@ export const TEXTURES: Record<string, TextureRecord> = {
   },
 };
 
+export const WORLD_LAYER_COUNT = 4;
+
 export const WORLD_CELL_SIZE = 4;
 
 export const MODEL_NATIVE_TILE_SIZE = 5;
+
+export const MODEL_TILE_SCALE_SCALAR = WORLD_CELL_SIZE / MODEL_NATIVE_TILE_SIZE;
+
+export const MODEL_TILE_SCALE = new THREE.Vector3().setScalar(
+  WORLD_CELL_SIZE / MODEL_NATIVE_TILE_SIZE
+);
 
 export const FLOOR_TILE_CODES = [WorldTileCodes.DungeonFloorFull, WorldTileCodes.DungeonFloorFlat];
 

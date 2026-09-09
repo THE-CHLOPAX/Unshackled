@@ -86,6 +86,7 @@ export enum WorldTileCodes {
   DungeonFloorFullElevated = 0x663333,
   DungeonWallBrickTall = 0x888888,
   DungeonWallBrickTallCorner = 0xaaaaaa,
+  DungeonWallBrickDoorFrame = 0xccc,
   DungeonWallTorch = 0xffaa33,
   DungeonDoor = 0x8a5a2b,
   DungeonPillar = 0x5a5a5a,
@@ -97,30 +98,30 @@ export enum WorldTileCodes {
   Flame = 0xff0000,
 }
 
+export type WorldObjectArgs = { cell?: WorldCell };
+
 export type WorldObjectDefitionBase = {
   code: number;
   label: string;
   offset?: THREE.Vector3;
   collider?: boolean;
+  disableModelScaling?: boolean;
 };
 
 export type InstancedWorldObjectDefinition = WorldObjectDefitionBase & {
   type: 'instanced';
-  worldSized?: boolean;
   getGeometry(): THREE.BufferGeometry;
   getMaterial(): THREE.Material | THREE.Material[];
 };
 
 export type EntityWorldObjectDefinition = WorldObjectDefitionBase & {
   type: 'entity';
-  object: new () => THREE.Object3D;
+  object: new (args: WorldObjectArgs) => THREE.Object3D;
 };
 
 export type WorldObjectDefinition = InstancedWorldObjectDefinition | EntityWorldObjectDefinition;
 
 export type WorldVec2 = { x: number; z: number };
-
-export const WORLD_LAYER_COUNT = 3;
 
 export type WorldCell = {
   code: number;

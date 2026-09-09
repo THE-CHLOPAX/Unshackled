@@ -1,6 +1,7 @@
 import { ipc } from '@tgdf';
 
-import { WorldCell, WorldOutputData, WORLD_LAYER_COUNT } from '../types';
+import { WORLD_LAYER_COUNT } from '../constants';
+import { WorldCell, WorldOutputData } from '../types';
 
 type RawWorldData = {
   version?: number;

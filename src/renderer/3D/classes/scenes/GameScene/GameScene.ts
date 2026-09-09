@@ -64,7 +64,7 @@ export abstract class GameScene extends Scene {
 
       const levelData = await loadWorldMap(randomizedLevelVariant.url);
       const { floorGroup } = await generateChunkedLevel(this, levelData.map, LEVEL_CHUNK_SIZE);
-      assert(floorGroup.isGroup);
+      assert(floorGroup.isGroup, 'Floor group is not a THREE.Group instance');
       await this.initializeNavMeshManager(floorGroup);
       return Promise.resolve();
     } catch (error) {
