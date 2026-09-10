@@ -9,7 +9,7 @@ import { MODELS, DEFAULT_RIGID_BODY_OPTIONS } from '../../../../../3D/constants'
 export const config: EntityAIOptions = {
   modelOptions: {
     id: MODELS.SKELETON.id,
-    scale: new THREE.Vector3(1.2, 1.2, 1.2),
+    scale: new THREE.Vector3(0.012, 0.012, 0.012),
   },
   movementOptions: {
     speed: 2.5,

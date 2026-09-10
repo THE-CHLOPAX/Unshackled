@@ -10,7 +10,7 @@ import { PhysicsCollisionCallback } from '../internal-3d/types/physics';
 import { getRigidBodyColliderDescription } from './utils/getRigidBodyColliderDescription';
 import { getRigidBodyDescriptionForObject } from './utils/getRigidBodyDescriptionForObject';
 
-export type RigidBodyShape = 'box' | 'cylinder' | 'sphere';
+export type RigidBodyShape = 'box' | 'cylinder' | 'sphere' | 'trimesh';
 export type RigidBodyType = 'dynamic' | 'static' | 'kinematic';
 export type RigidBodyOptions = {
   type?: RigidBodyType;
@@ -22,6 +22,7 @@ export type RigidBodyOptions = {
   lockRotation?: boolean;
   colliderShape?: RigidBodyShape;
   colliderSize?: THREE.Vector3; // Explicit collider size; overrides the size derived from the mesh's bounding box
+  colliderGeometry?: THREE.BufferGeometry; // Required when colliderShape is 'trimesh'
   sensor?: boolean; // If true, the collider will not produce physical responses but can still trigger collision events
   enableCollisionDetection?: boolean;
 };

@@ -1,9 +1,10 @@
 import * as THREE from 'three';
-import { GameObject, RigidBody, Scene } from '@tgdf';
+import { GameObject, RigidBody, RigidBodyOptions, Scene } from '@tgdf';
 
 export type RigidStaticObjectOptions =
   | { geometry: THREE.BufferGeometry; matrix: THREE.Matrix4 }
-  | { source: THREE.Object3D; position: THREE.Vector3 };
+  | { source: THREE.Object3D; position: THREE.Vector3 }
+  | { trimeshGeometry: THREE.BufferGeometry };
 
 type ColliderTransform = {
   position: THREE.Vector3;
@@ -48,22 +49,34 @@ export class RigidStaticObject extends GameObject {
   constructor(scene: Scene, options: RigidStaticObjectOptions) {
     super({ scene, skipUpdate: true });
 
-    const { position, quaternion, colliderSize } =
-      'geometry' in options
-        ? orientedBoxFromGeometry(options.geometry, options.matrix)
-        : axisAlignedBoxFromObject(options.source, options.position);
+    let rigidBodyOptions: RigidBodyOptions;
 
-    this.position.copy(position);
-    this.quaternion.copy(quaternion);
+    if ('trimeshGeometry' in options) {
+      rigidBodyOptions = {
+        type: 'static',
+        colliderShape: 'trimesh',
+        enableCollisionDetection: true,
+        colliderGeometry: options.trimeshGeometry,
+      };
+    } else {
+      const { position, quaternion, colliderSize } =
+        'geometry' in options
+          ? orientedBoxFromGeometry(options.geometry, options.matrix)
+          : axisAlignedBoxFromObject(options.source, options.position);
 
-    this.addComponent(
-      'RigidBodyComponent',
-      new RigidBody(this, {
+      this.position.copy(position);
+      this.quaternion.copy(quaternion);
+
+      rigidBodyOptions = {
         type: 'static',
         colliderShape: 'box',
         enableCollisionDetection: true,
         colliderSize,
-      })
-    );
+      };
+    }
+
+    this.addComponent('RigidBodyComponent', new RigidBody(this, rigidBodyOptions));
+
+    //rigidBody.toggleDebug(true);
   }
 }

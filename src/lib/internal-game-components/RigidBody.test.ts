@@ -122,6 +122,33 @@ describe('RigidBody', () => {
     expect(debugMesh.geometry).toBeInstanceOf(THREE.SphereGeometry);
   });
 
+  it('creates trimesh collider from provided geometry', async () => {
+    const geometry = new THREE.PlaneGeometry(4, 6);
+    geometry.rotateX(-Math.PI / 2);
+
+    const { rigidBody } = await createRigidBody({
+      type: 'static',
+      colliderShape: 'trimesh',
+      colliderGeometry: geometry,
+    });
+    const collider = rigidBody.getPhysicsCollider();
+
+    assert(collider !== null, 'Collider is null');
+    expect(collider.shapeType()).toBe(RAPIER.ShapeType.TriMesh);
+    expect(collider.vertices().length).toBe(geometry.getAttribute('position').array.length);
+
+    const debugMesh = rigidBody.getDebugMesh();
+    assert(debugMesh !== null, 'Debug mesh is null');
+    expect(debugMesh.geometry).toBeInstanceOf(THREE.BufferGeometry);
+    expect(debugMesh.geometry).not.toBeInstanceOf(THREE.BoxGeometry);
+  });
+
+  it('throws when creating a trimesh collider without colliderGeometry', async () => {
+    await expect(createRigidBody({ colliderShape: 'trimesh' })).rejects.toThrow(
+      /colliderGeometry is required/
+    );
+  });
+
   it('removes and recreates collider when updatePhysicsCollider is called', async () => {
     const { gameObject, rigidBody, scene } = await createRigidBody({ colliderShape: 'box' });
     assert(scene.physics !== undefined, 'Physics manager is undefined');

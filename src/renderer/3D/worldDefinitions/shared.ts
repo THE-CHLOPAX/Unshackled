@@ -1,4 +1,5 @@
 import { SpawnMarker } from '3D/classes/gameObjects/props/SpawnMarker';
+import { SkeletonSpawner } from '3D/classes/gameObjects/SkeletonSpawner';
 import { LevelEndMarker } from '3D/classes/gameObjects/props/LevelEndMarker';
 
 import { Flame } from '../classes/gameObjects/props/Flame';
@@ -19,5 +20,12 @@ export const WORLD_PROP_DEFINITIONS_SHARED: WorldObjectDefinition[] = [
     code: WorldTileCodes.Flame,
     label: 'Flame',
     object: Flame,
+  },
+  {
+    type: 'entity',
+    code: WorldTileCodes.SkeletonSpawner,
+    label: 'Skeleton spawner',
+    disableModelScaling: true,
+    object: SkeletonSpawner,
   },
 ];

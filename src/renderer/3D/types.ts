@@ -96,6 +96,7 @@ export enum WorldTileCodes {
   SpawnMarker = 0x00ff00,
   LevelEndMarker = 0xff00ff,
   Flame = 0xff0000,
+  SkeletonSpawner = 0x00ffff,
 }
 
 export type WorldObjectArgs = { cell?: WorldCell };

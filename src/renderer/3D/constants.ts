@@ -199,7 +199,7 @@ export const TEXTURES: Record<string, TextureRecord> = {
 
 export const WORLD_LAYER_COUNT = 4;
 
-export const WORLD_CELL_SIZE = 4;
+export const WORLD_CELL_SIZE = 3;
 
 export const MODEL_NATIVE_TILE_SIZE = 5;
 

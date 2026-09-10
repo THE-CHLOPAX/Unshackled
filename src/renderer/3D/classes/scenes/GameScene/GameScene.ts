@@ -33,10 +33,10 @@ export abstract class GameScene extends Scene {
       top: frustumSize / 2,
       bottom: -frustumSize / 2,
       near: -6,
-      far: 20,
+      far: 40,
     });
 
-    this.camera.setZoom(0.75);
+    this.camera.setZoom(0.85);
 
     this.add(this._shadersManager.warmupGroup);
     this.events.on('rendererChange', ({ renderer }) =>
