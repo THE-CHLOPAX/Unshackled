@@ -16,7 +16,12 @@ export class DamageHitboxController extends GameObjectComponent {
 
   public attachDamageHitbox(size: THREE.Vector3, damage: number, parentName: string): void {
     if (this._attackHitbox || !this.scene) return;
-    this._attackHitbox = new DamageHitbox(this.scene, size, this.gameObject, damage);
+    this._attackHitbox = new DamageHitbox(
+      this.scene,
+      size,
+      damage,
+      (other) => other === this.gameObject
+    );
 
     this.entity.modelRenderer.addAttachment({
       object: this._attackHitbox,

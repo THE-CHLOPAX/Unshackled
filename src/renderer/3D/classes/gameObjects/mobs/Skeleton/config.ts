@@ -14,7 +14,7 @@ export const config: EntityAIOptions = {
   movementOptions: {
     speed: 2.5,
     sprintSpeed: 4,
-    walkSpeed: 0.5,
+    walkSpeed: 0.3,
   },
   rigidBodyOptions: {
     ...DEFAULT_RIGID_BODY_OPTIONS,

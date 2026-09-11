@@ -3,13 +3,20 @@ import { GameObject, RigidBody, Scene } from '@tgdf';
 
 import { HealthPointsController } from '../gameObjectComponents/HealthPointsController';
 
+export type DamageHitboxIgnoreCondition = (other: GameObject) => boolean;
+
 export class DamageHitbox extends GameObject {
   public rigidBody: RigidBody;
 
   private _damage: number;
-  private _attacker: GameObject;
+  private _ignoreCondition?: DamageHitboxIgnoreCondition;
 
-  constructor(scene: Scene, size: THREE.Vector3, attacker: GameObject, damage: number) {
+  constructor(
+    scene: Scene,
+    size: THREE.Vector3,
+    damage: number,
+    ignoreCondition?: DamageHitboxIgnoreCondition
+  ) {
     super({ scene });
 
     const mesh = new THREE.Mesh(
@@ -22,8 +29,8 @@ export class DamageHitbox extends GameObject {
     this.add(mesh);
 
     this.name = 'DamageHitbox';
-    this._attacker = attacker;
     this._damage = damage;
+    this._ignoreCondition = ignoreCondition;
 
     this.rigidBody = this.addComponent(
       'RigidBodyComponent',
@@ -46,15 +53,11 @@ export class DamageHitbox extends GameObject {
     return this._damage;
   }
 
-  public get attacker(): GameObject {
-    return this._attacker;
-  }
-
   protected override onAwake(): void {
     super.onAwake();
     this.rigidBody.addCollisionListener(`damage-hitbox-${this.id}`, ({ otherBody, started }) => {
       const otherObject = otherBody.gameObject;
-      if (otherObject === undefined || otherObject === this._attacker) return;
+      if (otherObject === undefined || this._ignoreCondition?.(otherObject)) return;
       if (started) {
         const healthController = otherObject.getGameObjectComponentByType(HealthPointsController);
         if (healthController) {
