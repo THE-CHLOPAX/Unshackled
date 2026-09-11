@@ -2,7 +2,7 @@ import { NavMesh, Crowd } from '@recast-navigation/core';
 
 import { config } from './config';
 import { EntityAI } from '../../EntityAI';
-import { AIIdleState, SpawnState } from '../../../states';
+import { AIIdleState } from '../../../states';
 import { GameScene } from '../../../scenes/GameScene/GameScene';
 
 export class Skeleton extends EntityAI {
@@ -17,6 +17,6 @@ export class Skeleton extends EntityAI {
   }
 
   protected override onInit(): void {
-    this.stateController.currentState = new SpawnState(this, new AIIdleState(this));
+    this.stateController.currentState = new AIIdleState(this);
   }
 }

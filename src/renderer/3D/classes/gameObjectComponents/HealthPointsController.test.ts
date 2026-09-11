@@ -1,40 +1,31 @@
-import gsap from 'gsap';
-import * as THREE from 'three';
 import { Mock, IMock } from 'moq.ts';
 import { Emitter, GameObjectEventMap } from '@tgdf';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
 import { Entity } from '../gameObjects/Entity';
-import { ModelRenderer } from './ModelRenderer/ModelRenderer';
 import { HealthPointsController } from './HealthPointsController';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
 }));
 
-function createEntityMock(materials: THREE.Material[] | null = []) {
+function createEntityMock() {
   const gameObjectEvents = new Emitter<GameObjectEventMap>();
-
-  const modelRendererMock: IMock<ModelRenderer> = new Mock<ModelRenderer>()
-    .setup((mr) => mr.getModelMaterials())
-    .returns(materials);
 
   const entityMock: IMock<Entity> = new Mock<Entity>()
     .setup((e) => e.isAwake)
     .returns(false)
     .setup((e) => e.events)
-    .returns(gameObjectEvents)
-    .setup((e) => e.modelRenderer)
-    .returns(modelRendererMock.object());
+    .returns(gameObjectEvents);
 
-  return { entityMock, modelRendererMock };
+  return { entityMock };
 }
 
-function createController(initialHealthPoints = 100, materials: THREE.Material[] | null = []) {
-  const { entityMock, modelRendererMock } = createEntityMock(materials);
+function createController(initialHealthPoints = 100) {
+  const { entityMock } = createEntityMock();
   const controller = new HealthPointsController(entityMock.object(), { initialHealthPoints });
 
-  return { controller, entityMock, modelRendererMock };
+  return { controller, entityMock };
 }
 
 describe('HealthPointsController', () => {
@@ -182,39 +173,4 @@ describe('HealthPointsController', () => {
     });
   });
 
-  describe('flashRed', () => {
-    it('tweens the color of every material that has one, and forwards onComplete', () => {
-      const material = new THREE.MeshStandardMaterial({ color: new THREE.Color() });
-      const { controller } = createController(100, [material]);
-      const gsapToSpy = vi.spyOn(gsap, 'to').mockReturnValue({} as gsap.core.Tween);
-      const onComplete = vi.fn();
-
-      controller.flashRed(onComplete);
-
-      expect(gsapToSpy).toHaveBeenCalledTimes(1);
-      const [target, vars] = gsapToSpy.mock.calls[0];
-      expect(target).toBe(material.color);
-
-      vars.onComplete?.();
-      expect(onComplete).toHaveBeenCalledOnce();
-    });
-
-    it('does nothing when the model has no materials', () => {
-      const { controller } = createController(100, null);
-      const gsapToSpy = vi.spyOn(gsap, 'to');
-
-      expect(() => controller.flashRed()).not.toThrow();
-      expect(gsapToSpy).not.toHaveBeenCalled();
-    });
-
-    it('skips materials without a THREE.Color color property', () => {
-      const material = new THREE.ShaderMaterial();
-      const { controller } = createController(100, [material]);
-      const gsapToSpy = vi.spyOn(gsap, 'to');
-
-      controller.flashRed();
-
-      expect(gsapToSpy).not.toHaveBeenCalled();
-    });
-  });
 });

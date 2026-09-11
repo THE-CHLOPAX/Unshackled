@@ -5,7 +5,7 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils';
 import { MODEL_NATIVE_TILE_SIZE } from 'renderer/3D/constants';
 
 import { FLOOR_FULL_DEPTH } from '../dungeon';
-import { getModelMaterial } from './getModelMaterial';
+import { getModelMaterial } from '../../utils/getModelMaterial';
 
 export type GetDungeonWallArgs = {
   pillarModelId: string;

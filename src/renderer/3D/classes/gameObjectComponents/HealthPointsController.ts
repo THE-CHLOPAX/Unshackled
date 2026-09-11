@@ -1,5 +1,3 @@
-import gsap from 'gsap';
-import * as THREE from 'three';
 import { assert, Emitter, GameObjectComponent, logger } from '@tgdf';
 
 import { Entity } from '../gameObjects/Entity';
@@ -95,31 +93,5 @@ export class HealthPointsController extends GameObjectComponent {
   public resetHealth(): void {
     this._healthPoints = this.options.initialHealthPoints;
     this._isDead = false;
-  }
-
-  public flashRed(onComplete?: () => void): void {
-    const modelMaterials = this.gameObject.modelRenderer.getModelMaterials();
-
-    if (!modelMaterials) return;
-
-    modelMaterials.forEach((material) => {
-      if (!('color' in material)) return;
-
-      const color = material.color;
-
-      if (color instanceof THREE.Color) {
-        gsap.to(color, {
-          r: 1,
-          g: 0,
-          b: 0,
-          duration: 0.1,
-          yoyo: true,
-          repeat: 1,
-          onComplete: () => {
-            onComplete?.();
-          },
-        });
-      }
-    });
   }
 }

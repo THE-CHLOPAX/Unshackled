@@ -5,6 +5,7 @@ import { createSkinnedMesh } from 'renderer/3D/utils/createSkinnedMesh';
 
 import { MATERIALS } from '../../../../constants';
 import { ShadersManager } from './ShadersManager';
+import { getDefaultWarmupMaterialFactories } from '../getDefaultWarmupMaterialFactories';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
@@ -51,11 +52,38 @@ afterEach(() => {
   renderersToDispose.length = 0;
 });
 
+function buildRiggedVertexColoredMesh(material: THREE.Material): THREE.SkinnedMesh {
+  const geometry = new THREE.PlaneGeometry(0.5, 0.5);
+  const vertexCount = geometry.attributes.position.count;
+
+  const skinIndex = new Uint16Array(vertexCount * 4);
+  const skinWeight = new Float32Array(vertexCount * 4);
+  for (let i = 0; i < vertexCount; i++) skinWeight[i * 4] = 1;
+  geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(skinIndex, 4));
+  geometry.setAttribute('skinWeight', new THREE.Float32BufferAttribute(skinWeight, 4));
+
+  const colors = new Float32Array(vertexCount * 4).fill(1);
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 4));
+
+  const bones = Array.from({ length: 20 }, () => new THREE.Bone());
+  const mesh = new THREE.SkinnedMesh(geometry, material);
+  mesh.bind(new THREE.Skeleton(bones));
+  return mesh;
+}
+
 describe('ShadersManager', () => {
-  it('adds an invisible warmup group covering every MATERIALS variant, plain and skinned', () => {
+  it('populates an invisible warmup group covering every MATERIALS variant, plain and skinned', async () => {
+    const renderer = createRenderer();
+    const scene = new THREE.Scene();
+    const camera = createCamera();
+
     const shadersManager = new ShadersManager();
+    scene.add(shadersManager.warmupGroup);
 
     expect(shadersManager.warmupGroup.visible).toBe(false);
+    expect(shadersManager.warmupGroup.children).toHaveLength(0);
+
+    await shadersManager.warmup(renderer, scene, camera, getDefaultWarmupMaterialFactories());
 
     // `skinning` is a per-OBJECT cache-key input (object.isSkinnedMesh), not
     // a material property, so a MeshStandardMaterial variant needs both a
@@ -78,7 +106,7 @@ describe('ShadersManager', () => {
     const shadersManager = new ShadersManager();
     scene.add(shadersManager.warmupGroup);
 
-    await shadersManager.warmup(renderer, scene, camera);
+    await shadersManager.warmup(renderer, scene, camera, getDefaultWarmupMaterialFactories());
     const baselineProgramCount = programCount(renderer);
     expect(baselineProgramCount).toBeGreaterThan(0);
 
@@ -110,7 +138,7 @@ describe('ShadersManager', () => {
     const shadersManager = new ShadersManager();
     scene.add(shadersManager.warmupGroup);
 
-    await shadersManager.warmup(renderer, scene, camera);
+    await shadersManager.warmup(renderer, scene, camera, getDefaultWarmupMaterialFactories());
     const baselineProgramCount = programCount(renderer);
 
     const ghostMesh = createSkinnedMesh(
@@ -122,6 +150,55 @@ describe('ShadersManager', () => {
 
     expect(programCount(renderer)).toBe(baselineProgramCount);
     expect(shadersManager.checkForLateCompiles(renderer)).toBeNull();
+  });
+
+  it('shares compiled programs for a real rigged mesh with vertex colors when warmed as a full object', async () => {
+    const renderer = createRenderer();
+    const scene = new THREE.Scene();
+    const camera = createCamera();
+
+    const material = new THREE.MeshStandardMaterial({ vertexColors: true });
+
+    const shadersManager = new ShadersManager();
+    scene.add(shadersManager.warmupGroup);
+
+    await shadersManager.warmup(renderer, scene, camera, [
+      () => buildRiggedVertexColoredMesh(material),
+    ]);
+    const baselineProgramCount = programCount(renderer);
+    expect(baselineProgramCount).toBeGreaterThan(0);
+
+    const realMesh = buildRiggedVertexColoredMesh(material);
+    scene.add(realMesh);
+
+    renderIntoIntermediateTarget(renderer, scene, camera);
+
+    expect(programCount(renderer)).toBe(baselineProgramCount);
+    expect(shadersManager.checkForLateCompiles(renderer)).toBeNull();
+  });
+
+  it('would recompile a real rigged mesh with vertex colors if only its material were warmed — proving the Object3D warmup path is load-bearing', async () => {
+    const renderer = createRenderer();
+    const scene = new THREE.Scene();
+    const camera = createCamera();
+
+    const material = new THREE.MeshStandardMaterial({ vertexColors: true });
+
+    const shadersManager = new ShadersManager();
+    scene.add(shadersManager.warmupGroup);
+
+    // Warming just the material (the old, insufficient approach) wraps it in a
+    // generic dummy geometry that has no vertex colors, so it can't reproduce
+    // the real mesh's cache key.
+    await shadersManager.warmup(renderer, scene, camera, [() => material]);
+    const baselineProgramCount = programCount(renderer);
+
+    const realMesh = buildRiggedVertexColoredMesh(material);
+    scene.add(realMesh);
+
+    renderIntoIntermediateTarget(renderer, scene, camera);
+
+    expect(programCount(renderer)).toBeGreaterThan(baselineProgramCount);
   });
 
   it('would recompile a SkinnedMesh without a skinned warmup instance — proving that fix is load-bearing too', () => {
@@ -148,7 +225,7 @@ describe('ShadersManager', () => {
     const shadersManager = new ShadersManager();
     scene.add(shadersManager.warmupGroup);
 
-    await shadersManager.warmup(renderer, scene, camera);
+    await shadersManager.warmup(renderer, scene, camera, getDefaultWarmupMaterialFactories());
 
     const normalMap = new THREE.DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1);
     normalMap.needsUpdate = true;

@@ -5,7 +5,7 @@ import { DungeonWallTorch } from '3D/classes/gameObjects/props/DungeonWallTorch'
 
 import { MODELS, WORLD_CELL_SIZE } from '../constants';
 import { getModelGeometry } from './utils/getModelGeometry';
-import { getModelMaterial } from './utils/getModelMaterial';
+import { getModelMaterial } from '../utils/getModelMaterial';
 import { WorldObjectDefinition, WorldTileCodes } from '../types';
 import { getDungeonWallParts } from './utils/getDungeonWallGeometry';
 import { getDungeonDoorFrameParts } from './utils/getDungeonDoorFrameGeometry';

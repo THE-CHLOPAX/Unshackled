@@ -7,7 +7,8 @@ import { MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
 import { generateChunkedLevel } from '3D/utils/generateChunkedLevel';
 
 import { loadAssetRecord } from './loadAssetRecord';
-import { ShadersManager } from './ShadersManager/ShadersManager';
+import { ShadersManager, WarmupFactory } from './ShadersManager/ShadersManager';
+import { getDefaultWarmupMaterialFactories } from './getDefaultWarmupMaterialFactories';
 import { OrtographicCamera, OrtographicCameraOptions } from '../../cameras/OrtographicCamera';
 
 const GAME_GRAVITY = new THREE.Vector3(0, -9.81, 0);
@@ -18,6 +19,8 @@ export abstract class GameScene extends Scene {
 
   public abstract readonly levelVariants: LevelRecord[];
   public abstract readonly preloadedAssets: AssetRecord[];
+
+  protected additionalWarmupFactories: WarmupFactory[] = [];
 
   private _shadersManager = new ShadersManager();
 
@@ -37,11 +40,6 @@ export abstract class GameScene extends Scene {
     });
 
     this.camera.setZoom(0.85);
-
-    this.add(this._shadersManager.warmupGroup);
-    this.events.on('rendererChange', ({ renderer }) =>
-      this._shadersManager.warmup(renderer, this, this.camera)
-    );
   }
 
   protected createCamera(options: OrtographicCameraOptions): OrtographicCamera {
@@ -50,6 +48,14 @@ export abstract class GameScene extends Scene {
 
   public async initializePhysics(): Promise<void> {
     await this.initializePhysicsWorld(GAME_GRAVITY);
+  }
+
+  public async precompileShaders(): Promise<void> {
+    this.add(this._shadersManager.warmupGroup);
+    this._shadersManager.warmup(this.renderer, this, this.camera, [
+      ...getDefaultWarmupMaterialFactories(),
+      ...this.additionalWarmupFactories,
+    ]);
   }
 
   public async preloadAssets(): Promise<void> {

@@ -2,12 +2,13 @@ import * as THREE from 'three';
 import { AssetRecord } from '@tgdf';
 
 import { LevelRecord } from 'renderer/3D/types';
-import { MAIN_CROWD_ID, MODELS, SPAWN_MARKER_NAME, TEXTURES } from 'renderer/3D/constants';
+import { getModelClone } from 'renderer/3D/utils/getModelClone';
+import { MODELS, SPAWN_MARKER_NAME, TEXTURES } from 'renderer/3D/constants';
 
 import { GameScene } from './GameScene/GameScene';
-import { Monk } from '../gameObjects/players/Monk/Monk';
 import { OrtographicCameraOptions } from '../cameras/OrtographicCamera';
 import { FreeOrtographicCamera } from '../cameras/FreeOrtographicCamera';
+import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
 
 export class TestScene extends GameScene {
   public readonly levelVariants: LevelRecord[] = [{ url: 'test.json' }];
@@ -24,6 +25,11 @@ export class TestScene extends GameScene {
     MODELS.DUNGEON_WALL_TORCH,
     MODELS.DUNGEON_DOOR_FRAME,
     MODELS.DUNGEON_DOOR,
+  ];
+
+  protected override additionalWarmupFactories: WarmupFactory[] = [
+    () => getModelClone(MODELS.MONK.id),
+    () => getModelClone(MODELS.SKELETON.id),
   ];
 
   protected override createCamera(options: OrtographicCameraOptions): FreeOrtographicCamera {
@@ -44,7 +50,7 @@ export class TestScene extends GameScene {
     const marker = this.getObjectByName(SPAWN_MARKER_NAME);
 
     if (marker !== undefined) {
-      /*const { x, z } = marker.position;
+      /* const { x, z } = marker.position;
       const monk = new Monk(this);
       monk.position.set(x, 1, z);
       this.add(monk);

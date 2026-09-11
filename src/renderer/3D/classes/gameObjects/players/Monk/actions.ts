@@ -7,7 +7,7 @@ import { Entity } from '../../Entity';
 import { FMOD_EVENTS } from '../../../../../FMOD';
 import { SacredOrb } from './childObjects/SacredOrb';
 import { DashStateMonk } from './states/DashStateMonk';
-import { ArcaneCircle } from './childObjects/ArcaneCircle';
+import { HealingAura } from './childObjects/HealingAura';
 import { FocusState } from '../../../states/Player/FocusState';
 import { ActionWithSound, SequenceSkill, PlayerActionType } from '../../../../types';
 
@@ -117,13 +117,13 @@ export const healingAura: SequenceSkill = {
   cooldownMs: 8000,
   callback: (entity) => {
     return new Promise((resolve) => {
-      const arcaneCircle = new ArcaneCircle(entity.scene, {
+      const healingAuraObject = new HealingAura(entity.scene, {
         diameter: 4,
         healAmount: 10,
         durationMs: 5000,
         healIntervalMs: 1000,
       });
-      entity.add(arcaneCircle);
+      entity.add(healingAuraObject);
       resolve();
     });
   },

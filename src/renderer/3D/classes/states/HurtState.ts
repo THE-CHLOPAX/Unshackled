@@ -1,9 +1,15 @@
+import * as THREE from 'three';
 import { InputState, MAIN_SOUND_CHANNEL } from '@tgdf';
+
+import { COLORS } from 'renderer/constants';
 
 import { State, DeadState } from '.';
 import { Entity } from '../gameObjects/Entity';
 import { AnimationClipNamesShared } from '../../types';
+import { flashMaterial } from '../../utils/flashMaterial';
 import { FMOD_EVENTS, FMODAudio, FMODEventInstance } from '../../../FMOD';
+
+const HURT_FLASH_DURATION = 0.1;
 
 export class HurtState extends State {
   private _flashEnded: boolean = false;
@@ -38,14 +44,22 @@ export class HurtState extends State {
         this._animationEnded = true;
       },
     });
-    this.entity.healthPointsController.flashRed(() => {
-      this._flashEnded = true;
+    const timeline = flashMaterial({
+      entity: this.entity,
+      material: new THREE.MeshBasicMaterial({ color: COLORS.RED }),
+      duration: HURT_FLASH_DURATION,
     });
+
+    if (timeline) {
+      timeline.eventCallback('onComplete', () => {
+        this._flashEnded = true;
+      });
+    } else {
+      this._flashEnded = true;
+    }
   }
 
   public onExit(): void {
-    // Restore original materials when exiting the hurt state
-    this.entity.modelRenderer.restoreOriginalMaterials();
     if (this._eventInstance === null) return;
     FMODAudio.stopEvent(this._eventInstance);
     this._eventInstance = null;
@@ -60,7 +74,6 @@ export class HurtState extends State {
       return new DeadState(this.entity);
     }
 
-    // Exit hurt state when both the flash and hit animation have ended
     if (this._flashEnded && this._animationEnded) {
       return this.nextState;
     }
