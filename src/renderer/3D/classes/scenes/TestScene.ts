@@ -51,9 +51,9 @@ export class TestScene extends GameScene {
     const marker = this.getObjectByName(SPAWN_MARKER_NAME);
 
     if (marker !== undefined) {
-      const { x, z } = marker.position;
+      const { x, y, z } = marker.position;
       const monk = new Monk(this);
-      monk.position.set(x, 1, z);
+      monk.position.set(x, y, z);
       this.add(monk);
       this.camera.follow(monk);
       //this.camera.moveTo(marker.position);

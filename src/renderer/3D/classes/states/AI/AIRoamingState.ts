@@ -5,7 +5,7 @@ import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from './utils/getBestAttack';
 import { getTargetEnemy } from './utils/getTargetEnemy';
 import { AnimationClipNamesShared } from '../../../types';
-import { State, HurtState, AIIdleState, AIAttackState, AIChasingState } from '..';
+import { State, AIIdleState, AIAttackState, AIChasingState } from '..';
 import { getRandomNavMeshPointInRadius } from '../../../utils/getRandomNavMeshPointInRadius';
 
 const STUCK_CHECK_INTERVAL_SECONDS = 1;
@@ -39,10 +39,6 @@ export class AIRoamingState extends State {
 
   public override onInput(_inputState: InputState): State {
     return this;
-  }
-
-  protected override onDamageTaken(): State {
-    return new HurtState(this.entity, new AIIdleState(this.entity));
   }
 
   public override onUpdate(deltaTime: number): State {

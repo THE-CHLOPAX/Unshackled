@@ -81,7 +81,7 @@ export const NAVMESH_AGENT_HEIGHT = 2.0;
 export const DEFAULT_RIGID_BODY_OPTIONS: RigidBodyOptions = {
   mass: 0.1,
   friction: 0,
-  linearDamping: 0,
+  linearDamping: 5,
   lockRotation: true,
   colliderShape: 'cylinder',
   enableCollisionDetection: true,

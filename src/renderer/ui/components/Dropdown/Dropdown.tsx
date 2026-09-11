@@ -4,8 +4,9 @@ import { useKeyPress, useClickOutside } from '@tgdf';
 
 import { Text } from '../Text/Text';
 import { COLORS } from '../../../constants';
-import dropdownActiveBg from '../../../assets/svg/dropdown-active-bg.svg?url';
-import dropdownInactiveBg from '../../../assets/svg/dropdown-inactive-bg.svg?url';
+import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
+
+const { dropdownActiveBg, dropdownInactiveBg } = UI_BACKGROUND_IMAGE_URLS;
 
 const SCALE = 3;
 

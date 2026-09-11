@@ -68,11 +68,15 @@ export class HealthPointsController extends GameObjectComponent {
       return;
     }
     this._healthPoints = Math.max(this._healthPoints - amount, 0);
-    this.events.trigger('damagetaken', { currentHealth: this._healthPoints, damageAmount: amount });
     this._isDead = this._healthPoints === 0;
 
     if (this._isDead) {
       this.events.trigger('death');
+    } else {
+      this.events.trigger('damagetaken', {
+        currentHealth: this._healthPoints,
+        damageAmount: amount,
+      });
     }
   }
 

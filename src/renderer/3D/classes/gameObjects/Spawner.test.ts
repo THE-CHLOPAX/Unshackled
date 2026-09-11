@@ -21,6 +21,7 @@ type FakeEntityEvents = { death: void };
 
 class FakeSpawnedEntity extends GameObject {
   public healthPointsController = { events: new Emitter<FakeEntityEvents>() };
+  public modelRenderer = { getModel: () => null };
 }
 
 async function createReadyScene(): Promise<MockGameScene> {

@@ -238,4 +238,17 @@ describe('RigidBody', () => {
 
     observerMock.verify((o) => o.onCollision(It.IsAny(), It.IsAny(), true), Times.Once());
   });
+
+  it('toggles the collider between solid and sensor without touching enabled state', async () => {
+    const { rigidBody } = await createRigidBody({ type: 'dynamic' });
+
+    expect(rigidBody.isSensor()).toBe(false);
+
+    rigidBody.setSensor(true);
+    expect(rigidBody.isSensor()).toBe(true);
+    expect(rigidBody.isEnabled()).toBe(true);
+
+    rigidBody.setSensor(false);
+    expect(rigidBody.isSensor()).toBe(false);
+  });
 });

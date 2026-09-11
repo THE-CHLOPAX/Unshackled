@@ -2,6 +2,7 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 
 import { Entity } from '../classes/gameObjects/Entity';
+import { MeshMaterial } from '../classes/gameObjectComponents/ModelRenderer/ModelRenderer';
 
 export type FlashMaterialFadeOptions = {
   duration: number;
@@ -14,6 +15,8 @@ export type FlashMaterialOptions = {
   fadeIn?: FlashMaterialFadeOptions;
   fadeOut?: FlashMaterialFadeOptions;
 };
+
+const activeFlashTimelines = new WeakMap<Entity, gsap.core.Timeline>();
 
 export function flashMaterial(options: FlashMaterialOptions): gsap.core.Timeline | null {
   const { entity, material: material, duration, fadeIn, fadeOut } = options;
@@ -28,8 +31,13 @@ export function flashMaterial(options: FlashMaterialOptions): gsap.core.Timeline
 
   if (meshes.length === 0) return null;
 
-  const originalMaterials = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
-  meshes.forEach((mesh) => originalMaterials.set(mesh, mesh.material));
+  activeFlashTimelines.get(entity)?.kill();
+
+  const modelOriginalMaterials = entity.modelRenderer.getMaterialsCopy();
+  const originalMaterials = new Map<THREE.Mesh, MeshMaterial>();
+  meshes.forEach((mesh) => {
+    originalMaterials.set(mesh, modelOriginalMaterials.get(mesh) ?? mesh.material);
+  });
 
   if (fadeIn !== undefined || fadeOut !== undefined) {
     material.transparent = true;
@@ -38,6 +46,7 @@ export function flashMaterial(options: FlashMaterialOptions): gsap.core.Timeline
   const targetOpacity = material.opacity;
 
   const timeline = gsap.timeline();
+  activeFlashTimelines.set(entity, timeline);
 
   meshes.forEach((mesh) => {
     mesh.material = material;
@@ -60,6 +69,9 @@ export function flashMaterial(options: FlashMaterialOptions): gsap.core.Timeline
     originalMaterials.forEach((originalMaterial, mesh) => {
       mesh.material = originalMaterial;
     });
+    if (activeFlashTimelines.get(entity) === timeline) {
+      activeFlashTimelines.delete(entity);
+    }
   });
 
   return timeline;
@@ -80,9 +92,6 @@ export type FlashEmissiveOptions = {
   fadeOut?: FlashMaterialFadeOptions;
 };
 
-// Pulses each mesh's own material's emissive channel instead of swapping in a
-// separate material, so the model stays lit by scene lights throughout and
-// never pops between a flash material and its restored original.
 export function flashEmissive(options: FlashEmissiveOptions): gsap.core.Timeline | null {
   const { entity, color, intensity = 1, duration, fadeIn, fadeOut } = options;
 

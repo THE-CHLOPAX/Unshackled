@@ -3,9 +3,10 @@ import * as THREE from 'three';
 
 import { RunningState, SprintingState } from 'renderer/3D/classes/states';
 
+import { Player } from '../Player';
 import { Entity } from '../../Entity';
 import { FMOD_EVENTS } from '../../../../../FMOD';
-import { SacredOrb } from './childObjects/SacredOrb';
+//import { SacredOrb } from './childObjects/SacredOrb';
 import { DashStateMonk } from './states/DashStateMonk';
 import { HealingAura } from './childObjects/HealingAura';
 import { FocusState } from '../../../states/Player/FocusState';
@@ -24,7 +25,8 @@ export const kick: ActionWithSound = {
             entity.damageHitboxController.attachDamageHitbox(
               new THREE.Vector3(0.3, 1, 0.3),
               10,
-              'mixamorigRightFoot'
+              'mixamorigRightFoot',
+              (other) => other instanceof Player
             ),
           [],
           HITBOX_DELAY
@@ -49,7 +51,7 @@ export const kick: ActionWithSound = {
   soundPath: FMOD_EVENTS.ATTACK,
 };
 
-const SACRED_ORB_COUNT = 3;
+/* const SACRED_ORB_COUNT = 3;
 const SACRED_ORB_FORMATION_RADIUS = 1;
 const SACRED_ORB_ANGLE_STEP = (Math.PI * 2) / SACRED_ORB_COUNT;
 const SACRED_ORB_ROTATION_DURATION = 6;
@@ -104,7 +106,7 @@ export const summonOrbs: SequenceSkill = {
       resolve();
     });
   },
-};
+}; */
 
 export const healingAura: SequenceSkill = {
   sequence: [

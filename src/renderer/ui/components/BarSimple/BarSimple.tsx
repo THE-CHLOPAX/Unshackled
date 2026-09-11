@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { COLORS } from 'renderer/constants';
 
-import barSimpleFrame from '../../../assets/svg/bar-simple.svg?url';
+import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
 
 const DEFAULT_SCALE = 3;
 
@@ -61,7 +61,7 @@ const Fill = styled.div<{ $progress: number; $color: string; $scale: number }>`
 const Frame = styled.div`
   position: absolute;
   inset: 0;
-  background-image: url(${barSimpleFrame});
+  background-image: url(${UI_BACKGROUND_IMAGE_URLS.barSimpleFrame});
   background-repeat: no-repeat;
   background-size: 100% 100%;
   image-rendering: pixelated;

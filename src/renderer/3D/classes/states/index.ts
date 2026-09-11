@@ -1,6 +1,5 @@
 // Shared
 export { State } from './State';
-export { HurtState } from './HurtState';
 export { DeadState } from './DeadState';
 export { SpawnState } from './SpawnState';
 

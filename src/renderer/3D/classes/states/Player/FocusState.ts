@@ -3,7 +3,7 @@ import { Input, InputState } from '@tgdf';
 import { PlayerActionType, FocusOptions } from '3D/types';
 import { mapInputToControls } from '3D/utils/mapInputToControls';
 
-import { IdleState, State, HurtState } from '../';
+import { IdleState, State } from '../';
 import { Player } from '../../gameObjects/players/Player';
 import { handleSequenceInput } from './utils/handleSequenceInput';
 
@@ -76,10 +76,6 @@ export class FocusState extends State {
     if (!this._focusInProgress) return this;
 
     return handleSequenceInput(this, this.entity, inputState) ?? this;
-  }
-
-  protected override onDamageTaken(): State {
-    return new HurtState(this.entity, new FocusState(this.entity, this.options));
   }
 
   public override onExit(): void {}

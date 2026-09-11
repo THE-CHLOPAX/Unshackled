@@ -1,6 +1,8 @@
 import { gsap } from 'gsap';
 import * as THREE from 'three';
 
+import { isEntityAi } from 'renderer/3D/utils/isEntityAi';
+
 import { Entity } from '../../Entity';
 import { AIAttack } from '../../../../types';
 import { FMOD_EVENTS } from '../../../../../FMOD/constants';
@@ -30,7 +32,8 @@ function punch(entity: Entity) {
           entity.damageHitboxController.attachDamageHitbox(
             new THREE.Vector3(0.5, 0.5, 0.5),
             10,
-            'mixamorigRightHand'
+            'mixamorigRightHand',
+            (other) => isEntityAi(other)
           ),
         [],
         HITBOX_DELAY

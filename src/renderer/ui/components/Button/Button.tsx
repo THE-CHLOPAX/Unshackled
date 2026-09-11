@@ -1,8 +1,7 @@
 import { styled } from 'styled-components';
 
 import { Text } from '../Text/Text';
-import buttonActiveBg from '../../../assets/svg/button-active-bg.svg?url';
-import buttonInactiveBg from '../../../assets/svg/button-inactive-bg.svg?url';
+import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
 
 const SCALE = 3;
 
@@ -36,7 +35,7 @@ const Wrapper = styled.button`
   padding-top: ${SPIKE_HEIGHT * SCALE}px;
   min-width: ${NATIVE_WIDTH * SCALE}px;
   height: ${ACTIVE_HEIGHT * SCALE}px;
-  background-image: url(${buttonInactiveBg});
+  background-image: url(${UI_BACKGROUND_IMAGE_URLS.buttonInactiveBg});
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: 100% auto;
@@ -44,7 +43,7 @@ const Wrapper = styled.button`
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background-image: url(${buttonActiveBg});
+    background-image: url(${UI_BACKGROUND_IMAGE_URLS.buttonActiveBg});
   }
 
   &:disabled {

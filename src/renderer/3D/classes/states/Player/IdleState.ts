@@ -1,6 +1,6 @@
 import { InputState } from '@tgdf';
 
-import { State, HurtState } from '..';
+import { State } from '..';
 import { Player } from '../../gameObjects/players/Player';
 import { AnimationClipNamesShared } from '../../../types';
 import { handleSequenceInput } from './utils/handleSequenceInput';
@@ -34,9 +34,5 @@ export class IdleState extends State {
 
   public override onUpdate(_deltaTime: number): State {
     return this;
-  }
-
-  protected override onDamageTaken(): State {
-    return new HurtState(this.entity, new IdleState(this.entity));
   }
 }

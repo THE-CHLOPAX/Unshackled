@@ -4,7 +4,7 @@ import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from './utils/getBestAttack';
 import { getTargetEnemy } from './utils/getTargetEnemy';
 import { AnimationClipNamesShared } from '../../../types';
-import { State, HurtState, AIAttackState, AIRoamingState, AIChasingState } from '..';
+import { State, AIAttackState, AIRoamingState, AIChasingState } from '..';
 
 export class AIIdleState extends State {
   private _startRoamingTimeout: NodeJS.Timeout | null = null;
@@ -37,10 +37,6 @@ export class AIIdleState extends State {
 
   public override onInput(_inputState: InputState): State {
     return this;
-  }
-
-  protected override onDamageTaken(): State {
-    return new HurtState(this.entity, new AIIdleState(this.entity));
   }
 
   public override onUpdate(_deltaTime: number): State {

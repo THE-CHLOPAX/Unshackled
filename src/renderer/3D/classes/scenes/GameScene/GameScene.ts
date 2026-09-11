@@ -11,7 +11,7 @@ import { ShadersManager, WarmupFactory } from './ShadersManager/ShadersManager';
 import { getDefaultWarmupMaterialFactories } from './getDefaultWarmupMaterialFactories';
 import { OrtographicCamera, OrtographicCameraOptions } from '../../cameras/OrtographicCamera';
 
-const GAME_GRAVITY = new THREE.Vector3(0, -9.81, 0);
+const GAME_GRAVITY = new THREE.Vector3(0, 0, 0);
 const LEVEL_CHUNK_SIZE = 16;
 
 export abstract class GameScene extends Scene {

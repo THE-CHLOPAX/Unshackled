@@ -131,6 +131,20 @@ export class RigidBody extends GameObjectComponent<RigidBodyOptions> {
     return body.isEnabled();
   }
 
+  public setSensor(isSensor: boolean): void {
+    if (!this._collider) {
+      throw new Error('RigidBody: Cannot set sensor state before collider is initialized');
+    }
+    this._collider.setSensor(isSensor);
+  }
+
+  public isSensor(): boolean {
+    if (!this._collider) {
+      throw new Error('RigidBody: Cannot read sensor state before collider is initialized');
+    }
+    return this._collider.isSensor();
+  }
+
   public syncFromPhysics(): void {
     if (this.options.type !== 'dynamic') return;
 

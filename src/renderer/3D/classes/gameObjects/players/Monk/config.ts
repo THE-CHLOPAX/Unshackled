@@ -6,7 +6,7 @@ import { MODELS, DEFAULT_RIGID_BODY_OPTIONS } from '3D/constants';
 import { Player, PlayerOptions } from '../Player';
 import { AttackState, RunningState } from '../../../states';
 import { FocusState } from '../../../states/Player/FocusState';
-import { kick, summonOrbs, healingAura, dash } from './actions';
+import { kick, /* summonOrbs, */ healingAura, dash } from './actions';
 
 enum MonkAnimationClipNames {
   FOCUS_START = 'praying-start',
@@ -34,9 +34,9 @@ export const config: PlayerOptions = {
     },
   },
   healthOptions: {
-    initialHealthPoints: 10,
+    initialHealthPoints: 100,
   },
-  sequenceSkills: [summonOrbs, healingAura, dash],
+  sequenceSkills: [/* summonOrbs, */ healingAura, dash],
   sequenceTimeoutMs: 500,
   actions: {
     [PlayerActionType.ACTION_UP]: (entity: Player) => {

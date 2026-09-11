@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { InputState, MAIN_SOUND_CHANNEL } from '@tgdf';
 
 import { State } from '.';
@@ -12,11 +13,9 @@ export class DeadState extends State {
     super(entity);
   }
 
-  protected override onDamageTaken(): State | null {
-    return null;
-  }
-
   public onEnter(): void {
+    this.entity.rigidBody.setSensor(true);
+    this.entity.rigidBody.setLinearVelocity(new THREE.Vector3(0, 0, 0));
     this._eventInstance = FMODAudio.playEventInSoundChannel({
       eventPath: FMOD_EVENTS.HURT,
       channelId: MAIN_SOUND_CHANNEL,

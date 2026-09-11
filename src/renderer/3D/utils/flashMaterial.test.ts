@@ -1,15 +1,20 @@
 import * as THREE from 'three';
 import { Mock, IMock } from 'moq.ts';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, assert } from 'vitest';
 
 import { Entity } from '../classes/gameObjects/Entity';
 import { flashMaterial, flashEmissive } from './flashMaterial';
 import { ModelRenderer } from '../classes/gameObjectComponents/ModelRenderer/ModelRenderer';
 
-function createEntityMock(model: THREE.Object3D | null): Entity {
+function createEntityMock(
+  model: THREE.Object3D | null,
+  materialsCopy: Map<THREE.Mesh, THREE.Material | THREE.Material[]> = new Map()
+): Entity {
   const modelRendererMock: IMock<ModelRenderer> = new Mock<ModelRenderer>()
     .setup((mr) => mr.getModel())
-    .returns(model);
+    .returns(model)
+    .setup((mr) => mr.getMaterialsCopy())
+    .returns(materialsCopy);
 
   const entityMock: IMock<Entity> = new Mock<Entity>()
     .setup((e) => e.modelRenderer)
@@ -51,7 +56,13 @@ describe('flashMaterial', () => {
     const model = new THREE.Group();
     model.add(meshA, meshB);
 
-    const entity = createEntityMock(model);
+    const entity = createEntityMock(
+      model,
+      new Map([
+        [meshA, originalMaterialA],
+        [meshB, originalMaterialB],
+      ])
+    );
     const flashMat = new THREE.MeshBasicMaterial();
 
     const timeline = flashMaterial({ entity, material: flashMat, duration: 1 });
@@ -63,6 +74,70 @@ describe('flashMaterial', () => {
 
     expect(meshA.material).toBe(originalMaterialA);
     expect(meshB.material).toBe(originalMaterialB);
+  });
+
+  it('restores to the material tracked by ModelRenderer, not whatever is on the mesh at call time', () => {
+    const mesh: THREE.Mesh<THREE.BoxGeometry, THREE.Material> = new THREE.Mesh(
+      new THREE.BoxGeometry(),
+      new THREE.MeshStandardMaterial()
+    );
+    const model = new THREE.Group();
+    model.add(mesh);
+
+    // Simulate an overlapping flash: the mesh is currently showing some other
+    // temporary material, but ModelRenderer still knows the true original.
+    const trueOriginal = new THREE.MeshStandardMaterial();
+    mesh.material = new THREE.MeshBasicMaterial();
+
+    const entity = createEntityMock(model, new Map([[mesh, trueOriginal]]));
+    const flashMat = new THREE.MeshBasicMaterial();
+
+    const timeline = flashMaterial({ entity, material: flashMat, duration: 1 });
+    timeline?.progress(1);
+
+    expect(mesh.material).toBe(trueOriginal);
+  });
+
+  it('falls back to the mesh current material when ModelRenderer has no tracked original for it', () => {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial());
+    const untrackedOriginal = mesh.material;
+    const model = new THREE.Group();
+    model.add(mesh);
+
+    const entity = createEntityMock(model, new Map());
+    const flashMat = new THREE.MeshBasicMaterial();
+
+    const timeline = flashMaterial({ entity, material: flashMat, duration: 1 });
+    timeline?.progress(1);
+
+    expect(mesh.material).toBe(untrackedOriginal);
+  });
+
+  it('kills the previous flash timeline when called again before it finishes, so they cannot fight over the mesh', () => {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial());
+    const model = new THREE.Group();
+    model.add(mesh);
+    const trueOriginal = mesh.material;
+
+    const entity = createEntityMock(model, new Map([[mesh, trueOriginal]]));
+
+    const timelineA = flashMaterial({
+      entity,
+      material: new THREE.MeshBasicMaterial(),
+      duration: 1,
+      fadeOut: { duration: 0.5 },
+    });
+    assert(timelineA !== null, 'timelineA is null');
+    const killSpy = vi.spyOn(timelineA, 'kill');
+
+    const flashMatB = new THREE.MeshBasicMaterial();
+    const timelineB = flashMaterial({ entity, material: flashMatB, duration: 1 });
+
+    expect(killSpy).toHaveBeenCalledOnce();
+    expect(mesh.material).toBe(flashMatB);
+
+    timelineB?.progress(1);
+    expect(mesh.material).toBe(trueOriginal);
   });
 
   it('fades in from zero opacity when fadeIn is enabled', () => {

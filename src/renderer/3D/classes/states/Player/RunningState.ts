@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { Input, InputState, logger } from '@tgdf';
 
+import { State, SprintingState, IdleState } from '..';
 import { AnimationClipNamesShared } from '../../../types';
 import { Player } from '../../gameObjects/players/Player';
-import { State, HurtState, SprintingState, IdleState } from '..';
 import { handleSequenceInput } from './utils/handleSequenceInput';
 import { mapInputToControls } from '../../../utils/mapInputToControls';
 
@@ -72,9 +72,5 @@ export class RunningState extends State {
     rotatedMove.addScaledVector(cameraForward, -moveVector.z);
 
     this.entity.movementController.move(rotatedMove);
-  }
-
-  protected override onDamageTaken(): State {
-    return new HurtState(this.entity, new RunningState(this.entity));
   }
 }

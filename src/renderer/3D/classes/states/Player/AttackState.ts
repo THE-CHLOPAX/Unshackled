@@ -1,8 +1,8 @@
 import { InputState, MAIN_SOUND_CHANNEL } from '@tgdf';
 
 import { ActionWithSound } from '../../../types';
+import { State, IdleState, RunningState } from '..';
 import { Player } from '../../gameObjects/players/Player';
-import { State, HurtState, IdleState, RunningState } from '..';
 import { FMODAudio, FMODEventInstance } from '../../../../FMOD';
 import { ControlsState, mapInputToControls } from '../../../utils/mapInputToControls';
 
@@ -58,9 +58,5 @@ export class AttackState extends State {
     }
 
     return this;
-  }
-
-  protected override onDamageTaken(): State {
-    return new HurtState(this.entity, new AttackState(this.entity, this._attackAction));
   }
 }
