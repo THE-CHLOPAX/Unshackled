@@ -5,17 +5,30 @@ import { RunningState, SprintingState } from 'renderer/3D/classes/states';
 
 import { Player } from '../Player';
 import { Entity } from '../../Entity';
-import { FMOD_EVENTS } from '../../../../../FMOD';
-//import { SacredOrb } from './childObjects/SacredOrb';
 import { DashStateMonk } from './states/DashStateMonk';
 import { HealingAura } from './childObjects/HealingAura';
 import { FocusState } from '../../../states/Player/FocusState';
-import { ActionWithSound, SequenceSkill, PlayerActionType } from '../../../../types';
+import { ActionWithSound, ChainedAction, SequenceSkill, PlayerActionType } from '../../../../types';
+
+const PUNCH_CHAIN_WINDOW_DELAY_MS = 150;
+const PUNCH_CHAIN_WINDOW_DURATION_MS = 300;
+
+const KICK_IMPULSE_STRENGTH = 0.4;
+const PUNCH_IMPULSE_STRENGTH = 0.4;
+
+const KICK_CAMERA_SHAKE = 2;
+const PUNCH_CAMERA_SHAKE = 1;
+
+function applyForwardImpulse(entity: Entity, strength: number): void {
+  const direction = new THREE.Vector3();
+  entity.getWorldDirection(direction);
+  entity.rigidBody.applyImpulse(direction.multiplyScalar(strength));
+}
 
 export const kick: ActionWithSound = {
   action: (entity: Entity) =>
     new Promise<void>((resolve) => {
-      const HITBOX_DELAY = 0.3; // Delay in seconds before the hitbox is attached
+      const HITBOX_DELAY = 0.2; // Delay in seconds before the hitbox is attached
       const HITBOX_DURATION = 0.4; // Duration in seconds for which the hitbox remains active
 
       entity.damageHitboxController.hitboxTimeline = gsap
@@ -39,74 +52,112 @@ export const kick: ActionWithSound = {
           HITBOX_DELAY + HITBOX_DURATION
         );
 
+      applyForwardImpulse(entity, KICK_IMPULSE_STRENGTH);
+
       entity.animationController.playAnimation('kick', {
         clampWhenFinished: true,
-        playbackRate: 1.3,
+        playbackRate: 3,
         onComplete: () => {
           resolve();
+          entity.scene.camera.addShake(KICK_CAMERA_SHAKE);
           entity.damageHitboxController.clearHitboxEvents();
         },
       });
     }),
-  soundPath: FMOD_EVENTS.ATTACK,
+  freezeDurationMs: 200,
 };
 
-/* const SACRED_ORB_COUNT = 3;
-const SACRED_ORB_FORMATION_RADIUS = 1;
-const SACRED_ORB_ANGLE_STEP = (Math.PI * 2) / SACRED_ORB_COUNT;
-const SACRED_ORB_ROTATION_DURATION = 6;
+export const punchLeft: ChainedAction = {
+  action: (entity: Entity) =>
+    new Promise<void>((resolve) => {
+      const HITBOX_DELAY = 0.1;
+      const HITBOX_DURATION = 0.2;
 
-export const summonOrbs: SequenceSkill = {
-  sequence: [
-    PlayerActionType.ACTION_UP,
-    PlayerActionType.ACTION_RIGHT,
-    PlayerActionType.ACTION_DOWN,
-    PlayerActionType.ACTION_LEFT,
-  ],
-  availableIn: [FocusState],
-  cooldownMs: 3000,
-  callback: (entity) => {
-    return new Promise((resolve) => {
-      const sacredOrbGroup = new THREE.Group();
-
-      for (let i = 0; i < SACRED_ORB_COUNT; i++) {
-        const sacredOrb = new SacredOrb(entity, {
-          speed: 15,
-          maxRange: 15,
-          explosionOptions: {
-            colliderRadius: 3,
-            damageAmount: 10,
-            knockbackAmount: 0.8,
-            shakeIntensity: 3,
-            size: new THREE.Vector2(3, 3),
+      entity.damageHitboxController.hitboxTimeline = gsap
+        .timeline()
+        .call(
+          () =>
+            entity.damageHitboxController.attachDamageHitbox(
+              new THREE.Vector3(0.3, 1, 0.3),
+              10,
+              'mixamorigLeftHand',
+              (other) => other instanceof Player
+            ),
+          [],
+          HITBOX_DELAY
+        )
+        .call(
+          () => {
+            entity.damageHitboxController.clearHitboxEvents();
           },
-        });
-        const angle = i * SACRED_ORB_ANGLE_STEP;
-
-        sacredOrb.position.set(
-          Math.cos(angle) * SACRED_ORB_FORMATION_RADIUS,
-          0,
-          Math.sin(angle) * SACRED_ORB_FORMATION_RADIUS
+          [],
+          HITBOX_DELAY + HITBOX_DURATION
         );
 
-        sacredOrbGroup.add(sacredOrb);
-      }
+      applyForwardImpulse(entity, PUNCH_IMPULSE_STRENGTH);
 
-      sacredOrbGroup.position.set(0, 0, 0);
-
-      entity.add(sacredOrbGroup);
-
-      gsap.to(sacredOrbGroup.rotation, {
-        y: `+=${Math.PI * 2}`,
-        duration: SACRED_ORB_ROTATION_DURATION,
-        repeat: -1,
-        ease: 'none',
+      entity.animationController.playAnimation('punch-left', {
+        clampWhenFinished: true,
+        playbackRate: 2.5,
+        onComplete: () => {
+          resolve();
+          entity.scene.camera.addShake(PUNCH_CAMERA_SHAKE);
+          entity.damageHitboxController.clearHitboxEvents();
+        },
       });
-
-      resolve();
-    });
+    }),
+  chain: {
+    next: kick,
+    windowDelayMs: PUNCH_CHAIN_WINDOW_DELAY_MS,
+    windowDurationMs: PUNCH_CHAIN_WINDOW_DURATION_MS,
   },
-}; */
+};
+
+export const punchRight: ChainedAction = {
+  action: (entity: Entity) =>
+    new Promise<void>((resolve) => {
+      const HITBOX_DELAY = 0;
+      const HITBOX_DURATION = 0.4;
+
+      entity.damageHitboxController.hitboxTimeline = gsap
+        .timeline()
+        .call(
+          () =>
+            entity.damageHitboxController.attachDamageHitbox(
+              new THREE.Vector3(0.3, 1, 0.3),
+              10,
+              'mixamorigRightHand',
+              (other) => other instanceof Player
+            ),
+          [],
+          HITBOX_DELAY
+        )
+        .call(
+          () => {
+            entity.damageHitboxController.clearHitboxEvents();
+          },
+          [],
+          HITBOX_DELAY + HITBOX_DURATION
+        );
+
+      applyForwardImpulse(entity, PUNCH_IMPULSE_STRENGTH);
+
+      entity.animationController.playAnimation('punch-right', {
+        clampWhenFinished: true,
+        playbackRate: 2,
+        onComplete: () => {
+          resolve();
+          entity.scene.camera.addShake(PUNCH_CAMERA_SHAKE);
+          entity.damageHitboxController.clearHitboxEvents();
+        },
+      });
+    }),
+  chain: {
+    next: punchLeft,
+    windowDelayMs: PUNCH_CHAIN_WINDOW_DELAY_MS,
+    windowDurationMs: PUNCH_CHAIN_WINDOW_DURATION_MS,
+  },
+};
 
 export const healingAura: SequenceSkill = {
   sequence: [

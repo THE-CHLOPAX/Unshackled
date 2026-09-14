@@ -97,16 +97,14 @@ describe('DamageHitboxController', () => {
     expect(controller.hitboxTimeline).toBeNull();
   });
 
-  it('onDestroyed removes hitbox, kills timeline, and unsubscribes the damagetaken listener', () => {
+  it('onDestroyed removes hitbox and kills the timeline', () => {
     const timelineMock = makeKillableMock();
     controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME);
     controller.hitboxTimeline = timelineMock.object();
 
-    const listenersBefore = hpEvents.listeners.length;
     controller.destroy();
 
     modelRendererMock.verify((mr) => mr.removeAttachment(It.IsAny()), Times.Once());
     timelineMock.verify((t) => t.kill(), Times.Once());
-    expect(hpEvents.listeners.length).toBeLessThan(listenersBefore);
   });
 });

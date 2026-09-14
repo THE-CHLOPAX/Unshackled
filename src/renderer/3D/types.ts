@@ -35,11 +35,20 @@ export type AsyncAction = (entity: Entity) => Promise<void>;
 export type ActionWithSound = {
   action: AsyncAction;
   soundPath?: string;
+  freezeDurationMs?: number;
 };
 
 export type AIAttack = ActionWithSound & {
   minRange: number;
   maxRange: number;
+};
+
+export type ChainedAction = ActionWithSound & {
+  chain?: {
+    next: ChainedAction;
+    windowDelayMs: number;
+    windowDurationMs: number;
+  };
 };
 
 export type AIRoamingOptions = {

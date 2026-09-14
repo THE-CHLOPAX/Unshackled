@@ -22,12 +22,18 @@ export function getRigidBodyDescriptionForObject(
       break;
   }
 
-  // Set initial position and rotation
-  const pos = object.position;
-  const quat = object.quaternion;
+  const worldPosition = new THREE.Vector3();
+  const worldQuaternion = new THREE.Quaternion();
+  object.getWorldPosition(worldPosition);
+  object.getWorldQuaternion(worldQuaternion);
 
-  bodyDesc.setTranslation(pos.x, pos.y, pos.z);
-  bodyDesc.setRotation({ x: quat.x, y: quat.y, z: quat.z, w: quat.w });
+  bodyDesc.setTranslation(worldPosition.x, worldPosition.y, worldPosition.z);
+  bodyDesc.setRotation({
+    x: worldQuaternion.x,
+    y: worldQuaternion.y,
+    z: worldQuaternion.z,
+    w: worldQuaternion.w,
+  });
 
   // Set damping
   if (options.linearDamping) {

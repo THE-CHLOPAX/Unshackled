@@ -127,7 +127,10 @@ export class Entity extends GameSceneObject {
     super.onDestroyed();
   }
 
+  protected onDamageTaken(): void {}
+
   private _onDamageTaken = (): void => {
+    this.onDamageTaken();
     this._flashRed();
   };
 

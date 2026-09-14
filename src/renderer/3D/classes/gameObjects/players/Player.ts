@@ -9,8 +9,10 @@ export type PlayerOptions = EntityOptions & {
     [key in PlayerActionType]?: (entity: Player) => State;
   };
   sequenceSkills?: SequenceSkill[];
-  sequenceTimeoutMs: number;
+  sequenceTimeoutMs?: number;
 };
+
+const DEFAULT_SEQUENCE_TIMEOUT_MS = 100;
 
 export class Player extends Entity {
   public isPlayer = true;
@@ -26,7 +28,9 @@ export class Player extends Entity {
     super(scene, options);
 
     this.sequenceSkills = options.sequenceSkills ?? [];
-    this.sequenceTracker = new InputSequenceTracker(options.sequenceTimeoutMs);
+    this.sequenceTracker = new InputSequenceTracker(
+      options.sequenceTimeoutMs ?? DEFAULT_SEQUENCE_TIMEOUT_MS
+    );
 
     this.stateController.currentState = new IdleState(this);
   }
@@ -42,5 +46,9 @@ export class Player extends Entity {
 
   public startSkillCooldown(skill: SequenceSkill): void {
     this._skillCooldownEndsAt.set(skill, performance.now() + skill.cooldownMs);
+  }
+
+  protected override onDamageTaken(): void {
+    this.scene.camera.addShake(0.5);
   }
 }

@@ -11,7 +11,6 @@ export class DamageHitboxController extends GameObjectComponent {
 
   constructor(public entity: Entity) {
     super(entity);
-    this.entity.healthPointsController.events.on('damagetaken', this._onDamageTaken);
   }
 
   public attachDamageHitbox(
@@ -44,10 +43,5 @@ export class DamageHitboxController extends GameObjectComponent {
   protected override onDestroyed(): void {
     super.onDestroyed();
     this.clearHitboxEvents();
-    this.entity.healthPointsController.events.off('damagetaken', this._onDamageTaken);
   }
-
-  private _onDamageTaken = () => {
-    this.clearHitboxEvents();
-  };
 }

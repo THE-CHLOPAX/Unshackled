@@ -26,7 +26,9 @@ export class AIAttackState extends State {
 
   public onEnter(): void {}
 
-  public onExit(): void {}
+  public onExit(): void {
+    this.entity.damageHitboxController.clearHitboxEvents();
+  }
 
   public override onUpdate(_deltaTime: number): State {
     // If currently performing an attack, do not transition to another state until the attack is finished
