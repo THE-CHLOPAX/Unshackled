@@ -19,10 +19,12 @@ export class AttackState extends State {
   }
 
   public override onEnter(): void {
-    this._eventInstance = FMODAudio.playEventInSoundChannel({
-      eventPath: this._attackAction.soundPath,
-      channelId: MAIN_SOUND_CHANNEL,
-    });
+    if (this._attackAction.soundPath !== undefined) {
+      this._eventInstance = FMODAudio.playEventInSoundChannel({
+        eventPath: this._attackAction.soundPath,
+        channelId: MAIN_SOUND_CHANNEL,
+      });
+    }
 
     this._attackInProgress = true;
 

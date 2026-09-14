@@ -34,7 +34,7 @@ export type AsyncAction = (entity: Entity) => Promise<void>;
 
 export type ActionWithSound = {
   action: AsyncAction;
-  soundPath: string;
+  soundPath?: string;
 };
 
 export type AIAttack = ActionWithSound & {
