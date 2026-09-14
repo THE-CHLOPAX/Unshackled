@@ -2,7 +2,18 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { InternalFlex, InternalText } from '@tgdf';
 
-import { Button, Text, Dropdown, BarSimple, BarOrnament, ScrollableWrapper } from 'UI';
+import {
+  Button,
+  ButtonIcon,
+  Checkbox,
+  Text,
+  TextInput,
+  Dropdown,
+  SmallPanel,
+  BarSimple,
+  BarOrnament,
+  ScrollableWrapper,
+} from 'UI';
 
 import { COLORS, GRADIENTS } from '../../constants';
 import { BackToViewLayout } from '../layouts/BackToViewLayout';
@@ -57,6 +68,8 @@ function ComponentSection({ title, children }: ComponentSectionProps) {
 
 export function ComponentsView() {
   const [dropdownValue, setDropdownValue] = useState<string | undefined>(undefined);
+  const [checked, setChecked] = useState(false);
+  const [inputValue, setInputValue] = useState('');
 
   return (
     <BackToViewLayout backToView="MenuView">
@@ -125,11 +138,52 @@ export function ComponentsView() {
               <BarSimple progress={0.2} fillColor="#3498db" scale={1.5} />
             </InternalFlex>
             <br />
+            <Text>Bar Simple (short)</Text>
+            <InternalFlex direction="column" align="start" gap={12}>
+              <BarSimple short progress={0.6} fillColor={COLORS.SOFT_FAWN} />
+            </InternalFlex>
+            <br />
             <Text>Bar Ornament</Text>
             <InternalFlex direction="column" align="start" gap={12}>
               <BarOrnament progress={1} fillColor={COLORS.SOFT_FAWN} />
               <BarOrnament progress={0.6} fillColor="#c0392b" scale={2} />
               <BarOrnament progress={0.2} fillColor="#3498db" scale={1.5} />
+            </InternalFlex>
+            <br />
+            <Text>Bar Ornament (short)</Text>
+            <InternalFlex direction="column" align="start" gap={12}>
+              <BarOrnament short progress={0.6} fillColor={COLORS.SOFT_FAWN} />
+            </InternalFlex>
+          </ComponentSection>
+
+          <ComponentSection title="SmallPanel">
+            <InternalFlex gap={20} align="center">
+              <SmallPanel>{''}</SmallPanel>
+              <SmallPanel active>{''}</SmallPanel>
+              <SmallPanel>
+                <Text size="sm">i</Text>
+              </SmallPanel>
+            </InternalFlex>
+          </ComponentSection>
+
+          <ComponentSection title="ButtonIcon">
+            <InternalFlex gap={20} align="center">
+              <ButtonIcon icon={<Text size="sm">+</Text>} onClick={() => {}} />
+              <ButtonIcon icon={<Text size="sm">+</Text>} onClick={() => {}} disabled />
+            </InternalFlex>
+          </ComponentSection>
+
+          <ComponentSection title="Checkbox">
+            <InternalFlex gap={20} align="center">
+              <Checkbox checked={checked} onChange={setChecked} />
+              <Checkbox checked disabled />
+            </InternalFlex>
+          </ComponentSection>
+
+          <ComponentSection title="TextInput">
+            <InternalFlex gap={20} align="center">
+              <TextInput value={inputValue} onChange={setInputValue} placeholder="Your name" />
+              <TextInput value="Disabled" disabled />
             </InternalFlex>
           </ComponentSection>
 

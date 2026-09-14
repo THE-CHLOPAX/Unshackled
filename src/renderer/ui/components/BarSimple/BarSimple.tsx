@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { COLORS } from 'renderer/constants';
 
 import barSimpleFrame from '../../../assets/svg/bar-simple.svg?url';
+import barSimpleShortFrame from '../../../assets/svg/bar-simple-short.svg?url';
 
 const DEFAULT_SCALE = 3;
 
@@ -22,6 +23,8 @@ export type BarSimpleProps = {
   fillColor: string;
   className?: string;
   scale?: number;
+  // Same geometry, alternate (shorter-looking) frame artwork.
+  short?: boolean;
 };
 
 export const BarSimple = ({
@@ -29,13 +32,14 @@ export const BarSimple = ({
   fillColor,
   className,
   scale = DEFAULT_SCALE,
+  short = false,
 }: BarSimpleProps) => {
   const clampedProgress = clamp(progress, 0, 1);
 
   return (
     <Wrapper className={className} $scale={scale}>
       <Fill $progress={clampedProgress} $color={fillColor} $scale={scale} />
-      <Frame />
+      <Frame $short={short} />
     </Wrapper>
   );
 };
@@ -58,10 +62,10 @@ const Fill = styled.div<{ $progress: number; $color: string; $scale: number }>`
   border-bottom: ${({ $scale }) => $scale}px solid rgba(0, 0, 0, 0.15);
 `;
 
-const Frame = styled.div`
+const Frame = styled.div<{ $short: boolean }>`
   position: absolute;
   inset: 0;
-  background-image: url(${barSimpleFrame});
+  background-image: url(${({ $short }) => ($short ? barSimpleShortFrame : barSimpleFrame)});
   background-repeat: no-repeat;
   background-size: 100% 100%;
   image-rendering: pixelated;

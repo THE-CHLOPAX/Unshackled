@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { COLORS } from 'renderer/constants';
 
 import barOrnamentFrame from '../../../assets/svg/bar-ornament.svg?url';
+import barOrnamentShortFrame from '../../../assets/svg/bar-ornament-short.svg?url';
 
 const DEFAULT_SCALE = 3;
 
@@ -23,6 +24,8 @@ export type BarOrnamentProps = {
   fillColor: string;
   className?: string;
   scale?: number;
+  // Same geometry, alternate (shorter-looking) decorative frame artwork.
+  short?: boolean;
 };
 
 export const BarOrnament = ({
@@ -30,6 +33,7 @@ export const BarOrnament = ({
   fillColor,
   className,
   scale = DEFAULT_SCALE,
+  short = false,
 }: BarOrnamentProps) => {
   const clampedProgress = clamp(progress, 0, 1);
 
@@ -37,7 +41,7 @@ export const BarOrnament = ({
     <Wrapper className={className} $scale={scale}>
       <FillBg $scale={scale} />
       <Fill $progress={clampedProgress} $color={fillColor} $scale={scale} />
-      <Frame />
+      <Frame $short={short} />
     </Wrapper>
   );
 };
@@ -66,10 +70,10 @@ const Fill = styled.div<{ $progress: number; $color: string; $scale: number }>`
   border-bottom: ${({ $scale }) => $scale}px solid rgba(0, 0, 0, 0.15);
 `;
 
-const Frame = styled.div`
+const Frame = styled.div<{ $short: boolean }>`
   position: absolute;
   inset: 0;
-  background-image: url(${barOrnamentFrame});
+  background-image: url(${({ $short }) => ($short ? barOrnamentShortFrame : barOrnamentFrame)});
   background-repeat: no-repeat;
   background-size: 100% 100%;
   image-rendering: pixelated;
