@@ -158,6 +158,11 @@ export const MODELS: Record<string, ModelRecord> = {
 };
 
 export const TEXTURES: Record<string, TextureRecord> = {
+  CHECKERBOARD: {
+    type: 'texture',
+    id: CHECKERBOARD_TEXTURE,
+    path: './assets/textures/checker.png',
+  },
   EXPLOSION: {
     type: 'texture',
     id: EXPLOSION_SPRITESHEET_TEXTURE,
