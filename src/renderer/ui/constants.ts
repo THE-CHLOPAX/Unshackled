@@ -49,3 +49,11 @@ export const UI_BACKGROUND_IMAGE_URLS = {
   smallPanelActiveBg,
   smallPanelInactiveBg,
 } as const;
+
+export const FONT_SIZES = {
+  sm: 12,
+  md: 18,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
+} as const;

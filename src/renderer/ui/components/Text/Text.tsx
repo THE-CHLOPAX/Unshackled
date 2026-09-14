@@ -2,17 +2,10 @@ import type { CSSProperties, ReactNode } from 'react';
 
 import styled from 'styled-components';
 
+import { TextSize } from 'renderer/ui/types';
+import { FONT_SIZES } from 'renderer/ui/constants';
+
 import { COLORS } from '../../../constants';
-
-const FONT_SIZES = {
-  sm: 12,
-  md: 18,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
-} as const;
-
-type TextSize = keyof typeof FONT_SIZES;
 
 type TextProps = {
   children: ReactNode;

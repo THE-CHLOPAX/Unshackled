@@ -25,6 +25,11 @@ export type SmallPanelProps = {
 // Generic small square/rectangular panel used standalone, or as the
 // background for other components that need the same frame in an
 // inactive/active pair (ButtonIcon, Checkbox).
+//
+// The content box (height + padding-top) never changes between states, only
+// the background-image does — so whatever is centered inside never shifts
+// when active/hover toggles, even though the active artwork is 2 native px
+// taller than the inactive one.
 export const SmallPanel = ({
   children,
   active = false,
@@ -52,7 +57,7 @@ const Wrapper = styled.div<{ $active: boolean; $activateOnHover: boolean }>`
   box-sizing: border-box;
   min-width: ${NATIVE_WIDTH * SCALE}px;
   height: ${ACTIVE_HEIGHT * SCALE}px;
-  padding-top: ${({ $active }) => ($active ? 0 : SPIKE_HEIGHT * SCALE)}px;
+  padding-top: ${SPIKE_HEIGHT * SCALE}px;
   background-image: url(${({ $active }) =>
     $active
       ? UI_BACKGROUND_IMAGE_URLS.smallPanelActiveBg
@@ -66,7 +71,6 @@ const Wrapper = styled.div<{ $active: boolean; $activateOnHover: boolean }>`
     $activateOnHover &&
     `
     &:hover {
-      padding-top: 0;
       background-image: url(${UI_BACKGROUND_IMAGE_URLS.smallPanelActiveBg});
     }
   `}

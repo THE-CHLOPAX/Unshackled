@@ -2,8 +2,10 @@ import type { ChangeEvent } from 'react';
 
 import styled from 'styled-components';
 
+import { TextSize } from 'renderer/ui/types';
+
 import { COLORS } from '../../../constants';
-import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
+import { FONT_SIZES, UI_BACKGROUND_IMAGE_URLS } from '../../constants';
 
 const SCALE = 3;
 
@@ -14,6 +16,7 @@ const SPIKE_HEIGHT = ACTIVE_HEIGHT - INACTIVE_HEIGHT;
 
 export type TextInputProps = {
   value: string;
+  fontSize?: TextSize;
   onChange?: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
@@ -24,6 +27,7 @@ export const TextInput = ({
   value,
   onChange,
   placeholder,
+  fontSize = 'md',
   disabled = false,
   className,
 }: TextInputProps) => {
@@ -39,13 +43,14 @@ export const TextInput = ({
       disabled={disabled}
       onChange={handleChange}
       className={className}
+      $fontSize={fontSize}
     />
   );
 };
 
-const Input = styled.input`
+const Input = styled.input<{ $fontSize: TextSize }>`
   box-sizing: border-box;
-  min-width: ${NATIVE_WIDTH * SCALE}px;
+  width: ${NATIVE_WIDTH * SCALE}px;
   height: ${ACTIVE_HEIGHT * SCALE}px;
   padding: ${SPIKE_HEIGHT * SCALE}px ${5 * SCALE}px 0;
   border: none;
@@ -57,7 +62,8 @@ const Input = styled.input`
   background-size: 100% auto;
   image-rendering: pixelated;
   font-family: 'Alagard', monospace;
-  font-size: 12px;
+  font-size: ${({ $fontSize }) => FONT_SIZES[$fontSize]}px;
+  line-height: 0.8;
   color: ${COLORS.FONT_COLOR_PRIMARY};
 
   &::placeholder {
@@ -65,7 +71,7 @@ const Input = styled.input`
   }
 
   &:focus {
-    padding-top: 0;
+    padding-top: ${SCALE * 2}px;
     background-image: url(${UI_BACKGROUND_IMAGE_URLS.inputActiveBg});
   }
 
