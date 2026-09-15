@@ -12,6 +12,7 @@ export const CHECKERBOARD_TEXTURE = 'checkerboard-texture';
 
 export const EXPLOSION_SPRITESHEET_TEXTURE = 'explosion-spritesheet-texture';
 export const ARCANE_CIRCLE_TEXTURE = 'arcane-circle-texture';
+export const AIMING_ARROW_TEXTURE = 'aiming-arrow-texture';
 export const MAIN_CROWD_ID = 'main-crowd';
 
 // Material parameters that change which shader program three.js compiles
@@ -173,6 +174,11 @@ export const TEXTURES: Record<string, TextureRecord> = {
     type: 'texture',
     id: ARCANE_CIRCLE_TEXTURE,
     path: './assets/textures/arcane-circle.png',
+  },
+  AIMING_ARROW: {
+    type: 'texture',
+    id: AIMING_ARROW_TEXTURE,
+    path: './assets/textures/aiming-arrow.png',
   },
   DUNGEON_BLOCKS: {
     type: 'texture',

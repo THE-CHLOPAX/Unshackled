@@ -24,9 +24,8 @@ class TestProjectile extends Projectile {
   public onCollisionSpy = vi.fn<(gameObject: GameObject) => void>();
   public onMaxRangeReachedSpy = vi.fn<() => void>();
 
-  protected override onCollision({ otherBody }: RigidBodyCollisionParams): boolean {
+  protected override onCollision({ otherBody }: RigidBodyCollisionParams): void {
     this.onCollisionSpy(otherBody.gameObject);
-    return true;
   }
 
   protected override onMaxRangeReached(): void {
@@ -198,6 +197,17 @@ describe('Projectile', () => {
     projectile.position.set(6, 0, 0);
     projectile.update(0);
     expect(projectile.onMaxRangeReachedSpy).toHaveBeenCalledOnce();
+  });
+
+  it('removes its collision listener from the physics manager when destroyed', async () => {
+    const { projectile, physics } = await setupCollisionScene();
+    const offCollisionSpy = vi.spyOn(physics, 'offCollision');
+
+    projectile.sendTowards(new THREE.Vector3(1, 0, 0));
+
+    projectile.destroy();
+
+    expect(offCollisionSpy).toHaveBeenCalledOnce();
   });
 
   it('calls onMaxRangeReached after calling onCollision', async () => {

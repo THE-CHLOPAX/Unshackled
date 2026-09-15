@@ -1,9 +1,7 @@
 import * as THREE from 'three';
 import { Scene, SceneCamera } from '@tgdf';
 
-import { State } from './classes/states';
 import { Entity } from './classes/gameObjects/Entity';
-import { Player } from './classes/gameObjects/players/Player';
 
 export enum AnimationClipNamesShared {
   SPAWN = 'spawn',
@@ -69,20 +67,6 @@ export type SequenceInputType =
   | PlayerActionType.ACTION_RIGHT
   | PlayerActionType.ACTION_DOWN
   | PlayerActionType.ACTION_LEFT;
-
-export type StateConstructor = abstract new (...args: never[]) => State;
-
-export type SequenceSkill = {
-  sequence: SequenceInputType[];
-  availableIn: StateConstructor[];
-  cooldownMs: number;
-  getState?: (entity: Player, currentState: State) => State;
-  callback?: AsyncAction;
-};
-
-export type FocusOptions = {
-  clips: { enter: string; progress?: string; exit?: string };
-};
 
 export type GameCamera = SceneCamera & {
   addShake: (intensity: number) => void;

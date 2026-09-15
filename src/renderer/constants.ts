@@ -1,6 +1,7 @@
 export const COLORS = {
   // Base
   GOLDEN: '#fffd88',
+  LIGHT_KHAKI: '#6c6757',
   DARK_KHAKI: '#393424',
   SOFT_FAWN: '#deba6f',
   BLACK: '#000',

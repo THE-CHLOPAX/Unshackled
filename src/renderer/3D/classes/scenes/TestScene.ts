@@ -27,6 +27,7 @@ export class TestScene extends GameScene {
     MODELS.MONK,
     MODELS.SKELETON,
     TEXTURES.CHECKERBOARD,
+    TEXTURES.AIMING_ARROW,
   ];
 
   protected override additionalWarmupFactories: WarmupFactory[] = [

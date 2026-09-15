@@ -8,6 +8,7 @@ import { flashMaterial } from '3D/utils/flashMaterial';
 import { GameSceneObject } from './GameSceneObject';
 import { GameScene } from '../scenes/GameScene/GameScene';
 import { StateController } from '../gameObjectComponents/StateController';
+import { CooldownController } from '../gameObjectComponents/CooldownController';
 import { DamageHitboxController } from '../gameObjectComponents/DamageHitboxController';
 import {
   ModelRenderer,
@@ -49,6 +50,7 @@ export class Entity extends GameSceneObject {
   public stateController: StateController;
   public animationController: AnimationController;
   public damageHitboxController: DamageHitboxController;
+  public cooldownController: CooldownController;
   public healthPointsController: HealthPointsController;
   public healthBarRenderer: HealthBarRenderer;
   public movementController: MovementController;
@@ -105,6 +107,11 @@ export class Entity extends GameSceneObject {
     this.damageHitboxController = this.addComponent(
       'DamageHitboxController',
       new DamageHitboxController(this)
+    );
+
+    this.cooldownController = this.addComponent(
+      'CooldownController',
+      new CooldownController(this)
     );
 
     this.stateController = this.addComponent('StateController', new StateController(this));

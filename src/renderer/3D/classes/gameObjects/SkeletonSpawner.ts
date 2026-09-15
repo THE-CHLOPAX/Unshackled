@@ -5,12 +5,12 @@ import { WorldObjectArgs } from '3D/types';
 import { Spawner } from '3D/classes/gameObjects/Spawner';
 import { Skeleton } from '3D/classes/gameObjects/mobs/Skeleton/Skeleton';
 
-const SKELETON_SPAWN_INTERVAL_SECONDS = 20;
+const SKELETON_SPAWN_INTERVAL_SECONDS = 5;
 const SKELETON_ALIVE_THRESHOLD = 1;
 const SKELETON_SPAWNED_MAX = 2;
 
 const SPAWN_TELEGRAPH_DIAMETER = 1.5;
-const SPAWN_TELEGRAPH_DURATION_SECONDS = 3;
+const SPAWN_TELEGRAPH_DURATION_SECONDS = 1;
 
 const SPAWN_HITBOX_SIZE = new THREE.Vector3(1, 1, 1);
 const SPAWN_HITBOX_DAMAGE = 10;

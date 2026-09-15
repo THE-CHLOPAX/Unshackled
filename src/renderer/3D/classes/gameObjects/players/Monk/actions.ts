@@ -2,14 +2,10 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 
 import { spawnSwingTrail } from '3D/utils/spawnSwingTrail';
-import { RunningState, SprintingState } from 'renderer/3D/classes/states';
 
 import { Player } from '../Player';
 import { Entity } from '../../Entity';
-import { DashStateMonk } from './states/DashStateMonk';
-import { HealingAura } from './childObjects/HealingAura';
-import { FocusState } from '../../../states/Player/FocusState';
-import { ActionWithSound, ChainedAction, SequenceSkill, PlayerActionType } from '../../../../types';
+import { ActionWithSound, ChainedAction, PlayerActionType } from '../../../../types';
 
 const PUNCH_CHAIN_WINDOW_DELAY_MS = 150;
 const PUNCH_CHAIN_WINDOW_DURATION_MS = 300;
@@ -178,35 +174,4 @@ export const punchRight: ChainedAction = {
     windowDelayMs: PUNCH_CHAIN_WINDOW_DELAY_MS,
     windowDurationMs: PUNCH_CHAIN_WINDOW_DURATION_MS,
   },
-};
-
-export const healingAura: SequenceSkill = {
-  sequence: [
-    PlayerActionType.ACTION_UP,
-    PlayerActionType.ACTION_UP,
-    PlayerActionType.ACTION_LEFT,
-    PlayerActionType.ACTION_RIGHT,
-  ],
-  availableIn: [FocusState],
-  cooldownMs: 8000,
-  callback: (entity) => {
-    return new Promise((resolve) => {
-      const healingAuraObject = new HealingAura(entity.scene, {
-        diameter: 4,
-        healAmount: 10,
-        durationMs: 5000,
-        healIntervalMs: 1000,
-      });
-      entity.add(healingAuraObject);
-      resolve();
-    });
-  },
-};
-
-// TODO: This is no longer a sequence skill. To be refactored during state management refactor.
-export const dash: SequenceSkill = {
-  sequence: [PlayerActionType.ACTION_RIGHT],
-  availableIn: [RunningState, SprintingState],
-  getState: (entity) => new DashStateMonk(entity, { speed: 12, durationMs: 150 }),
-  cooldownMs: 1000,
 };

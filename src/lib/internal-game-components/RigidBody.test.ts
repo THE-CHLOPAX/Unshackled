@@ -195,6 +195,21 @@ describe('RigidBody', () => {
     expect(offCollisionSpy).toHaveBeenCalledOnce();
   });
 
+  it('clears any remaining collision listeners from the physics manager when destroyed', async () => {
+    const { scene, gameObject, rigidBody } = await createRigidBody({
+      enableCollisionDetection: true,
+    });
+    const physics = scene.physics;
+    assert(physics !== undefined, 'Physics manager is undefined');
+    const offCollisionSpy = vi.spyOn(physics, 'offCollision');
+
+    rigidBody.addCollisionListener('hit', () => {});
+
+    gameObject.destroy();
+
+    expect(offCollisionSpy).toHaveBeenCalledOnce();
+  });
+
   it('fires collision callback with both rigid bodies when physics reports a collision', async () => {
     const scene = new MockScene();
     await scene.initializePhysicsWorld(new THREE.Vector3(0, 0, 0));

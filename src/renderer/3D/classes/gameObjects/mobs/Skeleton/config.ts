@@ -28,7 +28,7 @@ export const config: EntityAIOptions = {
       [AnimationClipNamesShared.IDLE]: 0.1,
     },
   },
-  detectionRadius: 5,
+  detectionRadius: 8,
   enemyTypes: [Player],
   roaming: {
     radius: 5,

@@ -226,6 +226,16 @@ export class RigidBody extends GameObjectComponent<RigidBodyOptions> {
     }
   }
 
+  private _removeAllCollisionListeners(): void {
+    if (this._collisionListeners.size === 0) return;
+
+    const physics = this.gameObject.scene?.physics;
+    if (!physics) return;
+
+    this._collisionListeners.forEach((callback) => physics.offCollision(callback));
+    this._collisionListeners.clear();
+  }
+
   protected override onAwake(): void {
     super.onAwake();
     this._init();
@@ -254,6 +264,8 @@ export class RigidBody extends GameObjectComponent<RigidBodyOptions> {
       this._removePhysicsCollider();
       this._removePhysicsBody();
     }
+
+    this._removeAllCollisionListeners();
 
     // Remove debug mesh
     this._removeDebugMesh();
