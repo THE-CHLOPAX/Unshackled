@@ -1,10 +1,10 @@
 import { gsap } from 'gsap';
 import { InputState, MAIN_SOUND_CHANNEL } from '@tgdf';
 
+import { ChainedAction } from '../../../types';
 import { State, IdleState, RunningState } from '..';
 import { Player } from '../../gameObjects/players/Player';
 import { FMODAudio, FMODEventInstance } from '../../../../FMOD';
-import { ChainedAction, PlayerActionType } from '../../../types';
 import { ControlsState, mapInputToControls } from '../../../utils/mapInputToControls';
 
 export class AttackState extends State {
@@ -65,9 +65,7 @@ export class AttackState extends State {
     if (
       chain &&
       this._chainWindowOpen &&
-      this._controlsStates.some(
-        (controlState) => controlState.type === PlayerActionType.ACTION_UP
-      )
+      this._controlsStates.some((controlState) => controlState.type === chain.requiredInput)
     ) {
       return new AttackState(this.entity, chain.next);
     }

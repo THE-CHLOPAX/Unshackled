@@ -14,6 +14,7 @@ import {
 import { GameScene } from './GameScene/GameScene';
 import { Monk } from '../gameObjects/players/Monk/Monk';
 import { RigidStaticObject } from '../gameObjects/RigidStaticObject';
+import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
 import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
 
 const TEST_PLANE_SIZE = 30;
@@ -31,6 +32,7 @@ export class TestScene extends GameScene {
   protected override additionalWarmupFactories: WarmupFactory[] = [
     () => getModelClone(MODELS.MONK.id),
     () => getModelClone(MODELS.SKELETON.id),
+    () => createSwingTrailWarmupMesh(),
   ];
 
   constructor() {

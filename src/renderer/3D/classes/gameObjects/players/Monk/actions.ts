@@ -1,6 +1,7 @@
 import { gsap } from 'gsap';
 import * as THREE from 'three';
 
+import { spawnSwingTrail } from '3D/utils/spawnSwingTrail';
 import { RunningState, SprintingState } from 'renderer/3D/classes/states';
 
 import { Player } from '../Player';
@@ -18,6 +19,9 @@ const PUNCH_IMPULSE_STRENGTH = 0.4;
 
 const KICK_CAMERA_SHAKE = 2;
 const PUNCH_CAMERA_SHAKE = 1;
+
+const SWING_TRAIL_WIDTH = 0.3;
+const SWING_TRAIL_COLOR = 0xf5f0e6;
 
 function applyForwardImpulse(entity: Entity, strength: number): void {
   const direction = new THREE.Vector3();
@@ -53,6 +57,11 @@ export const kick: ActionWithSound = {
         );
 
       applyForwardImpulse(entity, KICK_IMPULSE_STRENGTH);
+      spawnSwingTrail(entity, 'mixamorigRightFoot', {
+        durationMs: (HITBOX_DELAY + HITBOX_DURATION) * 1000 * 0.7,
+        color: SWING_TRAIL_COLOR,
+        width: SWING_TRAIL_WIDTH,
+      });
 
       entity.animationController.playAnimation('kick', {
         clampWhenFinished: true,
@@ -95,6 +104,11 @@ export const punchLeft: ChainedAction = {
         );
 
       applyForwardImpulse(entity, PUNCH_IMPULSE_STRENGTH);
+      spawnSwingTrail(entity, 'mixamorigLeftHand', {
+        durationMs: (HITBOX_DELAY + HITBOX_DURATION) * 1000,
+        color: SWING_TRAIL_COLOR,
+        width: SWING_TRAIL_WIDTH,
+      });
 
       entity.animationController.playAnimation('punch-left', {
         clampWhenFinished: true,
@@ -108,6 +122,7 @@ export const punchLeft: ChainedAction = {
     }),
   chain: {
     next: kick,
+    requiredInput: PlayerActionType.ACTION_LEFT,
     windowDelayMs: PUNCH_CHAIN_WINDOW_DELAY_MS,
     windowDurationMs: PUNCH_CHAIN_WINDOW_DURATION_MS,
   },
@@ -141,6 +156,11 @@ export const punchRight: ChainedAction = {
         );
 
       applyForwardImpulse(entity, PUNCH_IMPULSE_STRENGTH);
+      spawnSwingTrail(entity, 'mixamorigRightHand', {
+        durationMs: (HITBOX_DELAY + HITBOX_DURATION) * 1000,
+        width: SWING_TRAIL_WIDTH,
+        color: SWING_TRAIL_COLOR,
+      });
 
       entity.animationController.playAnimation('punch-right', {
         clampWhenFinished: true,
@@ -154,6 +174,7 @@ export const punchRight: ChainedAction = {
     }),
   chain: {
     next: punchLeft,
+    requiredInput: PlayerActionType.ACTION_LEFT,
     windowDelayMs: PUNCH_CHAIN_WINDOW_DELAY_MS,
     windowDurationMs: PUNCH_CHAIN_WINDOW_DURATION_MS,
   },
@@ -182,8 +203,9 @@ export const healingAura: SequenceSkill = {
   },
 };
 
+// TODO: This is no longer a sequence skill. To be refactored during state management refactor.
 export const dash: SequenceSkill = {
-  sequence: [PlayerActionType.ACTION_RIGHT, PlayerActionType.ACTION_RIGHT],
+  sequence: [PlayerActionType.ACTION_RIGHT],
   availableIn: [RunningState, SprintingState],
   getState: (entity) => new DashStateMonk(entity, { speed: 12, durationMs: 150 }),
   cooldownMs: 1000,

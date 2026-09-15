@@ -4,7 +4,7 @@ import { PlayerActionType } from '3D/types';
 import { MODELS, DEFAULT_RIGID_BODY_OPTIONS } from '3D/constants';
 
 import { Player, PlayerOptions } from '../Player';
-import { healingAura, dash, punchRight } from './actions';
+import { dash, healingAura, punchRight } from './actions';
 import { AttackState, RunningState } from '../../../states';
 
 export const config: PlayerOptions = {
@@ -28,10 +28,10 @@ export const config: PlayerOptions = {
   healthOptions: {
     initialHealthPoints: 100,
   },
-  sequenceSkills: [healingAura, dash],
+  sequenceSkills: [dash, healingAura],
   sequenceTimeoutMs: 500,
   actions: {
-    [PlayerActionType.ACTION_UP]: (entity: Player) => {
+    [PlayerActionType.ACTION_LEFT]: (entity: Player) => {
       return new AttackState(entity, punchRight);
     },
     [PlayerActionType.RUN]: (entity: Player) => {

@@ -46,6 +46,7 @@ export type AIAttack = ActionWithSound & {
 export type ChainedAction = ActionWithSound & {
   chain?: {
     next: ChainedAction;
+    requiredInput: SequenceInputType;
     windowDelayMs: number;
     windowDurationMs: number;
   };

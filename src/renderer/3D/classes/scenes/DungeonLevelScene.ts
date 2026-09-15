@@ -7,6 +7,7 @@ import { MODELS, SPAWN_MARKER_NAME, TEXTURES } from 'renderer/3D/constants';
 
 import { GameScene } from './GameScene/GameScene';
 import { Monk } from '../gameObjects/players/Monk/Monk';
+import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
 import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
 
 export class DungeonLevelScene extends GameScene {
@@ -29,6 +30,7 @@ export class DungeonLevelScene extends GameScene {
   protected override additionalWarmupFactories: WarmupFactory[] = [
     () => getModelClone(MODELS.MONK.id),
     () => getModelClone(MODELS.SKELETON.id),
+    () => createSwingTrailWarmupMesh(),
   ];
 
   /* protected override createCamera(options: OrtographicCameraOptions): FreeOrtographicCamera {
