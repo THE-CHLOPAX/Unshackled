@@ -65,7 +65,7 @@ describe('DamageHitbox', () => {
     const { target, rigidBody: targetRigidBody, healthPointsController } = addTarget(scene);
     const { physicsCallback } = await setupCollision(scene);
 
-    const hitbox = new DamageHitbox(scene, new THREE.Vector3(1, 1, 1), 10);
+    const hitbox = new DamageHitbox(scene, new THREE.Vector3(1, 1, 1), 10, () => false);
     scene.add(hitbox);
     hitbox.update(0);
 
@@ -109,7 +109,7 @@ describe('DamageHitbox', () => {
     const { rigidBody: targetRigidBody, healthPointsController } = addTarget(scene);
     const { physicsCallback } = await setupCollision(scene);
 
-    const hitbox = new DamageHitbox(scene, new THREE.Vector3(1, 1, 1), 10);
+    const hitbox = new DamageHitbox(scene, new THREE.Vector3(1, 1, 1), 10, () => false);
     scene.add(hitbox);
     hitbox.update(0);
 

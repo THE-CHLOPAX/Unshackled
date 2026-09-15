@@ -144,9 +144,9 @@ describe('RigidBody', () => {
   });
 
   it('throws when creating a trimesh collider without colliderGeometry', async () => {
-    await expect(createRigidBody({ colliderShape: 'trimesh' })).rejects.toThrow(
-      /colliderGeometry is required/
-    );
+    const options = { type: 'static', colliderShape: 'trimesh' } as RigidBodyOptions;
+
+    await expect(createRigidBody(options)).rejects.toThrow(/colliderGeometry is required/);
   });
 
   it('removes and recreates collider when updatePhysicsCollider is called', async () => {

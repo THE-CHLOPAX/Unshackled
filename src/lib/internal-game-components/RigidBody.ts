@@ -12,19 +12,37 @@ import { getRigidBodyDescriptionForObject } from './utils/getRigidBodyDescriptio
 
 export type RigidBodyShape = 'box' | 'cylinder' | 'sphere' | 'trimesh';
 export type RigidBodyType = 'dynamic' | 'static' | 'kinematic';
-export type RigidBodyOptions = {
-  type?: RigidBodyType;
+
+type RigidBodyOptionsBase = {
   mass?: number;
   friction?: number;
   restitution?: number; // Bounciness (0 = no bounce, 1 = perfect bounce)
   linearDamping?: number; // Air resistance
   angularDamping?: number; // Rotation resistance
   lockRotation?: boolean;
-  colliderShape?: RigidBodyShape;
   colliderSize?: THREE.Vector3; // Explicit collider size; overrides the size derived from the mesh's bounding box
-  colliderGeometry?: THREE.BufferGeometry; // Required when colliderShape is 'trimesh'
   sensor?: boolean; // If true, the collider will not produce physical responses but can still trigger collision events
   enableCollisionDetection?: boolean;
+};
+
+export type NonTrimeshRigidBodyOptions = RigidBodyOptionsBase & {
+  type?: RigidBodyType;
+  colliderShape?: Exclude<RigidBodyShape, 'trimesh'>;
+  colliderGeometry?: never;
+};
+
+export type TrimeshRigidBodyOptions = RigidBodyOptionsBase & {
+  type: Exclude<RigidBodyType, 'dynamic'>;
+  colliderShape: 'trimesh';
+  colliderGeometry: THREE.BufferGeometry;
+};
+
+export type RigidBodyOptions = NonTrimeshRigidBodyOptions | TrimeshRigidBodyOptions;
+
+export type ResolvedRigidBodyOptions = RigidBodyOptionsBase & {
+  type?: RigidBodyType;
+  colliderShape?: RigidBodyShape;
+  colliderGeometry?: THREE.BufferGeometry;
 };
 
 export type RigidBodyCollisionParams = {
@@ -35,7 +53,7 @@ export type RigidBodyCollisionParams = {
 
 export type RigidBodyCollisionCallback = (params: RigidBodyCollisionParams) => void;
 
-export class RigidBody extends GameObjectComponent<RigidBodyOptions> {
+export class RigidBody extends GameObjectComponent<ResolvedRigidBodyOptions> {
   public static BodyType = RAPIER.RigidBodyType;
   public static ActiveEvents = RAPIER.ActiveEvents;
 

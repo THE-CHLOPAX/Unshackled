@@ -17,7 +17,7 @@ export class DamageHitboxController extends GameObjectComponent {
     size: THREE.Vector3,
     damage: number,
     parentName: string,
-    ignoreCondition?: DamageHitboxIgnoreCondition
+    ignoreCondition: DamageHitboxIgnoreCondition
   ): void {
     if (this._attackHitbox || !this.scene) return;
     this._attackHitbox = new DamageHitbox(this.scene, size, damage, ignoreCondition);

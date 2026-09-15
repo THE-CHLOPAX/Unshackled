@@ -18,6 +18,7 @@ class TestScene extends MockGameScene {}
 const SIZE = new THREE.Vector3(1, 1, 1);
 const DAMAGE = 10;
 const PARENT_NAME = 'hand';
+const IGNORE_NOTHING = () => false;
 
 function makeKillableMock() {
   const killReturn = new Mock<gsap.core.Timeline>();
@@ -60,20 +61,20 @@ describe('DamageHitboxController', () => {
   });
 
   it('attachDamageHitbox adds hitbox to the model via modelRenderer', () => {
-    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME);
+    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME, IGNORE_NOTHING);
 
     modelRendererMock.verify((mr) => mr.addAttachment(It.IsAny()), Times.Once());
   });
 
   it('attachDamageHitbox is a no-op if a hitbox is already attached', () => {
-    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME);
-    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME);
+    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME, IGNORE_NOTHING);
+    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME, IGNORE_NOTHING);
 
     modelRendererMock.verify((mr) => mr.addAttachment(It.IsAny()), Times.Once());
   });
 
   it('removeDamageHitbox removes the hitbox from the model via modelRenderer', () => {
-    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME);
+    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME, IGNORE_NOTHING);
     controller.removeDamageHitbox();
 
     modelRendererMock.verify((mr) => mr.removeAttachment(It.IsAny()), Times.Once());
@@ -87,7 +88,7 @@ describe('DamageHitboxController', () => {
 
   it('clearHitboxEvents removes the hitbox and kills the timeline', () => {
     const timelineMock = makeKillableMock();
-    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME);
+    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME, IGNORE_NOTHING);
     controller.hitboxTimeline = timelineMock.object();
 
     controller.clearHitboxEvents();
@@ -99,7 +100,7 @@ describe('DamageHitboxController', () => {
 
   it('onDestroyed removes hitbox and kills the timeline', () => {
     const timelineMock = makeKillableMock();
-    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME);
+    controller.attachDamageHitbox(SIZE, DAMAGE, PARENT_NAME, IGNORE_NOTHING);
     controller.hitboxTimeline = timelineMock.object();
 
     controller.destroy();

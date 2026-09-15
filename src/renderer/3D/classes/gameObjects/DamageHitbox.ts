@@ -9,13 +9,13 @@ export class DamageHitbox extends GameObject {
   public rigidBody: RigidBody;
 
   private _damage: number;
-  private _ignoreCondition?: DamageHitboxIgnoreCondition;
+  private _ignoreCondition: DamageHitboxIgnoreCondition;
 
   constructor(
     scene: Scene,
     size: THREE.Vector3,
     damage: number,
-    ignoreCondition?: DamageHitboxIgnoreCondition
+    ignoreCondition: DamageHitboxIgnoreCondition
   ) {
     super({ scene });
 
@@ -57,7 +57,7 @@ export class DamageHitbox extends GameObject {
     super.onAwake();
     this.rigidBody.addCollisionListener(`damage-hitbox-${this.id}`, ({ otherBody, started }) => {
       const otherObject = otherBody.gameObject;
-      if (otherObject === undefined || this._ignoreCondition?.(otherObject)) return;
+      if (otherObject === undefined || this._ignoreCondition(otherObject)) return;
       if (started) {
         const healthController = otherObject.getGameObjectComponentByType(HealthPointsController);
         if (healthController) {

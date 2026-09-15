@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
 
-import { RigidBodyOptions } from '../RigidBody';
+import { ResolvedRigidBodyOptions } from '../RigidBody';
 
 export function getRigidBodyDescriptionForObject(
   object: THREE.Object3D,
-  options: RigidBodyOptions
+  options: ResolvedRigidBodyOptions
 ): RAPIER.RigidBodyDesc {
   let bodyDesc: RAPIER.RigidBodyDesc;
 

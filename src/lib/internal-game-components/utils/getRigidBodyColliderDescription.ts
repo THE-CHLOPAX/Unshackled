@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
 
-import { RigidBodyOptions, RigidBodyShape } from '../RigidBody';
+import { ResolvedRigidBodyOptions, RigidBodyShape } from '../RigidBody';
 
 export function getRigidBodyColliderDescription(
   type: RigidBodyShape,
   object: THREE.Object3D,
-  options?: RigidBodyOptions
+  options?: ResolvedRigidBodyOptions
 ): RAPIER.ColliderDesc {
   let colliderDesc: RAPIER.ColliderDesc;
   const colliderOffset = new THREE.Vector3();

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { RigidBody, RigidBodyCollisionParams, RigidBodyOptions } from '@tgdf';
+import { RigidBody, RigidBodyCollisionParams, NonTrimeshRigidBodyOptions } from '@tgdf';
 
 import { Entity } from './Entity';
 import { GameSceneObject } from './GameSceneObject';
@@ -11,10 +11,10 @@ export type ProjectileOptions = {
   model: THREE.Object3D;
   speed: number;
   maxRange: number;
-  rigidBodyOptions?: Partial<RigidBodyOptions>;
+  rigidBodyOptions?: Partial<NonTrimeshRigidBodyOptions>;
 };
 
-const DEFAULT_RIGID_OPTIONS: RigidBodyOptions = {
+const DEFAULT_RIGID_OPTIONS: NonTrimeshRigidBodyOptions = {
   colliderShape: 'box',
   enableCollisionDetection: true,
   mass: 0.1,
