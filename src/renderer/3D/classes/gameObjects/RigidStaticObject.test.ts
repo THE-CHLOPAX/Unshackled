@@ -143,6 +143,22 @@ describe('RigidStaticObject', () => {
     expect(finalY).toBeLessThan(2);
   });
 
+  it('stops a dynamic body from falling through a merged trimesh floor', async () => {
+    const scene = await createScene();
+
+    const floorGeometry = new THREE.PlaneGeometry(20, 20);
+    floorGeometry.rotateX(-Math.PI / 2);
+
+    const object = new RigidStaticObject(scene, { trimeshGeometry: floorGeometry });
+    scene.add(object);
+    object.update(0);
+
+    const finalY = await dropBoxAt(scene, 0, 0);
+
+    expect(finalY).toBeGreaterThan(0);
+    expect(finalY).toBeLessThan(2);
+  });
+
   it('does not create a collider that catches bodies dropped well outside the floor footprint', async () => {
     const scene = await createScene();
     createRigidStaticObject(scene, new THREE.Vector3(100, 0, 100), new THREE.Vector3(20, 0.1, 20));

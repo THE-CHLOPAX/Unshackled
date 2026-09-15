@@ -3,7 +3,6 @@ import { InputState } from '@tgdf';
 import { State, IdleState, RunningState } from '..';
 import { AnimationClipNamesShared } from '../../../types';
 import { Player } from '../../gameObjects/players/Player';
-import { handleSequenceInput } from './utils/handleSequenceInput';
 import { mapInputToControls } from '../../../utils/mapInputToControls';
 
 export class SprintingState extends RunningState {
@@ -21,10 +20,12 @@ export class SprintingState extends RunningState {
   }
 
   public override onInput(inputState: InputState): State {
-    const sequenceState = handleSequenceInput(this, this.entity, inputState);
-    if (sequenceState) return sequenceState;
-
     const controlsStates = mapInputToControls(inputState);
+
+    for (const controlState of controlsStates) {
+      const newState = this.entity.onAction(controlState.type);
+      if (newState) return newState;
+    }
 
     if (controlsStates.some((controlState) => controlState.type === 'idle')) {
       return new IdleState(this.entity);

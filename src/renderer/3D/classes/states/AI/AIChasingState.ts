@@ -2,8 +2,8 @@ import { InputState, throttleWithLastValue } from '@tgdf';
 
 import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from './utils/getBestAttack';
+import { State, AIIdleState, AIAttackState } from '..';
 import { getTargetEnemy } from './utils/getTargetEnemy';
-import { State, HurtState, AIIdleState, AIAttackState } from '..';
 import { AIAttack, AnimationClipNamesShared } from '../../../types';
 
 const UPDATE_THROTTLE_INTERVAL_MS = 250;
@@ -39,10 +39,6 @@ export class AIChasingState extends State {
 
   public onUpdate(_deltaTime: number): State {
     return this._throttledUpdate();
-  }
-
-  protected override onDamageTaken(): State {
-    return new HurtState(this.entity, new AIChasingState(this.entity));
   }
 
   private _throttledUpdate = throttleWithLastValue(

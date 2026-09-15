@@ -27,13 +27,16 @@ export function useLoadScene(sceneClass: new () => GameScene): UseLoadSceneResul
       try {
         await nextScene.initializePhysics();
         if (cancelled) return;
-        reportProgress(0.25);
+        reportProgress(0.2);
         await nextScene.preloadAssets();
         if (cancelled) return;
-        reportProgress(0.5);
+        reportProgress(0.4);
         await nextScene.generateLevel();
         if (cancelled) return;
-        reportProgress(0.75);
+        reportProgress(0.6);
+        await nextScene.precompileShaders();
+        if (cancelled) return;
+        reportProgress(0.8);
         await nextScene.completeLevelInitialization();
         if (cancelled) return;
         reportProgress(1);

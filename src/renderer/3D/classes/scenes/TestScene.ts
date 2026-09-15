@@ -1,33 +1,40 @@
 import * as THREE from 'three';
-import { AssetRecord } from '@tgdf';
+import { AssetRecord, useAssetStore } from '@tgdf';
 
 import { LevelRecord } from 'renderer/3D/types';
-import { MODELS, SPAWN_MARKER_NAME, TEXTURES } from 'renderer/3D/constants';
+import { getModelClone } from 'renderer/3D/utils/getModelClone';
+import { pixelateTexture } from 'renderer/3D/utils/pixelateTexture';
+import {
+  CHECKERBOARD_TEXTURE,
+  FLOOR_OBJECT_MESH_NAME,
+  MODELS,
+  TEXTURES,
+} from 'renderer/3D/constants';
 
 import { GameScene } from './GameScene/GameScene';
-import { OrtographicCameraOptions } from '../cameras/OrtographicCamera';
-import { FreeOrtographicCamera } from '../cameras/FreeOrtographicCamera';
+import { Monk } from '../gameObjects/players/Monk/Monk';
+import { RigidStaticObject } from '../gameObjects/RigidStaticObject';
+import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
+import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
+
+const TEST_PLANE_SIZE = 30;
+const TEST_PLANE_CHECKERBOARD_REPEAT = 10;
 
 export class TestScene extends GameScene {
-  public readonly levelVariants: LevelRecord[] = [{ url: 'test.json' }];
+  public readonly levelVariants: LevelRecord[] = [];
 
   public readonly preloadedAssets: AssetRecord[] = [
     MODELS.MONK,
     MODELS.SKELETON,
-    TEXTURES.EXPLOSION,
-    TEXTURES.ARCANE_CIRCLE,
-    MODELS.DUNGEON_FLOOR,
-    MODELS.DUNGEON_PILLAR,
-    MODELS.DUNGEON_PLINTH,
-    MODELS.DUNGEON_WALL_BRICK_TALL,
-    MODELS.DUNGEON_WALL_TORCH,
-    MODELS.DUNGEON_DOOR_FRAME,
-    MODELS.DUNGEON_DOOR,
+    TEXTURES.CHECKERBOARD,
+    TEXTURES.AIMING_ARROW,
   ];
 
-  protected override createCamera(options: OrtographicCameraOptions): FreeOrtographicCamera {
-    return new FreeOrtographicCamera(options);
-  }
+  protected override additionalWarmupFactories: WarmupFactory[] = [
+    () => getModelClone(MODELS.MONK.id),
+    () => getModelClone(MODELS.SKELETON.id),
+    () => createSwingTrailWarmupMesh(),
+  ];
 
   constructor() {
     super();
@@ -39,11 +46,30 @@ export class TestScene extends GameScene {
     this.add(directionalLight);
   }
 
-  protected override onInit(): void {
-    const marker = this.getObjectByName(SPAWN_MARKER_NAME);
+  public override async generateLevel(): Promise<void> {
+    const checkerboardTexture = pixelateTexture(
+      useAssetStore.getState().textureCache.get(CHECKERBOARD_TEXTURE)
+    );
+    checkerboardTexture?.repeat.set(TEST_PLANE_CHECKERBOARD_REPEAT, TEST_PLANE_CHECKERBOARD_REPEAT);
 
-    if (marker !== undefined) {
-      this.camera.moveTo(marker.position);
-    }
+    const floorGeometry = new THREE.PlaneGeometry(TEST_PLANE_SIZE, TEST_PLANE_SIZE);
+    floorGeometry.rotateX(-Math.PI / 2);
+
+    const floorMaterial = new THREE.MeshPhongMaterial({ map: checkerboardTexture });
+
+    const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+    floorMesh.name = FLOOR_OBJECT_MESH_NAME;
+    this.add(floorMesh);
+
+    const floorRigidBody = new RigidStaticObject(this, { trimeshGeometry: floorGeometry });
+    this.add(floorRigidBody);
+
+    await this.initializeNavMeshManager(floorMesh);
+  }
+
+  protected override onInit(): void {
+    const monk = new Monk(this);
+    this.add(monk);
+    this.camera.follow(monk);
   }
 }

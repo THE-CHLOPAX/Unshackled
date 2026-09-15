@@ -122,6 +122,33 @@ describe('RigidBody', () => {
     expect(debugMesh.geometry).toBeInstanceOf(THREE.SphereGeometry);
   });
 
+  it('creates trimesh collider from provided geometry', async () => {
+    const geometry = new THREE.PlaneGeometry(4, 6);
+    geometry.rotateX(-Math.PI / 2);
+
+    const { rigidBody } = await createRigidBody({
+      type: 'static',
+      colliderShape: 'trimesh',
+      colliderGeometry: geometry,
+    });
+    const collider = rigidBody.getPhysicsCollider();
+
+    assert(collider !== null, 'Collider is null');
+    expect(collider.shapeType()).toBe(RAPIER.ShapeType.TriMesh);
+    expect(collider.vertices().length).toBe(geometry.getAttribute('position').array.length);
+
+    const debugMesh = rigidBody.getDebugMesh();
+    assert(debugMesh !== null, 'Debug mesh is null');
+    expect(debugMesh.geometry).toBeInstanceOf(THREE.BufferGeometry);
+    expect(debugMesh.geometry).not.toBeInstanceOf(THREE.BoxGeometry);
+  });
+
+  it('throws when creating a trimesh collider without colliderGeometry', async () => {
+    const options = { type: 'static', colliderShape: 'trimesh' } as RigidBodyOptions;
+
+    await expect(createRigidBody(options)).rejects.toThrow(/colliderGeometry is required/);
+  });
+
   it('removes and recreates collider when updatePhysicsCollider is called', async () => {
     const { gameObject, rigidBody, scene } = await createRigidBody({ colliderShape: 'box' });
     assert(scene.physics !== undefined, 'Physics manager is undefined');
@@ -168,6 +195,21 @@ describe('RigidBody', () => {
     expect(offCollisionSpy).toHaveBeenCalledOnce();
   });
 
+  it('clears any remaining collision listeners from the physics manager when destroyed', async () => {
+    const { scene, gameObject, rigidBody } = await createRigidBody({
+      enableCollisionDetection: true,
+    });
+    const physics = scene.physics;
+    assert(physics !== undefined, 'Physics manager is undefined');
+    const offCollisionSpy = vi.spyOn(physics, 'offCollision');
+
+    rigidBody.addCollisionListener('hit', () => {});
+
+    gameObject.destroy();
+
+    expect(offCollisionSpy).toHaveBeenCalledOnce();
+  });
+
   it('fires collision callback with both rigid bodies when physics reports a collision', async () => {
     const scene = new MockScene();
     await scene.initializePhysicsWorld(new THREE.Vector3(0, 0, 0));
@@ -210,5 +252,18 @@ describe('RigidBody', () => {
     physicsCallback(handleA, handleB, true);
 
     observerMock.verify((o) => o.onCollision(It.IsAny(), It.IsAny(), true), Times.Once());
+  });
+
+  it('toggles the collider between solid and sensor without touching enabled state', async () => {
+    const { rigidBody } = await createRigidBody({ type: 'dynamic' });
+
+    expect(rigidBody.isSensor()).toBe(false);
+
+    rigidBody.setSensor(true);
+    expect(rigidBody.isSensor()).toBe(true);
+    expect(rigidBody.isEnabled()).toBe(true);
+
+    rigidBody.setSensor(false);
+    expect(rigidBody.isSensor()).toBe(false);
   });
 });

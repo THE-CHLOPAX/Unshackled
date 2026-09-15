@@ -1,23 +1,21 @@
 import { IdleState, State } from '../../states';
 import { Entity, EntityOptions } from '../Entity';
 import { GameScene } from '../../scenes/GameScene/GameScene';
-import { PlayerActionType, SequenceSkill } from '../../../../../renderer/3D/types';
-import { InputSequenceTracker } from '../InputSequenceTracker/InputSequenceTracker';
+import { PlayerActionType } from '../../../../../renderer/3D/types';
+
+export type PlayerActionConfig = {
+  getState: (entity: Player) => State;
+  cooldownMs?: number;
+};
 
 export type PlayerOptions = EntityOptions & {
   actions: {
-    [key in PlayerActionType]?: (entity: Player) => State;
+    [key in PlayerActionType]?: PlayerActionConfig;
   };
-  sequenceSkills?: SequenceSkill[];
-  sequenceTimeoutMs: number;
 };
 
 export class Player extends Entity {
   public isPlayer = true;
-  public readonly sequenceSkills: SequenceSkill[];
-  public readonly sequenceTracker: InputSequenceTracker;
-
-  private _skillCooldownEndsAt = new Map<SequenceSkill, number>();
 
   constructor(
     scene: GameScene,
@@ -25,22 +23,22 @@ export class Player extends Entity {
   ) {
     super(scene, options);
 
-    this.sequenceSkills = options.sequenceSkills ?? [];
-    this.sequenceTracker = new InputSequenceTracker(options.sequenceTimeoutMs);
-
     this.stateController.currentState = new IdleState(this);
   }
 
   public onAction(actionType: PlayerActionType): State | null {
-    return this.options.actions[actionType]?.(this) || null;
+    const action = this.options.actions[actionType];
+    if (!action) return null;
+
+    if (action.cooldownMs !== undefined) {
+      if (this.cooldownController.isOnCooldown(actionType)) return null;
+      this.cooldownController.startCooldown(actionType, action.cooldownMs);
+    }
+
+    return action.getState(this);
   }
 
-  public isSkillOnCooldown(skill: SequenceSkill): boolean {
-    const cooldownEndsAt = this._skillCooldownEndsAt.get(skill);
-    return cooldownEndsAt !== undefined && performance.now() < cooldownEndsAt;
-  }
-
-  public startSkillCooldown(skill: SequenceSkill): void {
-    this._skillCooldownEndsAt.set(skill, performance.now() + skill.cooldownMs);
+  protected override onDamageTaken(): void {
+    this.scene.camera.addShake(0.5);
   }
 }

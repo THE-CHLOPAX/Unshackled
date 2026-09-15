@@ -34,12 +34,14 @@ export class HealthBarRenderer extends BillboardRenderer {
   // Subscribe to HealthPointController events.
   protected onAwake(): void {
     this.healthPointsController.events.on('damagetaken', this._updateHealthBar);
+    this.healthPointsController.events.on('death', this._updateHealthBar);
     this.healthPointsController.events.on('heal', this._updateHealthBar);
   }
 
   // Unsubscribe HealthPointController events.
   protected onDestroyed(): void {
     this.healthPointsController.events.off('damagetaken', this._updateHealthBar);
+    this.healthPointsController.events.off('death', this._updateHealthBar);
     this.healthPointsController.events.off('heal', this._updateHealthBar);
     this._removeHealthBar();
   }

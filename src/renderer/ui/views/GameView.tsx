@@ -7,7 +7,7 @@ import { BackToViewLayout } from '../layouts/BackToViewLayout';
 import { ThreeDViewerPixelated } from '../components/ThreeDViewerPixelated';
 import { DungeonLevelScene } from '../../3D/classes/scenes/DungeonLevelScene';
 
-export function DungeonTestView() {
+export function GameView() {
   const { resolution } = useGraphicsStore();
   const { scene, loadingProgress } = useLoadScene(DungeonLevelScene);
 
@@ -18,12 +18,7 @@ export function DungeonTestView() {
       {!loadingFinished || scene === null ? (
         <LoadingView progress={loadingProgress} onComplete={() => setLoadingFinished(true)} />
       ) : (
-        <ThreeDViewerPixelated
-          scene={scene}
-          resX={resolution.width}
-          resY={resolution.height}
-          debug
-        />
+        <ThreeDViewerPixelated scene={scene} resX={resolution.width} resY={resolution.height} />
       )}
     </BackToViewLayout>
   );

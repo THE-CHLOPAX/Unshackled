@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { assert, RigidBody, RigidBodyCollisionParams, RigidBodyOptions } from '@tgdf';
+import { RigidBody, RigidBodyCollisionParams, NonTrimeshRigidBodyOptions } from '@tgdf';
 
 import { Entity } from './Entity';
 import { GameSceneObject } from './GameSceneObject';
@@ -11,10 +11,10 @@ export type ProjectileOptions = {
   model: THREE.Object3D;
   speed: number;
   maxRange: number;
-  rigidBodyOptions?: Partial<RigidBodyOptions>;
+  rigidBodyOptions?: Partial<NonTrimeshRigidBodyOptions>;
 };
 
-const DEFAULT_RIGID_OPTIONS: RigidBodyOptions = {
+const DEFAULT_RIGID_OPTIONS: NonTrimeshRigidBodyOptions = {
   colliderShape: 'box',
   enableCollisionDetection: true,
   mass: 0.1,
@@ -60,10 +60,7 @@ export class Projectile extends GameSceneObject {
 
     this._collisionListenerId = `projectile-on-collision-listener-${this.name || this.id}`;
     this.rigidBody.addCollisionListener(this._collisionListenerId, (params) => {
-      if (this.onCollision(params)) {
-        assert(this._collisionListenerId !== null);
-        this.rigidBody.removeCollisionListener(this._collisionListenerId);
-      }
+      this.onCollision(params);
     });
   }
 
@@ -85,15 +82,7 @@ export class Projectile extends GameSceneObject {
     }
   }
 
-  /**
-   * On collision overridable callback.
-   * Should return true only if collision terminates the projectile lifecycle.
-   * @param _params
-   * @returns
-   */
-  protected onCollision(_params: RigidBodyCollisionParams): boolean {
-    return true;
-  }
+  protected onCollision(_params: RigidBodyCollisionParams): void {}
 
   protected onMaxRangeReached(): void {}
 }

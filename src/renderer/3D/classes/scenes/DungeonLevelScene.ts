@@ -1,35 +1,63 @@
+import * as THREE from 'three';
 import { AssetRecord } from '@tgdf';
 
-import { LevelRecord } from '../../types';
+import { LevelRecord } from 'renderer/3D/types';
+import { getModelClone } from 'renderer/3D/utils/getModelClone';
+import { MODELS, SPAWN_MARKER_NAME, TEXTURES } from 'renderer/3D/constants';
+
 import { GameScene } from './GameScene/GameScene';
 import { Monk } from '../gameObjects/players/Monk/Monk';
-import { MODELS, SPAWNER_IDS, TEXTURES } from '../../constants';
+import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
+import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
 
 export class DungeonLevelScene extends GameScene {
-  public readonly levelVariants: LevelRecord[] = [];
+  public readonly levelVariants: LevelRecord[] = [{ url: 'test.json' }];
 
   public readonly preloadedAssets: AssetRecord[] = [
     MODELS.MONK,
-    MODELS.DUNGEON_DOOR,
-    MODELS.DUNGEON_DOOR_FRAME,
-    MODELS.DUNGEON_PILLAR,
-    MODELS.DUNGEON_WALL_TORCH,
-    MODELS.DUNGEON_WALL_BRICK_TALL,
-    MODELS.DUNGEON_FLOOR,
-    MODELS.DUNGEON_PLINTH,
-    TEXTURES.ARCANE_CIRCLE,
+    MODELS.SKELETON,
     TEXTURES.EXPLOSION,
+    TEXTURES.ARCANE_CIRCLE,
+    TEXTURES.AIMING_ARROW,
+    MODELS.DUNGEON_FLOOR,
+    MODELS.DUNGEON_PILLAR,
+    MODELS.DUNGEON_PLINTH,
+    MODELS.DUNGEON_WALL_BRICK_TALL,
+    MODELS.DUNGEON_WALL_TORCH,
+    MODELS.DUNGEON_DOOR_FRAME,
+    MODELS.DUNGEON_DOOR,
   ];
 
-  protected override onInit(): void {
-    const spawner = this.getObjectByName(SPAWNER_IDS.PLAYER);
+  protected override additionalWarmupFactories: WarmupFactory[] = [
+    () => getModelClone(MODELS.MONK.id),
+    () => getModelClone(MODELS.SKELETON.id),
+    () => createSwingTrailWarmupMesh(),
+  ];
 
-    if (spawner) {
-      const { x, z } = spawner.position;
+  /* protected override createCamera(options: OrtographicCameraOptions): FreeOrtographicCamera {
+    return new FreeOrtographicCamera(options);
+  } */
+
+  constructor() {
+    super();
+
+    this.background = new THREE.Color(0x0a0a0a);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(10, 10, 10);
+    this.add(directionalLight);
+  }
+
+  protected override onInit(): void {
+    const marker = this.getObjectByName(SPAWN_MARKER_NAME);
+
+    if (marker !== undefined) {
+      const { x, y, z } = marker.position;
       const monk = new Monk(this);
-      monk.position.set(x, 1, z);
+      monk.position.set(x, y, z);
       this.add(monk);
       this.camera.follow(monk);
+      //this.camera.moveTo(marker.position);
     }
   }
 }

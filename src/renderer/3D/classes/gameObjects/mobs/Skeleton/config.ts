@@ -9,12 +9,12 @@ import { MODELS, DEFAULT_RIGID_BODY_OPTIONS } from '../../../../../3D/constants'
 export const config: EntityAIOptions = {
   modelOptions: {
     id: MODELS.SKELETON.id,
-    scale: new THREE.Vector3(1.2, 1.2, 1.2),
+    scale: new THREE.Vector3(0.012, 0.012, 0.012),
   },
   movementOptions: {
     speed: 2.5,
     sprintSpeed: 4,
-    walkSpeed: 0.5,
+    walkSpeed: 0.3,
   },
   rigidBodyOptions: {
     ...DEFAULT_RIGID_BODY_OPTIONS,
@@ -28,7 +28,7 @@ export const config: EntityAIOptions = {
       [AnimationClipNamesShared.IDLE]: 0.1,
     },
   },
-  detectionRadius: 5,
+  detectionRadius: 8,
   enemyTypes: [Player],
   roaming: {
     radius: 5,

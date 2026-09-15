@@ -150,13 +150,47 @@ describe('ModelRenderer', () => {
     expect(modelRenderer.getModelMaterials()).toBeNull();
   });
 
-  it('returns cloned materials from getMaterialsCopy', () => {
-    const { modelRenderer } = createRenderer();
-    const currentMaterials = modelRenderer.getModelMaterials();
+  it('returns cloned materials keyed by mesh from getMaterialsCopy', () => {
+    const model = createMeshModel();
+    const mesh = model.children[0] as THREE.Mesh;
+    const { modelRenderer } = createRenderer(model);
+
     const copies = modelRenderer.getMaterialsCopy();
 
-    expect(copies).toHaveLength(currentMaterials?.length ?? 0);
-    expect(copies[0]).not.toBe(currentMaterials?.[0]);
+    const meshMaterial = mesh.material as THREE.MeshBasicMaterial;
+    expect(copies.size).toBe(1);
+    const copiedMaterial = copies.get(mesh) as THREE.MeshBasicMaterial;
+    expect(copiedMaterial).not.toBe(meshMaterial);
+    expect(copiedMaterial.color.getHex()).toBe(meshMaterial.color.getHex());
+  });
+
+  it('getMaterialsCopy keeps returning the original material even once the mesh is showing something else', () => {
+    const model = createMeshModel();
+    const mesh = model.children[0] as THREE.Mesh;
+    const { modelRenderer } = createRenderer(model);
+
+    const originalMaterial = mesh.material as THREE.MeshBasicMaterial;
+    const originalColor = originalMaterial.color.getHex();
+
+    // Simulate an overlapping flash swapping the mesh's live material.
+    mesh.material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+
+    const copies = modelRenderer.getMaterialsCopy();
+    const copiedMaterial = copies.get(mesh) as THREE.MeshBasicMaterial;
+
+    expect(copiedMaterial.color.getHex()).toBe(originalColor);
+    expect(copiedMaterial).not.toBe(mesh.material);
+  });
+
+  it('re-captures original materials when the model is swapped', () => {
+    const { modelRenderer } = createRenderer();
+
+    const nextModel = createMeshModel();
+    const nextMesh = nextModel.children[0] as THREE.Mesh;
+    modelRenderer.setModel(nextModel);
+
+    const copies = modelRenderer.getMaterialsCopy();
+    expect(copies.has(nextMesh)).toBe(true);
   });
 
   it('restores original materials after mutation', () => {

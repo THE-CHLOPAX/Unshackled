@@ -10,20 +10,39 @@ import { PhysicsCollisionCallback } from '../internal-3d/types/physics';
 import { getRigidBodyColliderDescription } from './utils/getRigidBodyColliderDescription';
 import { getRigidBodyDescriptionForObject } from './utils/getRigidBodyDescriptionForObject';
 
-export type RigidBodyShape = 'box' | 'cylinder' | 'sphere';
+export type RigidBodyShape = 'box' | 'cylinder' | 'sphere' | 'trimesh';
 export type RigidBodyType = 'dynamic' | 'static' | 'kinematic';
-export type RigidBodyOptions = {
-  type?: RigidBodyType;
+
+type RigidBodyOptionsBase = {
   mass?: number;
   friction?: number;
   restitution?: number; // Bounciness (0 = no bounce, 1 = perfect bounce)
   linearDamping?: number; // Air resistance
   angularDamping?: number; // Rotation resistance
   lockRotation?: boolean;
-  colliderShape?: RigidBodyShape;
   colliderSize?: THREE.Vector3; // Explicit collider size; overrides the size derived from the mesh's bounding box
   sensor?: boolean; // If true, the collider will not produce physical responses but can still trigger collision events
   enableCollisionDetection?: boolean;
+};
+
+export type NonTrimeshRigidBodyOptions = RigidBodyOptionsBase & {
+  type?: RigidBodyType;
+  colliderShape?: Exclude<RigidBodyShape, 'trimesh'>;
+  colliderGeometry?: never;
+};
+
+export type TrimeshRigidBodyOptions = RigidBodyOptionsBase & {
+  type: Exclude<RigidBodyType, 'dynamic'>;
+  colliderShape: 'trimesh';
+  colliderGeometry: THREE.BufferGeometry;
+};
+
+export type RigidBodyOptions = NonTrimeshRigidBodyOptions | TrimeshRigidBodyOptions;
+
+export type ResolvedRigidBodyOptions = RigidBodyOptionsBase & {
+  type?: RigidBodyType;
+  colliderShape?: RigidBodyShape;
+  colliderGeometry?: THREE.BufferGeometry;
 };
 
 export type RigidBodyCollisionParams = {
@@ -34,7 +53,7 @@ export type RigidBodyCollisionParams = {
 
 export type RigidBodyCollisionCallback = (params: RigidBodyCollisionParams) => void;
 
-export class RigidBody extends GameObjectComponent<RigidBodyOptions> {
+export class RigidBody extends GameObjectComponent<ResolvedRigidBodyOptions> {
   public static BodyType = RAPIER.RigidBodyType;
   public static ActiveEvents = RAPIER.ActiveEvents;
 
@@ -130,6 +149,20 @@ export class RigidBody extends GameObjectComponent<RigidBodyOptions> {
     return body.isEnabled();
   }
 
+  public setSensor(isSensor: boolean): void {
+    if (!this._collider) {
+      throw new Error('RigidBody: Cannot set sensor state before collider is initialized');
+    }
+    this._collider.setSensor(isSensor);
+  }
+
+  public isSensor(): boolean {
+    if (!this._collider) {
+      throw new Error('RigidBody: Cannot read sensor state before collider is initialized');
+    }
+    return this._collider.isSensor();
+  }
+
   public syncFromPhysics(): void {
     if (this.options.type !== 'dynamic') return;
 
@@ -211,6 +244,16 @@ export class RigidBody extends GameObjectComponent<RigidBodyOptions> {
     }
   }
 
+  private _removeAllCollisionListeners(): void {
+    if (this._collisionListeners.size === 0) return;
+
+    const physics = this.gameObject.scene?.physics;
+    if (!physics) return;
+
+    this._collisionListeners.forEach((callback) => physics.offCollision(callback));
+    this._collisionListeners.clear();
+  }
+
   protected override onAwake(): void {
     super.onAwake();
     this._init();
@@ -239,6 +282,8 @@ export class RigidBody extends GameObjectComponent<RigidBodyOptions> {
       this._removePhysicsCollider();
       this._removePhysicsBody();
     }
+
+    this._removeAllCollisionListeners();
 
     // Remove debug mesh
     this._removeDebugMesh();

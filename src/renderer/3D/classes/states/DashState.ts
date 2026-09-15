@@ -23,11 +23,8 @@ export class DashState extends State {
     super(entity);
   }
 
-  protected override get isDamageImmune(): boolean {
-    return true;
-  }
-
   public onEnter(): void {
+    this.entity.rigidBody.setSensor(true);
     // Freeze the dash heading on entry - direction is locked for the whole dash.
     this.entity.getWorldDirection(this._direction);
 
@@ -38,6 +35,7 @@ export class DashState extends State {
 
   public onExit(): void {
     if (!this._durationTimeout) return;
+    this.entity.rigidBody.setSensor(false);
     clearTimeout(this._durationTimeout);
     this._durationTimeout = null;
   }
@@ -57,10 +55,6 @@ export class DashState extends State {
     this.entity.movementController.move(this._direction, this.options.speed);
 
     return this;
-  }
-
-  protected onDamageTaken(): State | null {
-    return null;
   }
 
   /**

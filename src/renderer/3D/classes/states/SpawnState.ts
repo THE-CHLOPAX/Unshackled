@@ -14,14 +14,6 @@ export class SpawnState extends State {
     super(entity);
   }
 
-  protected override get isDamageImmune(): boolean {
-    return true;
-  }
-
-  protected override onDamageTaken(): State | null {
-    return null;
-  }
-
   public onEnter(): void {
     this.entity.animationController.playAnimation(AnimationClipNamesShared.SPAWN, {
       clampWhenFinished: true,

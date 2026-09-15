@@ -3,7 +3,7 @@ import { logger } from '@tgdf';
 import RAPIER from '@dimforge/rapier3d-compat';
 
 export function getMeshFromCollider(collider: RAPIER.Collider): THREE.Mesh {
-  let geometry: THREE.BoxGeometry | THREE.CylinderGeometry | THREE.SphereGeometry;
+  let geometry: THREE.BufferGeometry;
 
   switch (collider.shape.type) {
     case RAPIER.ShapeType.Cuboid: {
@@ -19,6 +19,17 @@ export function getMeshFromCollider(collider: RAPIER.Collider): THREE.Mesh {
     }
     case RAPIER.ShapeType.Ball: {
       geometry = new THREE.SphereGeometry(collider.radius(), 8, 8);
+      break;
+    }
+    case RAPIER.ShapeType.TriMesh: {
+      const trimeshGeometry = new THREE.BufferGeometry();
+      trimeshGeometry.setAttribute('position', new THREE.BufferAttribute(collider.vertices(), 3));
+
+      const indices = collider.indices();
+      if (indices) trimeshGeometry.setIndex(new THREE.BufferAttribute(indices, 1));
+      trimeshGeometry.computeVertexNormals();
+
+      geometry = trimeshGeometry;
       break;
     }
     default: {

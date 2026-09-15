@@ -9,6 +9,7 @@ import {
   RigidBodyShape,
   RigidBodyCollisionCallback,
   RigidBodyCollisionParams,
+  NonTrimeshRigidBodyOptions,
 } from './RigidBody';
 
 export {
@@ -17,6 +18,7 @@ export {
   type RigidBodyShape,
   type RigidBodyCollisionCallback,
   type RigidBodyCollisionParams,
+  type NonTrimeshRigidBodyOptions,
 };
 export { MovementController, type MovementControllerOptions };
 export { NavMeshAgent };

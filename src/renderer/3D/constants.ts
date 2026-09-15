@@ -12,6 +12,7 @@ export const CHECKERBOARD_TEXTURE = 'checkerboard-texture';
 
 export const EXPLOSION_SPRITESHEET_TEXTURE = 'explosion-spritesheet-texture';
 export const ARCANE_CIRCLE_TEXTURE = 'arcane-circle-texture';
+export const AIMING_ARROW_TEXTURE = 'aiming-arrow-texture';
 export const MAIN_CROWD_ID = 'main-crowd';
 
 // Material parameters that change which shader program three.js compiles
@@ -32,12 +33,6 @@ type StructuralMaterialParameter =
   | 'alphaToCoverage'
   | 'displacementMap';
 
-/**
- * Adding a new variant? Warm it in ShadersManager's
- * _createShaderWarmupGroup too, or it'll compile mid-gameplay on first use
- * instead of at load — that switch is exhaustive over keyof MATERIALS, so
- * forgetting is a build error there, not a silent gap.
- */
 export const MATERIALS = {
   // Untextured glowing surface
   STANDARD_EMISSIVE: (
@@ -87,7 +82,7 @@ export const NAVMESH_AGENT_HEIGHT = 2.0;
 export const DEFAULT_RIGID_BODY_OPTIONS: RigidBodyOptions = {
   mass: 0.1,
   friction: 0,
-  linearDamping: 0,
+  linearDamping: 5,
   lockRotation: true,
   colliderShape: 'cylinder',
   enableCollisionDetection: true,
@@ -164,6 +159,11 @@ export const MODELS: Record<string, ModelRecord> = {
 };
 
 export const TEXTURES: Record<string, TextureRecord> = {
+  CHECKERBOARD: {
+    type: 'texture',
+    id: CHECKERBOARD_TEXTURE,
+    path: './assets/textures/checker.png',
+  },
   EXPLOSION: {
     type: 'texture',
     id: EXPLOSION_SPRITESHEET_TEXTURE,
@@ -174,6 +174,11 @@ export const TEXTURES: Record<string, TextureRecord> = {
     type: 'texture',
     id: ARCANE_CIRCLE_TEXTURE,
     path: './assets/textures/arcane-circle.png',
+  },
+  AIMING_ARROW: {
+    type: 'texture',
+    id: AIMING_ARROW_TEXTURE,
+    path: './assets/textures/aiming-arrow.png',
   },
   DUNGEON_BLOCKS: {
     type: 'texture',
@@ -199,7 +204,7 @@ export const TEXTURES: Record<string, TextureRecord> = {
 
 export const WORLD_LAYER_COUNT = 4;
 
-export const WORLD_CELL_SIZE = 4;
+export const WORLD_CELL_SIZE = 3;
 
 export const MODEL_NATIVE_TILE_SIZE = 5;
 

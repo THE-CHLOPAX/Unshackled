@@ -1,14 +1,20 @@
+import * as THREE from 'three';
 import { InputState, logger } from '@tgdf';
 
 import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from './utils/getBestAttack';
 import { getTargetEnemy } from './utils/getTargetEnemy';
 import { AnimationClipNamesShared } from '../../../types';
-import { State, HurtState, AIIdleState, AIAttackState, AIChasingState } from '..';
+import { State, AIIdleState, AIAttackState, AIChasingState } from '..';
 import { getRandomNavMeshPointInRadius } from '../../../utils/getRandomNavMeshPointInRadius';
+
+const STUCK_CHECK_INTERVAL_SECONDS = 1;
+const STUCK_DISTANCE_THRESHOLD = 0.05;
 
 export class AIRoamingState extends State {
   private _shouldTransitionToIdle: boolean = false;
+  private _stuckCheckElapsedSeconds = 0;
+  private _lastCheckedPosition: THREE.Vector3 | null = null;
 
   constructor(public entity: EntityAI) {
     super(entity);
@@ -35,11 +41,9 @@ export class AIRoamingState extends State {
     return this;
   }
 
-  protected override onDamageTaken(): State {
-    return new HurtState(this.entity, new AIIdleState(this.entity));
-  }
+  public override onUpdate(deltaTime: number): State {
+    this._checkForStuckMovement(deltaTime);
 
-  public override onUpdate(_deltaTime: number): State {
     const targetEnemy = getTargetEnemy(this.entity);
 
     let bestAttack = null;
@@ -68,6 +72,29 @@ export class AIRoamingState extends State {
       return new AIIdleState(this.entity);
     }
     return this;
+  }
+
+  private _checkForStuckMovement(deltaTime: number): void {
+    if (this._shouldTransitionToIdle) return;
+
+    this._stuckCheckElapsedSeconds += deltaTime;
+    if (this._stuckCheckElapsedSeconds < STUCK_CHECK_INTERVAL_SECONDS) return;
+    this._stuckCheckElapsedSeconds = 0;
+
+    const currentPosition = this.entity.position;
+
+    if (
+      this._lastCheckedPosition !== null &&
+      this._lastCheckedPosition.distanceTo(currentPosition) < STUCK_DISTANCE_THRESHOLD
+    ) {
+      this.entity.movementController.resetMoveTo();
+      this._shouldTransitionToIdle = true;
+      return;
+    }
+
+    this._lastCheckedPosition = (this._lastCheckedPosition ?? new THREE.Vector3()).copy(
+      currentPosition
+    );
   }
 
   private _roamToRandomPoint(): Promise<void> {

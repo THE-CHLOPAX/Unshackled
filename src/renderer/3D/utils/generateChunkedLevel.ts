@@ -9,11 +9,16 @@ import { RigidStaticObject } from '../classes/gameObjects/RigidStaticObject';
 import { FLOOR_TILE_CODES, MODEL_TILE_SCALE, WORLD_CELL_SIZE } from '../constants';
 import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from '../worldDefinitions';
 import {
+  ColliderGeometryEntry,
+  mergeCollidersIntoTrimeshGeometry,
+} from './mergeCollidersIntoTrimeshGeometry';
+import {
   WorldChunkBoundary,
   WorldCell,
   WorldOutputData,
   WorldTileCodes,
   LevelGeneratedData,
+  WorldObjectDefinition,
   EntityWorldObjectDefinition,
 } from '../types';
 
@@ -24,7 +29,14 @@ const MODEL_BASE_TILT = -Math.PI / 2;
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
 const NO_OFFSET = new THREE.Vector3();
 
-const WORLD_OBJECT_DEFINITIONS = [...WORLD_TILE_DEFINITIONS, ...WORLD_PROP_DEFINITIONS];
+let worldObjectDefinitions: WorldObjectDefinition[] | null = null;
+
+function getWorldObjectDefinitions(): WorldObjectDefinition[] {
+  if (!worldObjectDefinitions) {
+    worldObjectDefinitions = [...WORLD_TILE_DEFINITIONS, ...WORLD_PROP_DEFINITIONS];
+  }
+  return worldObjectDefinitions;
+}
 
 type ChunkCell = WorldCell & { x: number; z: number };
 
@@ -69,10 +81,11 @@ function getChunkedCells(
 
 function buildChunk(scene: Scene, chunkCells: ChunkCell[], floorGroup: THREE.Group): void {
   const instancedCellsByCode = groupInstancedCellsByCode(chunkCells);
+  const chunkColliderEntries: ColliderGeometryEntry[] = [];
 
   // Build instanced objects
   instancedCellsByCode.forEach((cells, code) => {
-    const definition = WORLD_OBJECT_DEFINITIONS.find((def) => def.code === code);
+    const definition = getWorldObjectDefinitions().find((def) => def.code === code);
     assert(
       definition !== undefined && definition.type === 'instanced',
       `World object definition is not instanced: ${code}`
@@ -109,11 +122,7 @@ function buildChunk(scene: Scene, chunkCells: ChunkCell[], floorGroup: THREE.Gro
       instancedMesh.setMatrixAt(index, matrix);
 
       if (definition.collider) {
-        const rigidStaticObject = new RigidStaticObject(scene, {
-          geometry,
-          matrix: matrix.clone(),
-        });
-        scene.add(rigidStaticObject);
+        chunkColliderEntries.push({ geometry, matrix: matrix.clone() });
       }
     });
 
@@ -124,10 +133,18 @@ function buildChunk(scene: Scene, chunkCells: ChunkCell[], floorGroup: THREE.Gro
     parent.add(instancedMesh);
   });
 
+  const chunkColliderGeometry = mergeCollidersIntoTrimeshGeometry(chunkColliderEntries);
+  if (chunkColliderGeometry) {
+    const rigidStaticObject = new RigidStaticObject(scene, {
+      trimeshGeometry: chunkColliderGeometry,
+    });
+    scene.add(rigidStaticObject);
+  }
+
   // Build entity objects
   const entityCells = chunkCells.filter((cell) => !isInstancedCell(cell.code));
   entityCells.forEach((cell) => {
-    const definition = WORLD_OBJECT_DEFINITIONS.find(
+    const definition = getWorldObjectDefinitions().find(
       (definition): definition is EntityWorldObjectDefinition => definition.code === cell.code
     );
     assert(definition !== undefined, `Definition not found for cell code: ${cell.code}`);

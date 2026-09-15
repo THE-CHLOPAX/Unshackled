@@ -1,9 +1,14 @@
 import * as THREE from 'three';
 import { MovementController, RigidBody, RigidBodyOptions } from '@tgdf';
 
+import { COLORS } from 'renderer/constants';
+import { DeadState } from '3D/classes/states';
+import { flashMaterial } from '3D/utils/flashMaterial';
+
 import { GameSceneObject } from './GameSceneObject';
 import { GameScene } from '../scenes/GameScene/GameScene';
 import { StateController } from '../gameObjectComponents/StateController';
+import { CooldownController } from '../gameObjectComponents/CooldownController';
 import { DamageHitboxController } from '../gameObjectComponents/DamageHitboxController';
 import {
   ModelRenderer,
@@ -45,6 +50,7 @@ export class Entity extends GameSceneObject {
   public stateController: StateController;
   public animationController: AnimationController;
   public damageHitboxController: DamageHitboxController;
+  public cooldownController: CooldownController;
   public healthPointsController: HealthPointsController;
   public healthBarRenderer: HealthBarRenderer;
   public movementController: MovementController;
@@ -103,7 +109,15 @@ export class Entity extends GameSceneObject {
       new DamageHitboxController(this)
     );
 
+    this.cooldownController = this.addComponent(
+      'CooldownController',
+      new CooldownController(this)
+    );
+
     this.stateController = this.addComponent('StateController', new StateController(this));
+
+    this.healthPointsController.events.on('damagetaken', this._onDamageTaken);
+    this.healthPointsController.events.on('death', this._onDeath);
   }
 
   public get spawnPosition(): THREE.Vector3 {
@@ -113,4 +127,31 @@ export class Entity extends GameSceneObject {
   protected override onAwake(): void {
     this._spawnPosition.copy(this.position);
   }
+
+  protected override onDestroyed(): void {
+    this.healthPointsController.events.off('damagetaken', this._onDamageTaken);
+    this.healthPointsController.events.off('death', this._onDeath);
+    super.onDestroyed();
+  }
+
+  protected onDamageTaken(): void {}
+
+  private _onDamageTaken = (): void => {
+    this.onDamageTaken();
+    this._flashRed();
+  };
+
+  private _onDeath = (): void => {
+    this._flashRed();
+    this.stateController.requestTransition(new DeadState(this));
+  };
+
+  private _flashRed = (): void => {
+    flashMaterial({
+      entity: this,
+      material: new THREE.MeshBasicMaterial({ color: COLORS.RED }),
+      duration: 0.1,
+      fadeOut: { duration: 0.15 },
+    });
+  };
 }

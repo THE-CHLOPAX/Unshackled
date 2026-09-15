@@ -1,8 +1,9 @@
+import { gsap } from 'gsap';
 import { InputState, MAIN_SOUND_CHANNEL } from '@tgdf';
 
-import { ActionWithSound } from '../../../types';
+import { ChainedAction } from '../../../types';
+import { State, IdleState, RunningState } from '..';
 import { Player } from '../../gameObjects/players/Player';
-import { State, HurtState, IdleState, RunningState } from '..';
 import { FMODAudio, FMODEventInstance } from '../../../../FMOD';
 import { ControlsState, mapInputToControls } from '../../../utils/mapInputToControls';
 
@@ -11,43 +12,69 @@ export class AttackState extends State {
   private _controlsStates: ControlsState[] = [];
   private _eventInstance: FMODEventInstance | null = null;
 
+  private _awaitingChainInput = false;
+  private _chainWindowOpen = false;
+  private _chainOpenTimer: gsap.core.Tween | null = null;
+  private _chainCloseTimer: gsap.core.Tween | null = null;
+  private _freezeTimer: gsap.core.Tween | null = null;
+
   constructor(
     public entity: Player,
-    private _attackAction: ActionWithSound
+    private _attackAction: ChainedAction
   ) {
     super(entity);
   }
 
   public override onEnter(): void {
-    this._eventInstance = FMODAudio.playEventInSoundChannel({
-      eventPath: this._attackAction.soundPath,
-      channelId: MAIN_SOUND_CHANNEL,
-    });
+    if (this._attackAction.soundPath !== undefined) {
+      this._eventInstance = FMODAudio.playEventInSoundChannel({
+        eventPath: this._attackAction.soundPath,
+        channelId: MAIN_SOUND_CHANNEL,
+      });
+    }
 
     this._attackInProgress = true;
 
     this._attackAction.action(this.entity).then(() => {
-      this._attackInProgress = false;
+      const freezeDurationMs = this._attackAction.freezeDurationMs ?? 0;
+
+      this._freezeTimer = gsap.delayedCall(freezeDurationMs / 1000, () => {
+        this._attackInProgress = false;
+        this._startChainWindow();
+      });
     });
   }
 
   public override onExit(): void {
-    if (this._eventInstance === null) return;
-    FMODAudio.stopEvent(this._eventInstance);
-    this._eventInstance = null;
+    if (this._eventInstance !== null) {
+      FMODAudio.stopEvent(this._eventInstance);
+      this._eventInstance = null;
+    }
+
+    this._freezeTimer?.kill();
+    this._chainOpenTimer?.kill();
+    this._chainCloseTimer?.kill();
+    this.entity.damageHitboxController.clearHitboxEvents();
   }
 
   public override onInput(inputState: InputState): State {
     this._controlsStates = mapInputToControls(inputState);
+
+    const chain = this._attackAction.chain;
+
+    if (
+      chain &&
+      this._chainWindowOpen &&
+      this._controlsStates.some((controlState) => controlState.type === chain.requiredInput)
+    ) {
+      return new AttackState(this.entity, chain.next);
+    }
+
     return this;
   }
 
   public override onUpdate(_deltaTime: number): State {
     if (this._attackInProgress) return this;
-
-    if (this._controlsStates.some((controlState) => controlState.type === 'idle')) {
-      return new IdleState(this.entity);
-    }
 
     if (
       this._controlsStates.some(
@@ -57,10 +84,28 @@ export class AttackState extends State {
       return new RunningState(this.entity);
     }
 
+    if (this._awaitingChainInput) return this;
+
+    if (this._controlsStates.some((controlState) => controlState.type === 'idle')) {
+      return new IdleState(this.entity);
+    }
+
     return this;
   }
 
-  protected override onDamageTaken(): State {
-    return new HurtState(this.entity, new AttackState(this.entity, this._attackAction));
+  private _startChainWindow(): void {
+    const chain = this._attackAction.chain;
+    if (!chain) return;
+
+    this._awaitingChainInput = true;
+
+    this._chainOpenTimer = gsap.delayedCall(chain.windowDelayMs / 1000, () => {
+      this._chainWindowOpen = true;
+
+      this._chainCloseTimer = gsap.delayedCall(chain.windowDurationMs / 1000, () => {
+        this._chainWindowOpen = false;
+        this._awaitingChainInput = false;
+      });
+    });
   }
 }

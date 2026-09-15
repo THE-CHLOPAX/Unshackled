@@ -1,6 +1,5 @@
 // Shared
 export { State } from './State';
-export { HurtState } from './HurtState';
 export { DeadState } from './DeadState';
 export { SpawnState } from './SpawnState';
 
@@ -15,4 +14,5 @@ export { IdleState } from './Player/IdleState';
 export { RunningState } from './Player/RunningState';
 export { SprintingState } from './Player/SprintingState';
 export { AttackState } from './Player/AttackState';
+export { AimingState } from './Player/AimingState';
 export { DashState, type DashOptions } from './DashState';

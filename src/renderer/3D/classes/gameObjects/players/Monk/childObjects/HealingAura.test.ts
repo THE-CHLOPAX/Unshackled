@@ -17,7 +17,7 @@ vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
 }));
 
-import { ArcaneCircle, ArcaneCircleOptions } from './ArcaneCircle';
+import { HealingAura, HealingAuraOptions } from './HealingAura';
 
 class MockScene extends Scene {
   camera = new MockCamera();
@@ -28,9 +28,9 @@ class FakePlayer extends GameObject {
   public healthPointsController = { healDamage: vi.fn() };
 }
 
-async function createArcaneCircleScene(overrides: Partial<ArcaneCircleOptions> = {}): Promise<{
+async function createHealingAuraScene(overrides: Partial<HealingAuraOptions> = {}): Promise<{
   scene: MockScene;
-  arcaneCircle: ArcaneCircle;
+  healingAura: HealingAura;
   physics: PhysicsManager;
   physicsCallback: PhysicsCollisionCallback;
 }> {
@@ -50,18 +50,17 @@ async function createArcaneCircleScene(overrides: Partial<ArcaneCircleOptions> =
     return () => {};
   });
 
-  const arcaneCircle = new ArcaneCircle(scene, {
+  const healingAura = new HealingAura(scene, {
     diameter: 4,
     healAmount: 10,
     healIntervalMs: 1000,
     durationMs: 5000,
     ...overrides,
   });
-  parent.add(arcaneCircle);
-  // Triggers onAwake -> RigidBody physics body creation + collision listener registration
-  arcaneCircle.update(0);
+  parent.add(healingAura);
+  healingAura.update(0);
 
-  return { scene, arcaneCircle, physics, physicsCallback };
+  return { scene, healingAura, physics, physicsCallback };
 }
 
 function createFakePlayer(scene: MockScene): FakePlayer {
@@ -81,7 +80,7 @@ function getHandle(gameObject: GameObject): number {
   return handle;
 }
 
-describe('ArcaneCircle', () => {
+describe('HealingAura', () => {
   beforeAll(async () => {
     await RAPIER.init();
   });
@@ -97,13 +96,13 @@ describe('ArcaneCircle', () => {
   });
 
   it('starts healing a player on an interval once they enter the aura', async () => {
-    const { scene, arcaneCircle, physicsCallback } = await createArcaneCircleScene({
+    const { scene, healingAura, physicsCallback } = await createHealingAuraScene({
       healAmount: 10,
       healIntervalMs: 1000,
     });
     const player = createFakePlayer(scene);
 
-    physicsCallback(getHandle(arcaneCircle), getHandle(player), true);
+    physicsCallback(getHandle(healingAura), getHandle(player), true);
 
     expect(player.healthPointsController.healDamage).not.toHaveBeenCalled();
 
@@ -116,7 +115,7 @@ describe('ArcaneCircle', () => {
   });
 
   it('ignores collisions with non-player game objects', async () => {
-    const { scene, arcaneCircle, physicsCallback } = await createArcaneCircleScene();
+    const { scene, healingAura, physicsCallback } = await createHealingAuraScene();
 
     const nonPlayer = new GameObject({ scene });
     nonPlayer.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial()));
@@ -127,33 +126,30 @@ describe('ArcaneCircle', () => {
     );
     nonPlayer.update(0);
 
-    physicsCallback(getHandle(arcaneCircle), getHandle(nonPlayer), true);
+    physicsCallback(getHandle(healingAura), getHandle(nonPlayer), true);
     vi.advanceTimersByTime(5000);
 
-    // No heal interval should have been created; nothing to assert on directly except
-    // that destroying the circle doesn't clear any intervals for this object.
     const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
-    arcaneCircle.destroy();
+    healingAura.destroy();
     expect(clearIntervalSpy).not.toHaveBeenCalled();
   });
 
   it('removes only the departing player heal interval, leaving other active players healing', async () => {
-    const { scene, arcaneCircle, physicsCallback } = await createArcaneCircleScene({
+    const { scene, healingAura, physicsCallback } = await createHealingAuraScene({
       healAmount: 5,
       healIntervalMs: 1000,
     });
     const playerA = createFakePlayer(scene);
     const playerB = createFakePlayer(scene);
 
-    physicsCallback(getHandle(arcaneCircle), getHandle(playerA), true);
-    physicsCallback(getHandle(arcaneCircle), getHandle(playerB), true);
+    physicsCallback(getHandle(healingAura), getHandle(playerA), true);
+    physicsCallback(getHandle(healingAura), getHandle(playerB), true);
 
     vi.advanceTimersByTime(1000);
     expect(playerA.healthPointsController.healDamage).toHaveBeenCalledTimes(1);
     expect(playerB.healthPointsController.healDamage).toHaveBeenCalledTimes(1);
 
-    // Player A leaves the aura; only their interval should stop.
-    physicsCallback(getHandle(arcaneCircle), getHandle(playerA), false);
+    physicsCallback(getHandle(healingAura), getHandle(playerA), false);
 
     vi.advanceTimersByTime(2000);
     expect(playerA.healthPointsController.healDamage).toHaveBeenCalledTimes(1);
@@ -161,19 +157,19 @@ describe('ArcaneCircle', () => {
   });
 
   it('clears all remaining heal intervals when destroyed, leaving no leaked timers', async () => {
-    const { scene, arcaneCircle, physicsCallback } = await createArcaneCircleScene({
+    const { scene, healingAura, physicsCallback } = await createHealingAuraScene({
       healAmount: 5,
       healIntervalMs: 1000,
     });
     const playerA = createFakePlayer(scene);
     const playerB = createFakePlayer(scene);
 
-    physicsCallback(getHandle(arcaneCircle), getHandle(playerA), true);
-    physicsCallback(getHandle(arcaneCircle), getHandle(playerB), true);
+    physicsCallback(getHandle(healingAura), getHandle(playerA), true);
+    physicsCallback(getHandle(healingAura), getHandle(playerB), true);
 
     const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
 
-    arcaneCircle.destroy();
+    healingAura.destroy();
 
     expect(clearIntervalSpy).toHaveBeenCalledTimes(2);
 

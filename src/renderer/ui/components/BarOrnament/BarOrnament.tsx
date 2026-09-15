@@ -2,8 +2,7 @@ import styled from 'styled-components';
 
 import { COLORS } from 'renderer/constants';
 
-import barOrnamentFrame from '../../../assets/svg/bar-ornament.svg?url';
-import barOrnamentShortFrame from '../../../assets/svg/bar-ornament-short.svg?url';
+import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
 
 const DEFAULT_SCALE = 3;
 
@@ -87,7 +86,10 @@ const Fill = styled.div<{ $progress: number; $color: string; $scale: number; $sh
 const Frame = styled.div<{ $short: boolean }>`
   position: absolute;
   inset: 0;
-  background-image: url(${({ $short }) => ($short ? barOrnamentShortFrame : barOrnamentFrame)});
+  background-image: url(${({ $short }) =>
+    $short
+      ? UI_BACKGROUND_IMAGE_URLS.barOrnamentShortFrame
+      : UI_BACKGROUND_IMAGE_URLS.barOrnamentFrame});
   background-repeat: no-repeat;
   background-size: 100% 100%;
   image-rendering: pixelated;

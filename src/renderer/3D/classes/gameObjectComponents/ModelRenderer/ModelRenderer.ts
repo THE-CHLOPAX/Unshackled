@@ -20,9 +20,15 @@ export type AddAttachmentOptions =
   | { object: THREE.Object3D; parent: THREE.Object3D }
   | { object: THREE.Object3D; parentName: string };
 
+export type MeshMaterial = THREE.Material | THREE.Material[];
+
+function cloneMeshMaterial(material: MeshMaterial): MeshMaterial {
+  return Array.isArray(material) ? material.map((mat) => mat.clone()) : material.clone();
+}
+
 export class ModelRenderer extends GameObjectComponent {
   private _model: THREE.Object3D | null = null;
-  private _modelOriginalMaterials: THREE.Material[] = [];
+  private _modelOriginalMaterials: Map<THREE.Mesh, MeshMaterial> = new Map();
 
   constructor(gameObject: GameObject, options: ModelRendererOptions) {
     super(gameObject);
@@ -44,7 +50,6 @@ export class ModelRenderer extends GameObjectComponent {
     }
 
     this.setModel(model);
-    this._modelOriginalMaterials = this.getMaterialsCopy();
   }
 
   public getModel(): THREE.Object3D | null {
@@ -97,6 +102,8 @@ export class ModelRenderer extends GameObjectComponent {
       this._cloneMaterials(this._model);
     }
 
+    this._modelOriginalMaterials = this._captureOriginalMaterials(this._model);
+
     this.onModelChange(this._model);
 
     if (this._model) {
@@ -104,33 +111,58 @@ export class ModelRenderer extends GameObjectComponent {
     }
   }
 
-  public getMaterialsCopy(): THREE.Material[] {
-    const currentMaterials = this.getModelMaterials();
-    if (!currentMaterials) return [];
-    return currentMaterials.map((material) => material.clone());
+  /**
+   * Returns a fresh clone of each mesh's ORIGINAL material, keyed by mesh —
+   * the material as captured when the model was set, not whatever a caller
+   * finds on the mesh at the time it asks (which may be mid-flash/swap).
+   */
+  public getMaterialsCopy(): Map<THREE.Mesh, MeshMaterial> {
+    const copy = new Map<THREE.Mesh, MeshMaterial>();
+    this._modelOriginalMaterials.forEach((material, mesh) => {
+      copy.set(mesh, cloneMeshMaterial(material));
+    });
+    return copy;
   }
 
   public restoreOriginalMaterials(): void {
-    const currentMaterials = this.getModelMaterials();
+    if (!this._model) return;
 
-    if (!currentMaterials) return;
+    this._model.traverse((child) => {
+      if (!(child as THREE.Mesh).isMesh) return;
+      const mesh = child as THREE.Mesh;
 
-    currentMaterials.forEach((material, index) => {
-      if (this._modelOriginalMaterials[index]) {
-        material.copy(this._modelOriginalMaterials[index]);
+      const original = this._modelOriginalMaterials.get(mesh);
+      if (!original) return;
+
+      if (Array.isArray(mesh.material) && Array.isArray(original)) {
+        mesh.material.forEach((material, index) => {
+          const originalMaterial = original[index];
+          if (originalMaterial) material.copy(originalMaterial);
+        });
+      } else if (!Array.isArray(mesh.material) && !Array.isArray(original)) {
+        mesh.material.copy(original);
       }
     });
+  }
+
+  private _captureOriginalMaterials(model: THREE.Object3D | null): Map<THREE.Mesh, MeshMaterial> {
+    const materials = new Map<THREE.Mesh, MeshMaterial>();
+    if (!model) return materials;
+
+    model.traverse((child) => {
+      if (!(child as THREE.Mesh).isMesh) return;
+      const mesh = child as THREE.Mesh;
+      materials.set(mesh, cloneMeshMaterial(mesh.material));
+    });
+
+    return materials;
   }
 
   private _cloneMaterials(object: THREE.Object3D): void {
     object.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
-        if (Array.isArray(mesh.material)) {
-          mesh.material = mesh.material.map((mat) => mat.clone());
-        } else {
-          mesh.material = mesh.material.clone();
-        }
+        mesh.material = cloneMeshMaterial(mesh.material);
       }
     });
   }

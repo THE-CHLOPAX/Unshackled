@@ -17,6 +17,8 @@ const DESPAWN_TIMEOUT = 3000;
 export class EntityAI extends Entity {
   public navMeshAgent: NavMeshAgent;
 
+  public readonly isEntityAi = true;
+
   private _enemyTypes: (typeof Entity)[] | null = null;
   private _detectionRadius: number | null = null;
   private _roaming: AIRoamingOptions | null = null;
