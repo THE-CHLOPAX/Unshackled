@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { attackActions } from './actions';
 import { Player } from '../../players/Player';
 import { EntityAIOptions } from '../../EntityAI';
+import { stateMachineSkeleton } from './stateMachineSkeleton';
 import { AnimationClipNamesShared } from '../../../../../3D/types';
 import { MODELS, DEFAULT_RIGID_BODY_OPTIONS } from '../../../../../3D/constants';
 
@@ -43,4 +44,5 @@ export const config: EntityAIOptions = {
   healthOptions: {
     initialHealthPoints: 20,
   },
+  stateMachine: stateMachineSkeleton,
 };

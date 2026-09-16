@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { InputState, logger } from '@tgdf';
 
+import { State } from '..';
 import { EntityAI } from '../../gameObjects/EntityAI';
-import { getBestAttack } from './utils/getBestAttack';
-import { getTargetEnemy } from './utils/getTargetEnemy';
-import { AnimationClipNamesShared } from '../../../types';
-import { State, AIIdleState, AIAttackState, AIChasingState } from '..';
+import { getBestAttack } from '../utils/getBestAttack';
+import { getTargetEnemy } from '../utils/getTargetEnemy';
+import { AIAttackAction, AnimationClipNamesShared } from '../../../types';
 import { getRandomNavMeshPointInRadius } from '../../../utils/getRandomNavMeshPointInRadius';
 
 const STUCK_CHECK_INTERVAL_SECONDS = 1;
@@ -15,9 +15,18 @@ export class AIRoamingState extends State {
   private _shouldTransitionToIdle: boolean = false;
   private _stuckCheckElapsedSeconds = 0;
   private _lastCheckedPosition: THREE.Vector3 | null = null;
+  private _bestAttack: AIAttackAction | null = null;
 
   constructor(public entity: EntityAI) {
     super(entity);
+  }
+
+  public get shouldTransitionToIdle(): boolean {
+    return this._shouldTransitionToIdle;
+  }
+
+  public get bestAttack(): AIAttackAction | null {
+    return this._bestAttack;
   }
 
   public override onEnter(): void {
@@ -37,41 +46,13 @@ export class AIRoamingState extends State {
     this.entity.movementController.resetMoveTo();
   }
 
-  public override onInput(_inputState: InputState): State {
-    return this;
-  }
+  public override onInput(_inputState: InputState): void {}
 
-  public override onUpdate(deltaTime: number): State {
+  public override onUpdate(deltaTime: number): void {
     this._checkForStuckMovement(deltaTime);
 
     const targetEnemy = getTargetEnemy(this.entity);
-
-    let bestAttack = null;
-    if (targetEnemy) {
-      bestAttack = getBestAttack(this.entity, targetEnemy);
-    }
-
-    if (bestAttack === null) {
-      if (this._shouldTransitionToIdle) {
-        this._shouldTransitionToIdle = false;
-        return new AIIdleState(this.entity);
-      }
-      return this;
-    }
-
-    if (AIChasingState.checkCondition(this.entity, bestAttack)) {
-      return new AIChasingState(this.entity);
-    }
-
-    if (AIAttackState.checkCondition(this.entity, bestAttack)) {
-      return new AIAttackState(this.entity);
-    }
-
-    if (this._shouldTransitionToIdle) {
-      this._shouldTransitionToIdle = false;
-      return new AIIdleState(this.entity);
-    }
-    return this;
+    this._bestAttack = targetEnemy ? getBestAttack(this.entity, targetEnemy) : null;
   }
 
   private _checkForStuckMovement(deltaTime: number): void {

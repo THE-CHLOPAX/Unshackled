@@ -43,6 +43,9 @@ type OriginalMaterialState = {
 };
 
 export class DashStateMonk extends DashState {
+  public static readonly COOLDOWN_MS = 1000;
+  public static readonly COOLDOWN_ID = 'dash-state-monk-cooldown';
+
   private _originalMaterialState = new Map<FlashableMaterial, OriginalMaterialState>();
   private _ghostSpawnInterval: NodeJS.Timeout | null = null;
 
@@ -55,6 +58,11 @@ export class DashStateMonk extends DashState {
 
   public override onEnter(): void {
     super.onEnter();
+
+    this.entity.cooldownController.startCooldown(
+      DashStateMonk.COOLDOWN_ID,
+      DashStateMonk.COOLDOWN_MS
+    );
 
     const materials = this.entity.modelRenderer.getModelMaterials();
     if (materials) {

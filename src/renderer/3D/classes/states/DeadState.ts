@@ -32,11 +32,7 @@ export class DeadState extends State {
     this._eventInstance = null;
   }
 
-  public onInput(_inputState: InputState): State {
-    return this;
-  }
+  public onInput(_inputState: InputState): void {}
 
-  public onUpdate(_deltaTime: number): State {
-    return this;
-  }
+  public onUpdate(_deltaTime: number): void {}
 }

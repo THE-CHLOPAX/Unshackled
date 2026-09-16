@@ -4,14 +4,14 @@ import * as THREE from 'three';
 import { isEntityAi } from 'renderer/3D/utils/isEntityAi';
 
 import { Entity } from '../../Entity';
-import { AIAttack } from '../../../../types';
+import { AIAttackAction } from '../../../../types';
 import { FMOD_EVENTS } from '../../../../../FMOD/constants';
 
 export enum SkeletonAttackAnimations {
   PUNCH = 'punch',
 }
 
-export const attackActions: AIAttack[] = [
+export const attackActions: AIAttackAction[] = [
   {
     action: punch,
     soundPath: FMOD_EVENTS.ATTACK,

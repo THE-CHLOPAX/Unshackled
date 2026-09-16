@@ -1,15 +1,13 @@
 import { gsap } from 'gsap';
 import { InputState, MAIN_SOUND_CHANNEL } from '@tgdf';
 
+import { State } from '..';
 import { ChainedAction } from '../../../types';
-import { State, IdleState, RunningState } from '..';
 import { Player } from '../../gameObjects/players/Player';
 import { FMODAudio, FMODEventInstance } from '../../../../FMOD';
-import { ControlsState, mapInputToControls } from '../../../utils/mapInputToControls';
 
 export class AttackState extends State {
   private _attackInProgress = false;
-  private _controlsStates: ControlsState[] = [];
   private _eventInstance: FMODEventInstance | null = null;
 
   private _awaitingChainInput = false;
@@ -23,6 +21,18 @@ export class AttackState extends State {
     private _attackAction: ChainedAction
   ) {
     super(entity);
+  }
+
+  public get isBusy(): boolean {
+    return this._attackInProgress || this._awaitingChainInput;
+  }
+
+  public get isChainWindowOpen(): boolean {
+    return this._chainWindowOpen;
+  }
+
+  public get chain(): ChainedAction['chain'] {
+    return this._attackAction.chain;
   }
 
   public override onEnter(): void {
@@ -57,41 +67,9 @@ export class AttackState extends State {
     this.entity.damageHitboxController.clearHitboxEvents();
   }
 
-  public override onInput(inputState: InputState): State {
-    this._controlsStates = mapInputToControls(inputState);
+  public override onInput(_inputState: InputState): void {}
 
-    const chain = this._attackAction.chain;
-
-    if (
-      chain &&
-      this._chainWindowOpen &&
-      this._controlsStates.some((controlState) => controlState.type === chain.requiredInput)
-    ) {
-      return new AttackState(this.entity, chain.next);
-    }
-
-    return this;
-  }
-
-  public override onUpdate(_deltaTime: number): State {
-    if (this._attackInProgress) return this;
-
-    if (
-      this._controlsStates.some(
-        (controlState) => controlState.type === 'run' || controlState.type === 'sprint'
-      )
-    ) {
-      return new RunningState(this.entity);
-    }
-
-    if (this._awaitingChainInput) return this;
-
-    if (this._controlsStates.some((controlState) => controlState.type === 'idle')) {
-      return new IdleState(this.entity);
-    }
-
-    return this;
-  }
+  public override onUpdate(_deltaTime: number): void {}
 
   private _startChainWindow(): void {
     const chain = this._attackAction.chain;

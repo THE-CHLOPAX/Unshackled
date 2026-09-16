@@ -7,11 +7,12 @@ import { AnimationClipNamesShared } from '../../types';
 export class SpawnState extends State {
   private _spawnAnimationEnded: boolean = false;
 
-  constructor(
-    public entity: Entity,
-    public nextState: State
-  ) {
+  constructor(public entity: Entity) {
     super(entity);
+  }
+
+  public get hasFinished(): boolean {
+    return this._spawnAnimationEnded;
   }
 
   public onEnter(): void {
@@ -25,15 +26,7 @@ export class SpawnState extends State {
 
   public onExit(): void {}
 
-  public onInput(_inputState: InputState): State {
-    return this;
-  }
+  public onInput(_inputState: InputState): void {}
 
-  public onUpdate(_deltaTime: number): State {
-    if (this._spawnAnimationEnded) {
-      return this.nextState;
-    }
-
-    return this;
-  }
+  public onUpdate(_deltaTime: number): void {}
 }

@@ -1,6 +1,6 @@
-import { Entity } from '../../../gameObjects/Entity';
+import { Entity } from '../../gameObjects/Entity';
+import { EntityAI } from '../../gameObjects/EntityAI';
 import { getEnemiesInRange } from './getEnemiesInRange';
-import { EntityAI } from '../../../gameObjects/EntityAI';
 
 export function getTargetEnemy(entity: EntityAI): Entity | null {
   const enemiesInRange = getEnemiesInRange(entity);

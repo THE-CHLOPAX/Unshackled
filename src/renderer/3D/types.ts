@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { Scene, SceneCamera } from '@tgdf';
+import { InputState, Scene, SceneCamera } from '@tgdf';
 
+import { State } from './classes/states';
 import { Entity } from './classes/gameObjects/Entity';
 
 export enum AnimationClipNamesShared {
@@ -36,7 +37,7 @@ export type ActionWithSound = {
   freezeDurationMs?: number;
 };
 
-export type AIAttack = ActionWithSound & {
+export type AIAttackAction = ActionWithSound & {
   minRange: number;
   maxRange: number;
 };
@@ -44,7 +45,7 @@ export type AIAttack = ActionWithSound & {
 export type ChainedAction = ActionWithSound & {
   chain?: {
     next: ChainedAction;
-    requiredInput: SequenceInputType;
+    requiredInput: PlayerActionType;
     windowDelayMs: number;
     windowDurationMs: number;
   };
@@ -59,14 +60,8 @@ export type AIRoamingOptions = {
 };
 
 export type AIAttackOptions = {
-  actions: AIAttack[];
+  actions: AIAttackAction[];
 };
-
-export type SequenceInputType =
-  | PlayerActionType.ACTION_UP
-  | PlayerActionType.ACTION_RIGHT
-  | PlayerActionType.ACTION_DOWN
-  | PlayerActionType.ACTION_LEFT;
 
 export type GameCamera = SceneCamera & {
   addShake: (intensity: number) => void;
@@ -142,3 +137,11 @@ export type LevelRecord = {
 export type LevelGeneratedData = {
   floorGroup: THREE.Group;
 };
+
+type StateNodeFor<E extends Entity, S extends State> = {
+  state(entity: E): S;
+  onInput?(ctx: { entity: E; input: InputState; currentState: S }): StateNodeFor<E, State> | null;
+  onUpdate?(ctx: { entity: E; deltaTime: number; currentState: S }): StateNodeFor<E, State> | null;
+};
+
+export type StateNode<S extends State = State> = StateNodeFor<S['entity'], S>;
