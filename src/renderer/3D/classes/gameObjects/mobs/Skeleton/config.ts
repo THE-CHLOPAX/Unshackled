@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { attackActions } from './actions';
 import { Player } from '../../players/Player';
 import { EntityAIOptions } from '../../EntityAI';
+import { stateMachineSkeleton } from './stateMachineSkeleton';
 import { AnimationClipNamesShared } from '../../../../../3D/types';
 import { MODELS, DEFAULT_RIGID_BODY_OPTIONS } from '../../../../../3D/constants';
 
@@ -30,17 +31,11 @@ export const config: EntityAIOptions = {
   },
   detectionRadius: 8,
   enemyTypes: [Player],
-  roaming: {
-    radius: 5,
-    interval: {
-      min: 3000,
-      max: 7000,
-    },
-  },
   attack: {
     actions: attackActions,
   },
   healthOptions: {
     initialHealthPoints: 20,
   },
+  stateMachine: stateMachineSkeleton,
 };

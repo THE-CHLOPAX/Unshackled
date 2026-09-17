@@ -1,8 +1,8 @@
-import { AIAttack } from '../../../../types';
-import { Entity } from '../../../gameObjects/Entity';
-import { EntityAI } from '../../../gameObjects/EntityAI';
+import { AIAttackAction } from '../../../types';
+import { Entity } from '../../gameObjects/Entity';
+import { EntityAI } from '../../gameObjects/EntityAI';
 
-export function getBestAttack(entity: EntityAI, target: Entity): AIAttack | null {
+export function getBestAttack(entity: EntityAI, target: Entity): AIAttackAction | null {
   if (!entity.attackOptions) return null;
   const distanceToTarget = entity.position.distanceTo(target.position);
 
@@ -16,7 +16,7 @@ export function getBestAttack(entity: EntityAI, target: Entity): AIAttack | null
   }
 
   // If no attacks are in range, find the attack which is the closest to being in range
-  let bestAttack: AIAttack | null = null;
+  let bestAttack: AIAttackAction | null = null;
   let smallestRangeDifference = Infinity;
 
   for (const attack of entity.attackOptions.actions) {

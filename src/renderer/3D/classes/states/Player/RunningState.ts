@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Input, InputState, logger } from '@tgdf';
 
-import { State, SprintingState, IdleState } from '..';
+import { State } from '..';
 import { AnimationClipNamesShared } from '../../../types';
 import { Player } from '../../gameObjects/players/Player';
 import { mapInputToControls } from '../../../utils/mapInputToControls';
@@ -17,33 +17,15 @@ export class RunningState extends State {
 
   public override onExit(): void {}
 
-  public override onInput(inputState: InputState): State {
-    const controlsStates = mapInputToControls(inputState);
+  public override onInput(_inputState: InputState): void {}
 
-    for (const controlState of controlsStates) {
-      const newState = this.entity.onAction(controlState.type);
-      if (newState) return newState;
-    }
-
-    if (controlsStates.some((controlState) => controlState.type === 'sprint')) {
-      return new SprintingState(this.entity);
-    }
-
-    if (controlsStates.some((controlState) => controlState.type === 'idle')) {
-      return new IdleState(this.entity);
-    }
-
-    return this;
-  }
-
-  public override onUpdate(_deltaTime: number): State {
+  public override onUpdate(_deltaTime: number): void {
     const controlsStates = mapInputToControls(Input.getState());
     const movementState = controlsStates.find((controlState) => 'direction' in controlState);
 
-    if (!movementState) return this;
+    if (!movementState) return;
 
     this._moveEntity(movementState.direction);
-    return this;
   }
 
   private _moveEntity(direction: THREE.Vector3): void {

@@ -1,10 +1,7 @@
-import { Input } from '@tgdf';
 import * as THREE from 'three';
 
-import { mapInputToControls } from '3D/utils/mapInputToControls';
-
+import { State } from '.';
 import { Player } from '../gameObjects/players/Player';
-import { State, IdleState, RunningState, SprintingState } from '.';
 
 export type DashOptions = {
   speed: number;
@@ -21,6 +18,10 @@ export class DashState extends State {
     public options: DashOptions
   ) {
     super(entity);
+  }
+
+  public get isComplete(): boolean {
+    return this._dashComplete;
   }
 
   public onEnter(): void {
@@ -40,39 +41,14 @@ export class DashState extends State {
     this._durationTimeout = null;
   }
 
-  public onInput(): State {
-    return this;
-  }
+  public onInput(): void {}
 
-  public onUpdate(): State {
-    if (this._dashComplete) {
-      return this._resolveNextState();
-    }
+  public onUpdate(): void {
+    if (this._dashComplete) return;
 
     // Re-applying velocity every frame (rather than a one-off impulse) makes
     // dash distance a function of speed * durationMs, independent of the
     // rigidbody's mass/damping/friction.
     this.entity.movementController.move(this._direction, this.options.speed);
-
-    return this;
-  }
-
-  /**
-   * Mirrors RunningState/IdleState's own input polling so movement continues
-   * uninterrupted in whichever direction is currently held, instead of
-   * requiring a fresh keypress to resume moving.
-   */
-  private _resolveNextState(): State {
-    const controlsStates = mapInputToControls(Input.getState());
-
-    if (controlsStates.some((controlState) => controlState.type === 'sprint')) {
-      return new SprintingState(this.entity);
-    }
-
-    if (controlsStates.some((controlState) => controlState.type === 'run')) {
-      return new RunningState(this.entity);
-    }
-
-    return new IdleState(this.entity);
   }
 }

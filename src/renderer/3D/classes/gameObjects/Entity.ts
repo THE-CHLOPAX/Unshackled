@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MovementController, RigidBody, RigidBodyOptions } from '@tgdf';
 
+import { StateNode } from '3D/types';
 import { COLORS } from 'renderer/constants';
 import { DeadState } from '3D/classes/states';
 import { flashMaterial } from '3D/utils/flashMaterial';
@@ -40,6 +41,7 @@ export type EntityOptions = {
   rigidBodyOptions?: RigidBodyOptions;
   animationControllerOptions?: AnimationControllerOptions;
   movementOptions?: EntityMovementOptions;
+  stateMachine: StateNode;
 };
 
 export class Entity extends GameSceneObject {
@@ -109,12 +111,12 @@ export class Entity extends GameSceneObject {
       new DamageHitboxController(this)
     );
 
-    this.cooldownController = this.addComponent(
-      'CooldownController',
-      new CooldownController(this)
-    );
+    this.cooldownController = this.addComponent('CooldownController', new CooldownController(this));
 
-    this.stateController = this.addComponent('StateController', new StateController(this));
+    this.stateController = this.addComponent(
+      'StateController',
+      new StateController(this, this.options.stateMachine)
+    );
 
     this.healthPointsController.events.on('damagetaken', this._onDamageTaken);
     this.healthPointsController.events.on('death', this._onDeath);

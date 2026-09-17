@@ -5,12 +5,12 @@ import { Entity } from '../gameObjects/Entity';
 export abstract class State {
   constructor(public entity: Entity) {}
 
-  public update(deltaTime: number): State {
-    return this.onUpdate(deltaTime);
+  public update(deltaTime: number): void {
+    this.onUpdate(deltaTime);
   }
 
-  public input(inputState: InputState): State {
-    return this.onInput(inputState);
+  public input(inputState: InputState): void {
+    this.onInput(inputState);
   }
 
   public enter(): void {
@@ -25,7 +25,7 @@ export abstract class State {
 
   public abstract onExit(): void;
 
-  public abstract onInput(inputState: InputState): State;
+  public abstract onInput(inputState: InputState): void;
 
-  public abstract onUpdate(deltaTime: number): State;
+  public abstract onUpdate(deltaTime: number): void;
 }

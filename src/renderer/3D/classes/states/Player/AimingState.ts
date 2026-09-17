@@ -5,9 +5,9 @@ import { COLORS } from 'renderer/constants';
 import { PlayerActionType } from 'renderer/3D/types';
 import { pixelateTexture } from 'renderer/3D/utils/pixelateTexture';
 
+import { State } from '..';
 import { Player } from '../../gameObjects/players/Player';
 import { GameScene } from '../../scenes/GameScene/GameScene';
-import { State, IdleState, RunningState, SprintingState } from '..';
 import { AIMING_ARROW_TEXTURE, MATERIALS } from '../../../constants';
 import { mapInputToControls } from '../../../utils/mapInputToControls';
 import { ProjectileOptions, Projectile } from '../../gameObjects/Projectile';
@@ -38,6 +38,10 @@ export class AimingState extends State {
     super(entity);
   }
 
+  public get isReadyToLeave(): boolean {
+    return this._throwAnimationFinished;
+  }
+
   public override onEnter(): void {
     this.entity.animationController.playAnimation('aim', {
       clampWhenFinished: true,
@@ -52,11 +56,9 @@ export class AimingState extends State {
     }
   }
 
-  public override onInput(_inputState: InputState): State {
-    return this;
-  }
+  public override onInput(_inputState: InputState): void {}
 
-  public override onUpdate(_deltaTime: number): State {
+  public override onUpdate(_deltaTime: number): void {
     const controlsStates = mapInputToControls(Input.getState());
 
     const isTriggerHeld = controlsStates.some(
@@ -87,20 +89,6 @@ export class AimingState extends State {
         this._rotateTowardsInput(movementState.direction);
       }
     }
-
-    if (this._throwAnimationFinished) {
-      if (controlsStates.some((controlState) => controlState.type === PlayerActionType.SPRINT)) {
-        return new SprintingState(this.entity);
-      }
-
-      if (controlsStates.some((controlState) => controlState.type === PlayerActionType.RUN)) {
-        return new RunningState(this.entity);
-      }
-
-      return new IdleState(this.entity);
-    }
-
-    return this;
   }
 
   private _rotateTowardsInput(direction: THREE.Vector3): void {

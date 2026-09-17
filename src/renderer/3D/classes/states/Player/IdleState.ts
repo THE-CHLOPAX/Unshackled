@@ -3,7 +3,6 @@ import { InputState } from '@tgdf';
 import { State } from '..';
 import { Player } from '../../gameObjects/players/Player';
 import { AnimationClipNamesShared } from '../../../types';
-import { mapInputToControls } from '../../../utils/mapInputToControls';
 
 export class IdleState extends State {
   constructor(public entity: Player) {
@@ -16,19 +15,7 @@ export class IdleState extends State {
 
   public override onExit(): void {}
 
-  public override onInput(inputState: InputState): State {
-    const controlsStates = mapInputToControls(inputState);
+  public override onInput(_inputState: InputState): void {}
 
-    for (const controlState of controlsStates) {
-      const newState = this.entity.onAction(controlState.type);
-
-      if (newState) return newState;
-    }
-
-    return this;
-  }
-
-  public override onUpdate(_deltaTime: number): State {
-    return this;
-  }
+  public override onUpdate(_deltaTime: number): void {}
 }

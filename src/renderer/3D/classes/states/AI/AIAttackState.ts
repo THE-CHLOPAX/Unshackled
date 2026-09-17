@@ -1,27 +1,26 @@
 import { InputState } from '@tgdf';
 
-import { AIAttack } from '../../../types';
+import { State } from '..';
+import { AIAttackAction } from '../../../types';
+import { shouldChase } from '../utils/shouldChase';
 import { EntityAI } from '../../gameObjects/EntityAI';
-import { getBestAttack } from './utils/getBestAttack';
-import { getTargetEnemy } from './utils/getTargetEnemy';
-import { State, AIIdleState, AIChasingState } from '..';
+import { getBestAttack } from '../utils/getBestAttack';
+import { getTargetEnemy } from '../utils/getTargetEnemy';
 
 export class AIAttackState extends State {
   private _isAttacking: boolean = false;
-
-  public static checkCondition(entity: EntityAI, attack: AIAttack): boolean {
-    // Check if there's a target enemys
-    const targetEnemy = getTargetEnemy(entity);
-    if (!targetEnemy) return false;
-
-    // If entity is in range to perform its most preferred attack, it should attack
-    const distanceToEnemy = entity.position.distanceTo(targetEnemy.position);
-
-    return distanceToEnemy >= attack.minRange && distanceToEnemy <= attack.maxRange;
-  }
+  private _bestAttack: AIAttackAction | null = null;
 
   constructor(public entity: EntityAI) {
     super(entity);
+  }
+
+  public get isAttacking(): boolean {
+    return this._isAttacking;
+  }
+
+  public get bestAttack(): AIAttackAction | null {
+    return this._bestAttack;
   }
 
   public onEnter(): void {}
@@ -30,37 +29,27 @@ export class AIAttackState extends State {
     this.entity.damageHitboxController.clearHitboxEvents();
   }
 
-  public override onUpdate(_deltaTime: number): State {
-    // If currently performing an attack, do not transition to another state until the attack is finished
+  public override onUpdate(_deltaTime: number): void {
     const targetEnemy = getTargetEnemy(this.entity);
 
     if (this._isAttacking) {
       if (targetEnemy) {
         this.entity.movementController.rotateTowardsPosition(targetEnemy.position);
       }
-      return this;
+      return;
     }
 
-    if (targetEnemy === null) return new AIIdleState(this.entity);
+    this._bestAttack = targetEnemy ? getBestAttack(this.entity, targetEnemy) : null;
+    if (this._bestAttack === null) return;
 
-    const bestAttack = getBestAttack(this.entity, targetEnemy);
-    if (bestAttack === null) return new AIIdleState(this.entity);
+    if (shouldChase(this.entity, this._bestAttack)) return;
 
-    if (AIChasingState.checkCondition(this.entity, bestAttack)) {
-      return new AIChasingState(this.entity);
-    }
-
-    // If no transition conditions are met, perform the attack
-    this._performAttack(bestAttack);
-
-    return this;
+    this._performAttack(this._bestAttack);
   }
 
-  public onInput(_inputState: InputState): State {
-    return this;
-  }
+  public onInput(_inputState: InputState): void {}
 
-  private _performAttack(bestAttack: AIAttack): void {
+  private _performAttack(bestAttack: AIAttackAction): void {
     this._isAttacking = true;
     bestAttack.action(this.entity).then(() => {
       this._isAttacking = false;

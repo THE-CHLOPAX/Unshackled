@@ -1,26 +1,28 @@
 import { InputState, throttleWithLastValue } from '@tgdf';
 
+import { State } from '..';
+import { shouldAttack } from '../utils/shouldAttack';
 import { EntityAI } from '../../gameObjects/EntityAI';
-import { getBestAttack } from './utils/getBestAttack';
-import { State, AIIdleState, AIAttackState } from '..';
-import { getTargetEnemy } from './utils/getTargetEnemy';
-import { AIAttack, AnimationClipNamesShared } from '../../../types';
+import { getBestAttack } from '../utils/getBestAttack';
+import { getTargetEnemy } from '../utils/getTargetEnemy';
+import { AIAttackAction, AnimationClipNamesShared } from '../../../types';
 
 const UPDATE_THROTTLE_INTERVAL_MS = 250;
 
 export class AIChasingState extends State {
-  public static checkCondition(entity: EntityAI, attack: AIAttack): boolean {
-    // Check if there is a target enemy
-    const targetEnemy = getTargetEnemy(entity);
-    if (!targetEnemy) return false;
-
-    // If entity is too far from the target enemy, it should chase it
-    const distanceToEnemy = entity.position.distanceTo(targetEnemy.position);
-    return distanceToEnemy > attack.maxRange;
-  }
+  private _bestAttack: AIAttackAction | null = null;
+  private _pathfindingFailed = false;
 
   constructor(public entity: EntityAI) {
     super(entity);
+  }
+
+  public get bestAttack(): AIAttackAction | null {
+    return this._bestAttack;
+  }
+
+  public get hasPathfindingFailed(): boolean {
+    return this._pathfindingFailed;
   }
 
   public onEnter(): void {
@@ -33,37 +35,35 @@ export class AIChasingState extends State {
     this.entity.movementController.resetMoveTo();
   }
 
-  public onInput(_inputState: InputState): State {
-    return this;
-  }
+  public onInput(_inputState: InputState): void {}
 
-  public onUpdate(_deltaTime: number): State {
-    return this._throttledUpdate();
+  public onUpdate(_deltaTime: number): void {
+    this._throttledUpdate();
   }
 
   private _throttledUpdate = throttleWithLastValue(
-    (): State => {
-      // If no enemies are in range, transition back to idle
+    (): void => {
       const targetEnemy = getTargetEnemy(this.entity);
-      if (targetEnemy === null) return new AIIdleState(this.entity);
-
-      const bestAttack = getBestAttack(this.entity, targetEnemy);
-      if (bestAttack === null) return new AIIdleState(this.entity);
-
-      // Attack conditions met, transition to attack state
-      if (bestAttack && AIAttackState.checkCondition(this.entity, bestAttack)) {
-        return new AIAttackState(this.entity);
+      if (targetEnemy === null) {
+        this._bestAttack = null;
+        return;
       }
 
-      // Chase target enemy otherwise
+      this._bestAttack = getBestAttack(this.entity, targetEnemy);
+      if (this._bestAttack === null) return;
+
+      if (shouldAttack(this.entity, this._bestAttack)) return;
+
       const path = this.entity.navMeshAgent.calculatePath(targetEnemy.position);
-      if (path === null || path.length === 0) return new AIIdleState(this.entity);
+      if (path === null || path.length === 0) {
+        this._pathfindingFailed = true;
+        return;
+      }
 
+      this._pathfindingFailed = false;
       this.entity.movementController.moveAlongPath(path);
-
-      return this;
     },
     UPDATE_THROTTLE_INTERVAL_MS,
-    this
+    undefined
   );
 }
