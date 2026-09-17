@@ -2,6 +2,7 @@ import { Input, InputState } from '@tgdf';
 
 import { mapInputToControls } from '3D/utils/mapInputToControls';
 import { ChainedAction, PlayerActionType, StateNode } from '3D/types';
+import { getInputBasedStateNode } from '3D/classes/states/utils/getInputBasedStateNode';
 import {
   AimingState,
   AttackState,
@@ -13,29 +14,6 @@ import {
 import { punchRight } from '../actions';
 import { Rock } from '../childObjects/Rock';
 import { DashStateMonk } from './DashStateMonk';
-
-type StateTransition =
-  | [PlayerActionType, () => StateNode]
-  | [PlayerActionType, () => StateNode, boolean];
-
-function getInputBasedStateNode(
-  input: InputState,
-  transitions: StateTransition[]
-): StateNode | null {
-  const controlsStates = mapInputToControls(input);
-  for (const [actionType, newStateNodeFactory, additionalCondition] of transitions) {
-    const additionalConditionResolved =
-      additionalCondition === undefined || additionalCondition === true;
-    if (
-      controlsStates.some(
-        (controlState) => controlState.type === actionType && additionalConditionResolved
-      )
-    ) {
-      return newStateNodeFactory();
-    }
-  }
-  return null;
-}
 
 function resolveLocomotionNode(input: InputState): StateNode {
   const newStateNode = getInputBasedStateNode(input, [
