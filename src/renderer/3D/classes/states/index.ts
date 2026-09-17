@@ -5,6 +5,7 @@ export { SpawnState } from './SpawnState';
 
 // AI
 export { AIIdleState } from './AI/AIIdleState';
+export { AIIdleStateRoaming } from './AI/AIIdleStateRoaming';
 export { AIAttackState } from './AI/AIAttackState';
 export { AIRoamingState } from './AI/AIRoamingState';
 export { AIChasingState } from './AI/AIChasingState';

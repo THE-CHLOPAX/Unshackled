@@ -31,13 +31,6 @@ export const config: EntityAIOptions = {
   },
   detectionRadius: 8,
   enemyTypes: [Player],
-  roaming: {
-    radius: 5,
-    interval: {
-      min: 3000,
-      max: 7000,
-    },
-  },
   attack: {
     actions: attackActions,
   },

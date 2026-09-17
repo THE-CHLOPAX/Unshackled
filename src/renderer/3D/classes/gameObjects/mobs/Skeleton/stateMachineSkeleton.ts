@@ -1,7 +1,20 @@
-import { StateNode } from '3D/types';
+import { AIRoamingOptions, StateNode } from '3D/types';
 import { shouldChase } from '3D/classes/states/utils/shouldChase';
 import { shouldAttack } from '3D/classes/states/utils/shouldAttack';
-import { AIIdleState, AIRoamingState, AIChasingState, AIAttackState } from '3D/classes/states';
+import {
+  AIIdleStateRoaming,
+  AIRoamingState,
+  AIChasingState,
+  AIAttackState,
+} from '3D/classes/states';
+
+const ROAMING_OPTIONS: AIRoamingOptions = {
+  radius: 5,
+  interval: {
+    min: 3000,
+    max: 7000,
+  },
+};
 
 const aiAttackStateNode: StateNode<AIAttackState> = {
   state: (entity) => new AIAttackState(entity),
@@ -27,7 +40,7 @@ const aiChasingStateNode: StateNode<AIChasingState> = {
 };
 
 const aiRoamingStateNode: StateNode<AIRoamingState> = {
-  state: (entity) => new AIRoamingState(entity),
+  state: (entity) => new AIRoamingState(entity, ROAMING_OPTIONS),
   onUpdate: ({ entity, currentState }) => {
     if (currentState.bestAttack) {
       if (shouldChase(entity, currentState.bestAttack)) return aiChasingStateNode;
@@ -40,15 +53,15 @@ const aiRoamingStateNode: StateNode<AIRoamingState> = {
   },
 };
 
-export const aiIdleStateNode: StateNode<AIIdleState> = {
-  state: (entity) => new AIIdleState(entity),
+export const aiIdleStateNode: StateNode<AIIdleStateRoaming> = {
+  state: (entity) => new AIIdleStateRoaming(entity, ROAMING_OPTIONS),
   onUpdate: ({ entity, currentState }) => {
     if (currentState.bestAttack) {
       if (shouldChase(entity, currentState.bestAttack)) return aiChasingStateNode;
       if (shouldAttack(entity, currentState.bestAttack)) return aiAttackStateNode;
     }
 
-    if (currentState.shouldTransitionToRoaming && entity.roaming) return aiRoamingStateNode;
+    if (currentState.shouldTransitionToRoaming) return aiRoamingStateNode;
 
     return null;
   },

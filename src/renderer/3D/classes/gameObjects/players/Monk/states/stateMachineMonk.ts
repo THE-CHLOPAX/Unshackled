@@ -1,4 +1,4 @@
-import { Input } from '@tgdf';
+import { Input, InputState } from '@tgdf';
 
 import { mapInputToControls } from '3D/utils/mapInputToControls';
 import { ChainedAction, PlayerActionType, StateNode } from '3D/types';
@@ -14,11 +14,16 @@ import { punchRight } from '../actions';
 import { Rock } from '../childObjects/Rock';
 import { DashStateMonk } from './DashStateMonk';
 
-type StateTransition = [PlayerActionType, StateNode] | [PlayerActionType, StateNode, boolean];
+type StateTransition =
+  | [PlayerActionType, () => StateNode]
+  | [PlayerActionType, () => StateNode, boolean];
 
-function getInputBasedStateNode(transitions: StateTransition[]): StateNode | null {
-  const controlsStates = mapInputToControls(Input.getState());
-  for (const [actionType, newStateNode, additionalCondition] of transitions) {
+function getInputBasedStateNode(
+  input: InputState,
+  transitions: StateTransition[]
+): StateNode | null {
+  const controlsStates = mapInputToControls(input);
+  for (const [actionType, newStateNodeFactory, additionalCondition] of transitions) {
     const additionalConditionResolved =
       additionalCondition === undefined || additionalCondition === true;
     if (
@@ -26,16 +31,16 @@ function getInputBasedStateNode(transitions: StateTransition[]): StateNode | nul
         (controlState) => controlState.type === actionType && additionalConditionResolved
       )
     ) {
-      return newStateNode;
+      return newStateNodeFactory();
     }
   }
   return null;
 }
 
-function resolveLocomotionNode(): StateNode {
-  const newStateNode = getInputBasedStateNode([
-    [PlayerActionType.SPRINT, sprintingStateNode],
-    [PlayerActionType.RUN, runningStateNode],
+function resolveLocomotionNode(input: InputState): StateNode {
+  const newStateNode = getInputBasedStateNode(input, [
+    [PlayerActionType.SPRINT, () => sprintingStateNode],
+    [PlayerActionType.RUN, () => runningStateNode],
   ]);
 
   return newStateNode ?? idleStateNode;
@@ -58,7 +63,7 @@ function getAttackStateNode(action: ChainedAction): StateNode<AttackState> {
     onUpdate: ({ currentState }) => {
       if (currentState.isBusy) return null;
 
-      return resolveLocomotionNode();
+      return resolveLocomotionNode(Input.getState());
     },
   };
 }
@@ -72,7 +77,7 @@ const aimingStateNode: StateNode<AimingState> = {
   onUpdate: ({ currentState }) => {
     if (!currentState.isReadyToLeave) return null;
 
-    return resolveLocomotionNode();
+    return resolveLocomotionNode(Input.getState());
   },
 };
 
@@ -81,49 +86,49 @@ const dashingStateNode: StateNode<DashStateMonk> = {
   onUpdate: ({ currentState }) => {
     if (!currentState.isComplete) return null;
 
-    return resolveLocomotionNode();
+    return resolveLocomotionNode(Input.getState());
   },
 };
 
 const sprintingStateNode: StateNode<SprintingState> = {
   state: (entity) => new SprintingState(entity),
-  onInput: ({ entity }) => {
-    return getInputBasedStateNode([
+  onInput: ({ input, entity }) => {
+    return getInputBasedStateNode(input, [
       [
         PlayerActionType.ACTION_RIGHT,
-        dashingStateNode,
+        () => dashingStateNode,
         !entity.cooldownController.isOnCooldown(DashStateMonk.COOLDOWN_ID),
       ],
-      [PlayerActionType.RUN, runningStateNode],
-      [PlayerActionType.IDLE, idleStateNode],
+      [PlayerActionType.RUN, () => runningStateNode],
+      [PlayerActionType.IDLE, () => idleStateNode],
     ]);
   },
 };
 
 const runningStateNode: StateNode<RunningState> = {
   state: (entity) => new RunningState(entity),
-  onInput: ({ entity }) => {
-    return getInputBasedStateNode([
-      [PlayerActionType.ACTION_UP, aimingStateNode],
-      [PlayerActionType.ACTION_LEFT, getAttackStateNode(punchRight)],
+  onInput: ({ input, entity }) => {
+    return getInputBasedStateNode(input, [
+      [PlayerActionType.ACTION_UP, () => aimingStateNode],
+      [PlayerActionType.ACTION_LEFT, () => getAttackStateNode(punchRight)],
       [
         PlayerActionType.ACTION_RIGHT,
-        dashingStateNode,
+        () => dashingStateNode,
         !entity.cooldownController.isOnCooldown(DashStateMonk.COOLDOWN_ID),
       ],
-      [PlayerActionType.SPRINT, sprintingStateNode],
-      [PlayerActionType.IDLE, idleStateNode],
+      [PlayerActionType.SPRINT, () => sprintingStateNode],
+      [PlayerActionType.IDLE, () => idleStateNode],
     ]);
   },
 };
 
 const idleStateNode: StateNode<IdleState> = {
   state: (entity) => new IdleState(entity),
-  onInput: () => {
-    return getInputBasedStateNode([
-      [PlayerActionType.ACTION_UP, aimingStateNode],
-      [PlayerActionType.ACTION_LEFT, getAttackStateNode(punchRight)],
-      [PlayerActionType.RUN, runningStateNode],
+  onInput: ({ input }) => {
+    return getInputBasedStateNode(input, [
+      [PlayerActionType.ACTION_UP, () => aimingStateNode],
+      [PlayerActionType.ACTION_LEFT, () => getAttackStateNode(punchRight)],
+      [PlayerActionType.RUN, () => runningStateNode],
     ]);
   },
 };

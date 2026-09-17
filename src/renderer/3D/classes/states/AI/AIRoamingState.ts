@@ -5,7 +5,7 @@ import { State } from '..';
 import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from '../utils/getBestAttack';
 import { getTargetEnemy } from '../utils/getTargetEnemy';
-import { AIAttackAction, AnimationClipNamesShared } from '../../../types';
+import { AIAttackAction, AIRoamingOptions, AnimationClipNamesShared } from '../../../types';
 import { getRandomNavMeshPointInRadius } from '../../../utils/getRandomNavMeshPointInRadius';
 
 const STUCK_CHECK_INTERVAL_SECONDS = 1;
@@ -17,7 +17,10 @@ export class AIRoamingState extends State {
   private _lastCheckedPosition: THREE.Vector3 | null = null;
   private _bestAttack: AIAttackAction | null = null;
 
-  constructor(public entity: EntityAI) {
+  constructor(
+    public entity: EntityAI,
+    private _roamingOptions: AIRoamingOptions
+  ) {
     super(entity);
   }
 
@@ -80,17 +83,12 @@ export class AIRoamingState extends State {
 
   private _roamToRandomPoint(): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (!this.entity.roaming) {
-        reject(new Error('Entity roaming options are not defined'));
-        return;
-      }
-
       const navMesh = this.entity.navMesh;
 
       const randomNavMeshPoint = getRandomNavMeshPointInRadius(
         navMesh,
         this.entity.spawnPosition,
-        this.entity.roaming.radius
+        this._roamingOptions.radius
       );
 
       if (!randomNavMeshPoint) {

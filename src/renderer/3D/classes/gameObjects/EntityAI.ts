@@ -1,13 +1,12 @@
 import { NavMeshAgent } from '@tgdf';
 import { NavMesh, Crowd } from '@recast-navigation/core';
 
+import { AIAttackOptions } from '../../types';
 import { Entity, EntityOptions } from './Entity';
 import { GameScene } from '../scenes/GameScene/GameScene';
-import { AIAttackOptions, AIRoamingOptions } from '../../types';
 
 export type EntityAIOptions = EntityOptions & {
   detectionRadius?: number;
-  roaming?: AIRoamingOptions;
   attack?: AIAttackOptions;
   enemyTypes?: (typeof Entity)[];
 };
@@ -21,7 +20,6 @@ export class EntityAI extends Entity {
 
   private _enemyTypes: (typeof Entity)[] | null = null;
   private _detectionRadius: number | null = null;
-  private _roaming: AIRoamingOptions | null = null;
   private _attack: AIAttackOptions | null = null;
   private _despawnTimeout: NodeJS.Timeout | null = null;
 
@@ -36,17 +34,12 @@ export class EntityAI extends Entity {
     this.navMeshAgent = this.addComponent('NavMeshAgent', new NavMeshAgent(this, this.crowd));
 
     this._detectionRadius = options.detectionRadius ?? null;
-    this._roaming = options.roaming ?? null;
     this._attack = options.attack ?? null;
     this._enemyTypes = options.enemyTypes ?? null;
 
     this.healthPointsController.events.once('death', this._despawnAfterTimeout);
 
     this.onInit();
-  }
-
-  public get roaming(): AIRoamingOptions | null {
-    return this._roaming;
   }
 
   public get attackOptions(): AIAttackOptions | null {
