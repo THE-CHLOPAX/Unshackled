@@ -10,6 +10,7 @@ import {
   HEALTH_BAR_OFFSET,
   HEALTH_BAR_VISIBLE_DURATION_MS,
   HEALTH_BAR_FADE_DURATION_S,
+  RECENT_DAMAGE_VISIBLE_DURATION_S,
 } from './constants';
 
 export type HealthBarRendererOptions = {
@@ -19,16 +20,22 @@ export type HealthBarRendererOptions = {
 export class HealthBarRenderer extends BillboardRenderer {
   private _healthBarId: string;
   private _healthBarTimeout: NodeJS.Timeout | null = null;
+  private _syncRecentDamageTimeout: NodeJS.Timeout | null = null;
   private _healthBarTween: GSAPTween | null = null;
   private _hasElement: boolean = false;
+  private _lastProgress: number;
+  private _recentDamageAccumulator = 0;
 
   constructor(
-    gameObject: Entity,
+    public readonly entity: Entity,
     public readonly healthPointsController: HealthPointsController,
     public readonly options: HealthBarRendererOptions = { offset: HEALTH_BAR_OFFSET }
   ) {
-    super(gameObject);
-    this._healthBarId = `health-bar-${gameObject.uuid}`;
+    super(entity);
+    this._healthBarId = `health-bar-${entity.uuid}`;
+
+    const { healthPoints, initialHealthPoints } = healthPointsController;
+    this._lastProgress = healthPoints / initialHealthPoints;
   }
 
   // Subscribe to HealthPointController events.
@@ -48,9 +55,14 @@ export class HealthBarRenderer extends BillboardRenderer {
 
   private _updateHealthBar = () => {
     if (this._healthBarTimeout) clearTimeout(this._healthBarTimeout);
+    if (this._syncRecentDamageTimeout) clearTimeout(this._syncRecentDamageTimeout);
 
     const progress =
       this.healthPointsController.healthPoints / this.healthPointsController.initialHealthPoints;
+
+    const progressDelta = this._lastProgress - progress;
+
+    this._recentDamageAccumulator += progressDelta;
 
     if (this._hasElement) {
       // Reset and kill fade tween if active
@@ -61,18 +73,50 @@ export class HealthBarRenderer extends BillboardRenderer {
       }
 
       this.updateElement(this._healthBarId, {
+        entity: this.entity,
         progress,
+        fadeOutEnabled: false,
+        progressDelta,
+        progressDeltaAccumulated: this._recentDamageAccumulator,
       } satisfies HealthBarProps);
     } else {
       this._hasElement = true;
-      this.addElement(this._healthBarId, HealthBar, { progress }, { offset: this.options.offset });
+      this.addElement(
+        this._healthBarId,
+        HealthBar,
+        {
+          entity: this.entity,
+          progress,
+          fadeOutEnabled: false,
+          progressDelta,
+          progressDeltaAccumulated: this._recentDamageAccumulator,
+        },
+        { offset: this.options.offset }
+      );
     }
 
     this._healthBarTimeout = setTimeout(
       this._fadeHealthBar.bind(this),
       HEALTH_BAR_VISIBLE_DURATION_MS
     );
+
+    this._lastProgress = progress;
+
+    this._syncRecentDamageTimeout = setTimeout(
+      this._syncRecentDamageToProgress.bind(this),
+      RECENT_DAMAGE_VISIBLE_DURATION_S * 1000
+    );
   };
+
+  private _syncRecentDamageToProgress(): void {
+    this._recentDamageAccumulator = 0;
+    this.updateElement(this._healthBarId, {
+      progress: this._lastProgress,
+      progressDelta: 0,
+      progressDeltaAccumulated: this._recentDamageAccumulator,
+      fadeOutEnabled: true,
+    });
+  }
 
   private _fadeHealthBar(): void {
     const healthBarElement = this.getElement(this._healthBarId);
@@ -88,6 +132,11 @@ export class HealthBarRenderer extends BillboardRenderer {
     if (this._healthBarTimeout) {
       clearTimeout(this._healthBarTimeout);
       this._healthBarTimeout = null;
+    }
+
+    if (this._syncRecentDamageTimeout) {
+      clearTimeout(this._syncRecentDamageTimeout);
+      this._syncRecentDamageTimeout = null;
     }
 
     if (this._healthBarTween) {

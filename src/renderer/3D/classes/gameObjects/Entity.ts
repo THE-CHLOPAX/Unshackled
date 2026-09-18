@@ -138,6 +138,8 @@ export class Entity extends GameSceneObject {
 
   protected onDamageTaken(): void {}
 
+  protected onDeath(): void {}
+
   private _onDamageTaken = (): void => {
     this.onDamageTaken();
     this._flashRed();
@@ -146,6 +148,7 @@ export class Entity extends GameSceneObject {
   private _onDeath = (): void => {
     this._flashRed();
     this.stateController.requestTransition(new DeadState(this));
+    this.onDeath();
   };
 
   private _flashRed = (): void => {
