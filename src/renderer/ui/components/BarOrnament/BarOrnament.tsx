@@ -46,9 +46,15 @@ export const BarOrnament = ({
 
   return (
     <Wrapper className={className} $scale={scale} $short={short}>
-      <FillBg $scale={scale} $short={short} />
-      <Fill $progress={clampedProgress} $color={fillColor} $scale={scale} $short={short} />
-      <Frame $short={short} />
+      <FillBg className="bar-ornament-fill-bg" $scale={scale} $short={short} />
+      <Fill
+        className="bar-ornament-fill"
+        $progress={clampedProgress}
+        $color={fillColor}
+        $scale={scale}
+        $short={short}
+      />
+      <Frame className="bar-ornament-frame" $short={short} />
     </Wrapper>
   );
 };

@@ -39,9 +39,15 @@ export const BarSimple = ({
 
   return (
     <Wrapper className={className} $scale={scale} $short={short}>
-      <FillBg $scale={scale} />
-      <Fill $progress={clampedProgress} $color={fillColor} $scale={scale} $short={short} />
-      <Frame $short={short} />
+      <FillBg className="bar-simple-fill-bg" $scale={scale} />
+      <Fill
+        className="bar-simple-fill"
+        $progress={clampedProgress}
+        $color={fillColor}
+        $scale={scale}
+        $short={short}
+      />
+      <Frame className="bar-simple-frame" $short={short} />
     </Wrapper>
   );
 };

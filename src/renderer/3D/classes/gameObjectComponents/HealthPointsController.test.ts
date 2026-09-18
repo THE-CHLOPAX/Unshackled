@@ -139,12 +139,24 @@ describe('HealthPointsController', () => {
       expect(listener).toHaveBeenCalledWith({ currentHealth: 70, healAmount: 20 });
     });
 
-    it('allows overhealing past initialHealthPoints', () => {
+    it('clamps health points at initialHealthPoints instead of overhealing', () => {
       const { controller } = createController(100);
 
       controller.healDamage(20);
 
-      expect(controller.healthPoints).toBe(120);
+      expect(controller.healthPoints).toBe(100);
+    });
+
+    it('triggers heal with the actual amount gained when clamped', () => {
+      const { controller } = createController(100);
+      controller.inflictDamage(10);
+      const listener = vi.fn();
+      controller.events.on('heal', listener);
+
+      controller.healDamage(20);
+
+      expect(controller.healthPoints).toBe(100);
+      expect(listener).toHaveBeenCalledWith({ currentHealth: 100, healAmount: 10 });
     });
 
     it('ignores non-positive heal amounts without changing health or triggering an event', () => {

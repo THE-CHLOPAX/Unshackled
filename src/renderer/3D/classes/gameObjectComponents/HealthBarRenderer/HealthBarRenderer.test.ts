@@ -55,25 +55,39 @@ describe('HealthBarRenderer', () => {
   });
 
   it('adds a health bar element when the entity takes damage', () => {
-    const { healthPointsController, barId } = createHealthBarRenderer(100);
+    const { healthPointsController, gameObject, barId } = createHealthBarRenderer(100);
 
     healthPointsController.inflictDamage(30);
 
     const entry = useOverlayStore.getState().entries.get(barId);
-    expect(entry?.props).toEqual({ progress: 0.7 });
+    expect(entry?.props).toEqual({
+      entity: gameObject,
+      progress: 0.7,
+      fadeOutEnabled: false,
+      progressDelta: expect.closeTo(0.3),
+      progressDeltaAccumulated: expect.closeTo(0.3),
+    });
   });
 
   it('adds a health bar element when the entity heals', () => {
-    const { healthPointsController, barId } = createHealthBarRenderer(100);
+    const { healthPointsController, gameObject, barId } = createHealthBarRenderer(100);
 
-    healthPointsController.healDamage(10);
+    healthPointsController.inflictDamage(50);
+    healthPointsController.healDamage(20);
 
     const entry = useOverlayStore.getState().entries.get(barId);
-    expect(entry?.props).toEqual({ progress: 1.1 });
+    expect(entry?.props).toEqual({
+      entity: gameObject,
+      progress: 0.7,
+      fadeOutEnabled: false,
+      progressDelta: expect.closeTo(-0.2),
+      progressDeltaAccumulated: expect.closeTo(0.3),
+    });
   });
 
   it('creates a new element when none is present yet, and updates it instead of re-adding once mounted', () => {
-    const { healthPointsController, healthBarRenderer, barId } = createHealthBarRenderer(100);
+    const { healthPointsController, healthBarRenderer, gameObject, barId } =
+      createHealthBarRenderer(100);
     const addSpy = vi.spyOn(healthBarRenderer, 'addElement');
     const updateSpy = vi.spyOn(healthBarRenderer, 'updateElement');
 
@@ -89,7 +103,13 @@ describe('HealthBarRenderer', () => {
     healthPointsController.inflictDamage(10);
     expect(addSpy).toHaveBeenCalledTimes(1);
     expect(updateSpy).toHaveBeenCalledTimes(1);
-    expect(updateSpy).toHaveBeenCalledWith(barId, { progress: 0.8 });
+    expect(updateSpy).toHaveBeenCalledWith(barId, {
+      entity: gameObject,
+      progress: 0.8,
+      fadeOutEnabled: false,
+      progressDelta: expect.closeTo(0.1),
+      progressDeltaAccumulated: expect.closeTo(0.2),
+    });
   });
 
   it('clears the previous fade timeout and reschedules it on every damage/heal event', () => {
@@ -103,7 +123,8 @@ describe('HealthBarRenderer', () => {
 
     vi.advanceTimersByTime(HEALTH_BAR_VISIBLE_DURATION_MS - 500);
     healthPointsController.inflictDamage(10);
-    expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
+    // Both the fade timeout and the recent-damage sync timeout get cleared and rescheduled.
+    expect(clearTimeoutSpy).toHaveBeenCalledTimes(2);
 
     // The first hit's original deadline has now passed, but the second hit reset the
     // timer, so the bar should not have started fading yet.
@@ -185,7 +206,8 @@ describe('HealthBarRenderer', () => {
   });
 
   it('doesnt discard subsequent rapid update - calls update with new value correctly', () => {
-    const { healthPointsController, healthBarRenderer, barId } = createHealthBarRenderer(100);
+    const { healthPointsController, healthBarRenderer, gameObject, barId } =
+      createHealthBarRenderer(100);
     const addSpy = vi.spyOn(healthBarRenderer, 'addElement');
     const updateSpy = vi.spyOn(healthBarRenderer, 'updateElement');
 
@@ -197,6 +219,12 @@ describe('HealthBarRenderer', () => {
     expect(updateSpy).toHaveBeenCalledTimes(1);
 
     const entry = useOverlayStore.getState().entries.get(barId);
-    expect(entry?.props).toEqual({ progress: 0.8 });
+    expect(entry?.props).toEqual({
+      entity: gameObject,
+      progress: 0.8,
+      fadeOutEnabled: false,
+      progressDelta: expect.closeTo(0.1),
+      progressDeltaAccumulated: expect.closeTo(0.2),
+    });
   });
 });

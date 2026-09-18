@@ -88,9 +88,13 @@ export class HealthPointsController extends GameObjectComponent {
       });
       return;
     }
-    // Allow overhealing
-    this._healthPoints = this._healthPoints + amount;
-    this.events.trigger('heal', { currentHealth: this._healthPoints, healAmount: amount });
+
+    const oldHealthPoints = this._healthPoints;
+    this._healthPoints = Math.min(this.initialHealthPoints, this._healthPoints + amount);
+
+    const healAmount = this._healthPoints - oldHealthPoints;
+
+    this.events.trigger('heal', { currentHealth: this._healthPoints, healAmount });
     this._isDead = this._healthPoints === 0;
   }
 
