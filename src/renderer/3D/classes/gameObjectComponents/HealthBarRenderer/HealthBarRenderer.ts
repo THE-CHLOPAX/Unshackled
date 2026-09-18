@@ -23,7 +23,7 @@ export class HealthBarRenderer extends BillboardRenderer {
   private _syncRecentDamageTimeout: NodeJS.Timeout | null = null;
   private _healthBarTween: GSAPTween | null = null;
   private _hasElement: boolean = false;
-  private _lastProgress = 1;
+  private _lastProgress: number;
   private _recentDamageAccumulator = 0;
 
   constructor(
@@ -33,6 +33,9 @@ export class HealthBarRenderer extends BillboardRenderer {
   ) {
     super(entity);
     this._healthBarId = `health-bar-${entity.uuid}`;
+
+    const { healthPoints, initialHealthPoints } = healthPointsController;
+    this._lastProgress = healthPoints / initialHealthPoints;
   }
 
   // Subscribe to HealthPointController events.

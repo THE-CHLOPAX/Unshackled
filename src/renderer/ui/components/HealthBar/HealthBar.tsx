@@ -73,7 +73,7 @@ export const HealthBar = ({
       setFloatingNumbers((current) => current.filter((entry) => entry.id !== id));
     }, FLOATING_NUMBER_DURATION_MS);
     activeTimeouts.current.add(timeoutId);
-  }, [progressDeltaAccumulated, entity]);
+  }, [progressDelta, entity]);
 
   return (
     <Wrapper>
