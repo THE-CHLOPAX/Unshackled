@@ -68,3 +68,4 @@ export { assertNever } from './internal-utils/assertNever';
 export { throttle } from './internal-utils/throttle';
 export { throttleWithLastValue } from './internal-utils/throttleWithLastValue';
 export { arraysShallowCompare } from './internal-utils/arraysShallowCompare';
+export { isElectron } from './internal-utils/isElectron';
