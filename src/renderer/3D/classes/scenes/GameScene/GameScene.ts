@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { assert, AssetRecord, Scene } from '@tgdf';
 
 import { LevelRecord } from '3D/types';
+import { GameEventsEmitter } from 'renderer/types';
 import { loadWorldMap } from '3D/utils/loadWorldMap';
 import { MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
 import { generateChunkedLevel } from '3D/utils/generateChunkedLevel';
@@ -16,6 +17,7 @@ const GAME_GRAVITY = new THREE.Vector3(0, 0, 0);
 const LEVEL_CHUNK_SIZE = 16;
 
 export type GameSceneOptions = {
+  emitter?: GameEventsEmitter;
   progressTrackerOptions?: ProgressTrackerOptions;
 };
 

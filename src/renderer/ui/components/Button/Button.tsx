@@ -1,5 +1,7 @@
 import { styled } from 'styled-components';
 
+import { COLORS } from 'renderer/constants';
+
 import { Text } from '../Text/Text';
 import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
 
@@ -41,9 +43,11 @@ const Wrapper = styled.button`
   background-size: 100% auto;
   image-rendering: pixelated;
   cursor: pointer;
+  --button-label-color: ${COLORS.FONT_COLOR_PRIMARY};
 
   &:hover:not(:disabled) {
     background-image: url(${UI_BACKGROUND_IMAGE_URLS.buttonActiveBg});
+    --button-label-color: ${COLORS.FONT_COLOR_HIGHLIGHT};
   }
 
   &:disabled {
@@ -55,4 +59,5 @@ const Wrapper = styled.button`
 const ButtonLabel = styled(Text)`
   position: relative;
   top: 2px;
+  color: var(--button-label-color);
 `;
