@@ -1,5 +1,6 @@
 import { Text } from './components/Text/Text';
 import { Button } from './components/Button/Button';
+import { Banner } from './components/Banner/Banner';
 import { Checkbox } from './components/Checkbox/Checkbox';
 import { Dropdown } from './components/Dropdown/Dropdown';
 import { BarSimple } from './components/BarSimple/BarSimple';
@@ -14,6 +15,7 @@ import { ScrollableWrapper } from './components/ScrollableWrapper/ScrollableWrap
 export {
   Button,
   ButtonIcon,
+  Banner,
   Checkbox,
   Text,
   TextInput,

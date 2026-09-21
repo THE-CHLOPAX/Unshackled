@@ -5,6 +5,7 @@ import { InternalFlex, InternalText } from '@tgdf';
 import {
   Button,
   ButtonIcon,
+  Banner,
   Checkbox,
   Text,
   TextInput,
@@ -90,6 +91,13 @@ export function ComponentsView() {
             <InternalFlex gap={20} align="center">
               <Button label="Button" onClick={() => {}} />
               <Button label="Disabled" onClick={() => {}} disabled />
+            </InternalFlex>
+          </ComponentSection>
+
+          <ComponentSection title="Banner">
+            <InternalFlex gap={20} align="center" wrap="wrap">
+              <Banner label="Game Over" />
+              <Banner label="Victory" />
             </InternalFlex>
           </ComponentSection>
 
