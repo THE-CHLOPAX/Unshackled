@@ -5,6 +5,7 @@ import { InternalFlex, InternalText } from '@tgdf';
 import {
   Button,
   ButtonIcon,
+  Banner,
   Checkbox,
   Text,
   TextInput,
@@ -13,11 +14,11 @@ import {
   BarSimple,
   BarOrnament,
   ScrollableWrapper,
+  PanelScalable,
 } from 'UI';
 
 import { COLORS, GRADIENTS } from '../../constants';
 import { BackToViewLayout } from '../layouts/BackToViewLayout';
-import { PanelScalable } from '../components/PanelScalable/PanelScalable';
 
 const TEXT_SIZES = ['sm', 'md', 'lg', 'xl', 'xxl'] as const;
 const DROPDOWN_OPTIONS = [
@@ -90,6 +91,13 @@ export function ComponentsView() {
             <InternalFlex gap={20} align="center">
               <Button label="Button" onClick={() => {}} />
               <Button label="Disabled" onClick={() => {}} disabled />
+            </InternalFlex>
+          </ComponentSection>
+
+          <ComponentSection title="Banner">
+            <InternalFlex gap={20} align="center" wrap="wrap">
+              <Banner label="Game Over" />
+              <Banner label="Victory" />
             </InternalFlex>
           </ComponentSection>
 

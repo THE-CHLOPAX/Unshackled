@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { assert, AssetRecord, Scene } from '@tgdf';
 
 import { LevelRecord } from '3D/types';
+import { GameEventsEmitter } from 'renderer/types';
 import { loadWorldMap } from '3D/utils/loadWorldMap';
 import { MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
 import { generateChunkedLevel } from '3D/utils/generateChunkedLevel';
@@ -24,7 +25,7 @@ export abstract class GameScene extends Scene {
 
   private _shadersManager = new ShadersManager();
 
-  constructor() {
+  constructor(public readonly emitter?: GameEventsEmitter) {
     super();
 
     const aspectRatio = window.innerWidth / window.innerHeight;

@@ -1,6 +1,8 @@
 import { logger } from '@tgdf';
 import { useEffect, useState } from 'react';
 
+import { GameEventsEmitter } from 'renderer/types';
+
 import { GameScene } from '../classes/scenes/GameScene/GameScene';
 
 export type UseLoadSceneResult = {
@@ -9,7 +11,10 @@ export type UseLoadSceneResult = {
   loading: boolean;
 };
 
-export function useLoadScene(sceneClass: new () => GameScene): UseLoadSceneResult {
+export function useLoadScene(
+  sceneClass: new (emitter?: GameEventsEmitter) => GameScene,
+  emitter?: GameEventsEmitter
+): UseLoadSceneResult {
   const [scene, setScene] = useState<GameScene | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -17,7 +22,7 @@ export function useLoadScene(sceneClass: new () => GameScene): UseLoadSceneResul
   useEffect(() => {
     let cancelled = false;
 
-    const nextScene = new sceneClass();
+    const nextScene = new sceneClass(emitter);
 
     const reportProgress = (progress: number): void => {
       if (!cancelled) setLoadingProgress(progress);

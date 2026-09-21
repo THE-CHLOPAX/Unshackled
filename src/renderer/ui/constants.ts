@@ -1,3 +1,4 @@
+import bannerBg from '../assets/svg/banner.svg?url';
 import scrollArrow from '../assets/svg/scroll-arrow.svg?url';
 import scrollThumb from '../assets/svg/scroll-thumb.svg?url';
 import barSimpleFrame from '../assets/svg/bar-simple.svg?url';
@@ -26,6 +27,7 @@ import scalablePanelBottomRight from '../assets/svg/scalable-panel-bottom-right.
 // doesn't fetch them until the owning component first paints, which shows up as a pop-in
 // on first mount. preloadUiAssets() warms the cache ahead of time to remove that gap.
 export const UI_BACKGROUND_IMAGE_URLS = {
+  bannerBg,
   barOrnamentFrame,
   barOrnamentShortFrame,
   barSimpleFrame,

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { AssetRecord, useAssetStore } from '@tgdf';
 
 import { LevelRecord } from 'renderer/3D/types';
+import { GameEventsEmitter } from 'renderer/types';
 import { getModelClone } from 'renderer/3D/utils/getModelClone';
 import { pixelateTexture } from 'renderer/3D/utils/pixelateTexture';
 import {
@@ -36,8 +37,8 @@ export class TestScene extends GameScene {
     () => createSwingTrailWarmupMesh(),
   ];
 
-  constructor() {
-    super();
+  constructor(public readonly emitter?: GameEventsEmitter) {
+    super(emitter);
 
     this.background = new THREE.Color(0x0a0a0a);
 

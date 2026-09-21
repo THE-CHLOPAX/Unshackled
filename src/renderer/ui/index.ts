@@ -1,5 +1,6 @@
 import { Text } from './components/Text/Text';
 import { Button } from './components/Button/Button';
+import { Banner } from './components/Banner/Banner';
 import { Checkbox } from './components/Checkbox/Checkbox';
 import { Dropdown } from './components/Dropdown/Dropdown';
 import { BarSimple } from './components/BarSimple/BarSimple';
@@ -8,12 +9,14 @@ import { TextInput } from './components/TextInput/TextInput';
 import { ButtonIcon } from './components/ButtonIcon/ButtonIcon';
 import { SmallPanel } from './components/SmallPanel/SmallPanel';
 import { BarOrnament } from './components/BarOrnament/BarOrnament';
+import { PanelScalable } from './components/PanelScalable/PanelScalable';
 import { HealthBar, HealthBarProps } from './components/HealthBar/HealthBar';
 import { ScrollableWrapper } from './components/ScrollableWrapper/ScrollableWrapper';
 
 export {
   Button,
   ButtonIcon,
+  Banner,
   Checkbox,
   Text,
   TextInput,
@@ -24,5 +27,6 @@ export {
   BarSimple,
   BarOrnament,
   HealthBar,
+  PanelScalable,
   type HealthBarProps,
 };
