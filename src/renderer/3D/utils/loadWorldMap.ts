@@ -1,4 +1,4 @@
-import { ipc } from '@tgdf';
+import { ipc, isElectron } from '@tgdf';
 
 import { WORLD_LAYER_COUNT } from '../constants';
 import { WorldCell, WorldOutputData } from '../types';
@@ -37,16 +37,31 @@ export function loadWorldMap(
   fileName?: string
 ): Promise<{ fileName: string; map: WorldOutputData }> {
   return new Promise((resolve, reject) => {
-    ipc.once('load-file-response', (data) => {
-      const { ok, contents, path } = data;
-      if (!ok || contents === null || path === null) reject('Failed to load world map data.');
-      else {
-        const pathSegments = path.split('/');
-        const fileNameReturned = pathSegments[pathSegments.length - 1];
-        resolve({ fileName: fileNameReturned, map: deserializeWorldMap(contents) });
-      }
-    });
+    if (isElectron) {
+      ipc.once('load-file-response', (data) => {
+        const { ok, contents, path } = data;
+        if (!ok || contents === null || path === null) reject('Failed to load world map data.');
+        else {
+          const pathSegments = path.split('/');
+          const fileNameReturned = pathSegments[pathSegments.length - 1];
+          resolve({ fileName: fileNameReturned, map: deserializeWorldMap(contents) });
+        }
+      });
 
-    ipc.send('load-file-request', { path: fileName });
+      ipc.send('load-file-request', { path: fileName });
+    } else {
+      if (!fileName) {
+        reject('Failed to load world map data. No file name provided.');
+        return;
+      }
+
+      fetch(`./assets/worldMaps/${fileName}`)
+        .then((response) => {
+          if (!response.ok) throw new Error(String(response.status));
+          return response.text();
+        })
+        .then((contents) => resolve({ fileName, map: deserializeWorldMap(contents) }))
+        .catch(() => reject('Failed to load world map data.'));
+    }
   });
 }
