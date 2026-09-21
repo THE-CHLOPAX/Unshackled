@@ -14,7 +14,7 @@ export function GameView() {
   const [loadingFinished, setLoadingFinished] = useState(false);
 
   return (
-    <BackToViewLayout backToView="MenuView">
+    <BackToViewLayout backToView="MenuView" noButton>
       {!loadingFinished || scene === null ? (
         <LoadingView progress={loadingProgress} onComplete={() => setLoadingFinished(true)} />
       ) : (

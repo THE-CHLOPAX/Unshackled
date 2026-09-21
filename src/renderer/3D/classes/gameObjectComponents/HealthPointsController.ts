@@ -57,6 +57,10 @@ export class HealthPointsController extends GameObjectComponent {
     return this._isDead;
   }
 
+  protected override onDestroyed(): void {
+    this.events.removeAll();
+  }
+
   public inflictDamage(amount: number): void {
     if (this._isDead || this._isImmuneToDamage) return;
 

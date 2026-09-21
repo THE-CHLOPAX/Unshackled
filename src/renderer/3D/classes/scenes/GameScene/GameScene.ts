@@ -9,10 +9,15 @@ import { generateChunkedLevel } from '3D/utils/generateChunkedLevel';
 import { loadAssetRecord } from './loadAssetRecord';
 import { ShadersManager, WarmupFactory } from './ShadersManager/ShadersManager';
 import { getDefaultWarmupMaterialFactories } from './getDefaultWarmupMaterialFactories';
+import { ProgressTracker, ProgressTrackerOptions } from './ProgressTracker/ProgressTracker';
 import { OrtographicCamera, OrtographicCameraOptions } from '../../cameras/OrtographicCamera';
 
 const GAME_GRAVITY = new THREE.Vector3(0, 0, 0);
 const LEVEL_CHUNK_SIZE = 16;
+
+export type GameSceneOptions = {
+  progressTrackerOptions?: ProgressTrackerOptions;
+};
 
 export abstract class GameScene extends Scene {
   public camera: OrtographicCamera;
@@ -23,8 +28,9 @@ export abstract class GameScene extends Scene {
   protected additionalWarmupFactories: WarmupFactory[] = [];
 
   private _shadersManager = new ShadersManager();
+  private _progressTracker: ProgressTracker | null = null;
 
-  constructor() {
+  constructor(public readonly options?: GameSceneOptions) {
     super();
 
     const aspectRatio = window.innerWidth / window.innerHeight;
@@ -40,10 +46,14 @@ export abstract class GameScene extends Scene {
     });
 
     this.camera.setZoom(0.85);
+
+    if (options?.progressTrackerOptions) {
+      this._progressTracker = new ProgressTracker(this, options.progressTrackerOptions);
+    }
   }
 
-  protected createCamera(options: OrtographicCameraOptions): OrtographicCamera {
-    return new OrtographicCamera(options);
+  public get progressTracker(): ProgressTracker | null {
+    return this._progressTracker;
   }
 
   public async initializePhysics(): Promise<void> {
@@ -100,6 +110,10 @@ export abstract class GameScene extends Scene {
     if (process.env.NODE_ENV === 'development') {
       this._shadersManager.checkForLateCompiles(this.renderer);
     }
+  }
+
+  protected createCamera(options: OrtographicCameraOptions): OrtographicCamera {
+    return new OrtographicCamera(options);
   }
 
   protected onInit(): void {}

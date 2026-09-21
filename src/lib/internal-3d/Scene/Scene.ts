@@ -106,6 +106,8 @@ export abstract class Scene extends THREE.Scene {
       });
       super.add(object);
 
+      this.events.trigger('objectAdded', { object });
+
       ResourceTracker.trackObject(object);
     });
 
@@ -121,6 +123,8 @@ export abstract class Scene extends THREE.Scene {
       });
 
       super.remove(object);
+
+      this.events.trigger('objectRemoved', { object });
 
       ResourceTracker.disposeObjectResources(object);
       ResourceTracker.untrackObject(object);
