@@ -14,11 +14,11 @@ import {
   BarSimple,
   BarOrnament,
   ScrollableWrapper,
+  PanelScalable,
 } from 'UI';
 
 import { COLORS, GRADIENTS } from '../../constants';
 import { BackToViewLayout } from '../layouts/BackToViewLayout';
-import { PanelScalable } from '../components/PanelScalable/PanelScalable';
 
 const TEXT_SIZES = ['sm', 'md', 'lg', 'xl', 'xxl'] as const;
 const DROPDOWN_OPTIONS = [

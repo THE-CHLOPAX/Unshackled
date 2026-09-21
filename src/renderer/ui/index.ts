@@ -9,6 +9,7 @@ import { TextInput } from './components/TextInput/TextInput';
 import { ButtonIcon } from './components/ButtonIcon/ButtonIcon';
 import { SmallPanel } from './components/SmallPanel/SmallPanel';
 import { BarOrnament } from './components/BarOrnament/BarOrnament';
+import { PanelScalable } from './components/PanelScalable/PanelScalable';
 import { HealthBar, HealthBarProps } from './components/HealthBar/HealthBar';
 import { ScrollableWrapper } from './components/ScrollableWrapper/ScrollableWrapper';
 
@@ -26,5 +27,6 @@ export {
   BarSimple,
   BarOrnament,
   HealthBar,
+  PanelScalable,
   type HealthBarProps,
 };

@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import { GameEventsEmitter } from 'renderer/types';
 
+import { GameOverModal } from './GameOverModal/GameOverModal';
 import { DamageIndicator } from './DamageIndicator/DamageIndicator';
 
 export type GameUIOverlayProps = {
@@ -13,6 +14,7 @@ export const GameUIOverlay = ({ emitter }: GameUIOverlayProps) => {
     <Wrapper>
       <Vignette />
       <DamageIndicator emitter={emitter} />
+      <GameOverModal emitter={emitter} />
     </Wrapper>
   );
 };

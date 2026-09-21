@@ -72,14 +72,5 @@ export class TestScene extends GameScene {
     const monk = new Monk(this);
     this.add(monk);
     this.camera.follow(monk);
-
-    //DEBUG
-    const interval = setInterval(() => {
-      this.emitter?.trigger('player-damage-taken');
-    }, 200);
-
-    setTimeout(() => {
-      clearInterval(interval);
-    }, 3000);
   }
 }
