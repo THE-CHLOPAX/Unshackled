@@ -40,11 +40,15 @@ export function loadWorldMap(
     if (isElectron) {
       ipc.once('load-file-response', (data) => {
         const { ok, contents, path } = data;
-        if (!ok || contents === null || path === null) reject('Failed to load world map data.');
-        else {
-          const pathSegments = path.split('/');
-          const fileNameReturned = pathSegments[pathSegments.length - 1];
+        if (!ok || contents === null || path === null) {
+          reject('Failed to load world map data.');
+          return;
+        }
+        try {
+          const fileNameReturned = path.split(/[/\\]/).pop() ?? '';
           resolve({ fileName: fileNameReturned, map: deserializeWorldMap(contents) });
+        } catch (error) {
+          reject(`Failed to load world map data: ${String(error)}`);
         }
       });
 
