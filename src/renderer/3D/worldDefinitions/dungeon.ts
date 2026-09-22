@@ -105,6 +105,7 @@ export const WORLD_PROP_DEFINITIONS_DUNGEON: WorldObjectDefinition[] = [
     code: WorldTileCodes.DungeonDoor,
     offset: new THREE.Vector3(0, WORLD_CELL_SIZE / 2 - FLOOR_FULL_DEPTH, -WORLD_CELL_SIZE / 2),
     label: 'Dungeon Door',
+    disableModelScaling: true,
     object: DungeonDoor,
   },
   {

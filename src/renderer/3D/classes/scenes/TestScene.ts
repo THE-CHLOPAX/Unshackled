@@ -14,6 +14,7 @@ import {
 
 import { GameScene } from './GameScene/GameScene';
 import { Monk } from '../gameObjects/players/Monk/Monk';
+import { DungeonDoor } from '../gameObjects/props/DungeonDoor';
 import { RigidStaticObject } from '../gameObjects/RigidStaticObject';
 import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
 import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
@@ -29,6 +30,7 @@ export class TestScene extends GameScene {
     MODELS.SKELETON,
     TEXTURES.CHECKERBOARD,
     TEXTURES.AIMING_ARROW,
+    MODELS.DUNGEON_DOOR,
   ];
 
   protected override additionalWarmupFactories: WarmupFactory[] = [
@@ -72,5 +74,7 @@ export class TestScene extends GameScene {
     const monk = new Monk(this);
     this.add(monk);
     this.camera.follow(monk);
+
+    this.add(new DungeonDoor(this));
   }
 }
