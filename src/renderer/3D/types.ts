@@ -145,3 +145,6 @@ type StateNodeFor<E extends Entity, S extends State> = {
 };
 
 export type StateNode<S extends State = State> = StateNodeFor<S['entity'], S>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type EntityClass = abstract new (...args: any[]) => Entity;

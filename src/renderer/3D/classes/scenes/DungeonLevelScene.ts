@@ -2,13 +2,16 @@ import * as THREE from 'three';
 import { AssetRecord } from '@tgdf';
 
 import { LevelRecord } from 'renderer/3D/types';
+import { GameEventsEmitter } from 'renderer/types';
 import { getModelClone } from 'renderer/3D/utils/getModelClone';
 import { MODELS, SPAWN_MARKER_NAME, TEXTURES } from 'renderer/3D/constants';
 
 import { GameScene } from './GameScene/GameScene';
 import { Monk } from '../gameObjects/players/Monk/Monk';
+import { Skeleton } from '../gameObjects/mobs/Skeleton/Skeleton';
 import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
 import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
+import { OBJECTIVE_ENTITIES_KILLED } from './GameScene/ProgressTracker/ProgressTracker';
 
 export class DungeonLevelScene extends GameScene {
   public readonly levelVariants: LevelRecord[] = [{ url: 'test.json' }];
@@ -38,8 +41,15 @@ export class DungeonLevelScene extends GameScene {
     return new FreeOrtographicCamera(options);
   } */
 
-  constructor() {
-    super();
+  constructor(public readonly emitter: GameEventsEmitter) {
+    super({
+      emitter,
+      objective: {
+        type: OBJECTIVE_ENTITIES_KILLED,
+        objectiveClasses: [Skeleton],
+        killedGoalAmount: 10,
+      },
+    });
 
     this.background = new THREE.Color(0x0a0a0a);
 
@@ -56,6 +66,7 @@ export class DungeonLevelScene extends GameScene {
       const monk = new Monk(this);
       monk.position.set(x, y, z);
       this.add(monk);
+      this.registerPlayer(monk);
       this.camera.follow(monk);
       //this.camera.moveTo(marker.position);
     }

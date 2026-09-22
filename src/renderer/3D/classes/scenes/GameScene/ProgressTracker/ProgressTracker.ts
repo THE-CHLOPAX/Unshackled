@@ -1,8 +1,10 @@
 import * as THREE from 'three';
-import { assert, Emitter, Scene, SceneEventsMap } from '@tgdf';
+import { assert, Scene, SceneEventsMap } from '@tgdf';
 
-import { Entity } from 'renderer/3D/classes/gameObjects/Entity';
-import { Player } from 'renderer/3D/classes/gameObjects/players/Player';
+import { EntityClass } from '3D/types';
+import { Entity } from '3D/classes/gameObjects/Entity';
+import { Player } from '3D/classes/gameObjects/players/Player';
+import { GameEventsEmitter, GameEventsMap } from 'renderer/types';
 
 export const OBJECTIVE_ENTITIES_KILLED = 'entities-killed';
 export const OBJECTIVE_SURVIVED_TIME = 'survived-time';
@@ -10,7 +12,7 @@ export const OBJECTIVE_SURVIVED_TIME = 'survived-time';
 export type ProgressTrackerObjective =
   | {
       type: typeof OBJECTIVE_ENTITIES_KILLED;
-      objectiveClasses: (typeof Entity)[];
+      objectiveClasses: EntityClass[];
       killedGoalAmount: number;
     }
   | {
@@ -23,24 +25,18 @@ export type ProgressTrackerOptions = {
   objective: ProgressTrackerObjective;
 };
 
-export type ProgressTrackerEventsMap = {
-  objectiveComplete: undefined;
-  objectiveFailed: undefined;
-};
-
 export class ProgressTracker {
   private _timeElapsed = 0;
   private _objectiveEntitiesKilled = 0;
   private _objectiveResolved = false;
 
-  private _events: Emitter<ProgressTrackerEventsMap> = new Emitter();
-
   constructor(
     public readonly scene: Scene,
+    public readonly emitter: GameEventsEmitter,
     public readonly options: ProgressTrackerOptions
   ) {
     scene.events.on('update', this._onUpdate.bind(this));
-    scene.events.on('objectAdded', this._onSceneObjectAdded.bind(this));
+    scene.events.on('object-added', this._onSceneObjectAdded.bind(this));
   }
 
   public get timeElapsed(): number {
@@ -51,10 +47,6 @@ export class ProgressTracker {
     return this._objectiveEntitiesKilled;
   }
 
-  public get events(): Emitter<ProgressTrackerEventsMap> {
-    return this._events;
-  }
-
   private _onUpdate({ deltaTime }: SceneEventsMap['update']): void {
     if (this._objectiveResolved) return;
     this._updateTimeElapsed({ deltaTime });
@@ -63,8 +55,9 @@ export class ProgressTracker {
     const allPlayersDead =
       this.options.players.length > 0 &&
       this.options.players.every((player) => player.healthPointsController.isDead);
+
     if (allPlayersDead) {
-      this._resolveObjective('objectiveFailed');
+      this._resolveObjective('game-over');
     }
   }
 
@@ -74,11 +67,11 @@ export class ProgressTracker {
     if (this.options.objective.type !== OBJECTIVE_SURVIVED_TIME) return;
 
     if (this._timeElapsed >= this.options.objective.timeGoalAmount) {
-      this._resolveObjective('objectiveComplete');
+      this._resolveObjective('level-complete');
     }
   }
 
-  private _onSceneObjectAdded({ object }: SceneEventsMap['objectAdded']): void {
+  private _onSceneObjectAdded({ object }: SceneEventsMap['object-added']): void {
     if (this._objectiveResolved) return;
     if (this.options.objective.type !== OBJECTIVE_ENTITIES_KILLED) return;
 
@@ -95,15 +88,15 @@ export class ProgressTracker {
         this._objectiveEntitiesKilled++;
         assert(this.options.objective.type === OBJECTIVE_ENTITIES_KILLED);
         if (this._objectiveEntitiesKilled === this.options.objective.killedGoalAmount) {
-          this._resolveObjective('objectiveComplete');
+          this._resolveObjective('level-complete');
         }
       });
     }
   }
 
-  private _resolveObjective(event: keyof ProgressTrackerEventsMap): void {
+  private _resolveObjective(event: keyof GameEventsMap): void {
     if (this._objectiveResolved) return;
     this._objectiveResolved = true;
-    this.events.trigger(event);
+    this.emitter.trigger(event);
   }
 }

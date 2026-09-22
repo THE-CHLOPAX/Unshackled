@@ -10,6 +10,7 @@ import { ButtonIcon } from './components/ButtonIcon/ButtonIcon';
 import { SmallPanel } from './components/SmallPanel/SmallPanel';
 import { BarOrnament } from './components/BarOrnament/BarOrnament';
 import { PanelScalable } from './components/PanelScalable/PanelScalable';
+import { GameUIOverlay } from './components/GameUIOverlay/GameUIOverlay';
 import { HealthBar, HealthBarProps } from './components/HealthBar/HealthBar';
 import { ScrollableWrapper } from './components/ScrollableWrapper/ScrollableWrapper';
 
@@ -28,5 +29,6 @@ export {
   BarOrnament,
   HealthBar,
   PanelScalable,
+  GameUIOverlay,
   type HealthBarProps,
 };

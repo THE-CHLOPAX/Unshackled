@@ -8,17 +8,18 @@ import { MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
 import { generateChunkedLevel } from '3D/utils/generateChunkedLevel';
 
 import { loadAssetRecord } from './loadAssetRecord';
+import { Player } from '../../gameObjects/players/Player';
 import { ShadersManager, WarmupFactory } from './ShadersManager/ShadersManager';
 import { getDefaultWarmupMaterialFactories } from './getDefaultWarmupMaterialFactories';
-import { ProgressTracker, ProgressTrackerOptions } from './ProgressTracker/ProgressTracker';
 import { OrtographicCamera, OrtographicCameraOptions } from '../../cameras/OrtographicCamera';
+import { ProgressTracker, ProgressTrackerObjective } from './ProgressTracker/ProgressTracker';
 
 const GAME_GRAVITY = new THREE.Vector3(0, 0, 0);
 const LEVEL_CHUNK_SIZE = 16;
 
 export type GameSceneOptions = {
-  emitter?: GameEventsEmitter;
-  progressTrackerOptions?: ProgressTrackerOptions;
+  emitter: GameEventsEmitter;
+  objective?: ProgressTrackerObjective;
 };
 
 export abstract class GameScene extends Scene {
@@ -31,8 +32,9 @@ export abstract class GameScene extends Scene {
 
   private _shadersManager = new ShadersManager();
   private _progressTracker: ProgressTracker | null = null;
+  private _players: Player[] = [];
 
-  constructor(public readonly options?: GameSceneOptions) {
+  constructor(public readonly options: GameSceneOptions) {
     super();
 
     const aspectRatio = window.innerWidth / window.innerHeight;
@@ -49,13 +51,24 @@ export abstract class GameScene extends Scene {
 
     this.camera.setZoom(0.85);
 
-    if (options?.progressTrackerOptions) {
-      this._progressTracker = new ProgressTracker(this, options.progressTrackerOptions);
+    if (options.objective) {
+      this._progressTracker = new ProgressTracker(this, options.emitter, {
+        players: this._players,
+        objective: options.objective,
+      });
     }
   }
 
   public get progressTracker(): ProgressTracker | null {
     return this._progressTracker;
+  }
+
+  public get players(): readonly Player[] {
+    return this._players;
+  }
+
+  public registerPlayer(player: Player): void {
+    this._players.push(player);
   }
 
   public async initializePhysics(): Promise<void> {

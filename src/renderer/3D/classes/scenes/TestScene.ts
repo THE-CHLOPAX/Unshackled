@@ -37,7 +37,7 @@ export class TestScene extends GameScene {
     () => createSwingTrailWarmupMesh(),
   ];
 
-  constructor(public readonly emitter?: GameEventsEmitter) {
+  constructor(public readonly emitter: GameEventsEmitter) {
     super({ emitter });
 
     this.background = new THREE.Color(0x0a0a0a);

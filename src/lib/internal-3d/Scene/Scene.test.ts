@@ -127,7 +127,7 @@ describe('Scene', () => {
     it('triggers objectAdded with the added object', () => {
       const objectAddedHandler = vi.fn();
       const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
-      scene.events.on('objectAdded', objectAddedHandler);
+      scene.events.on('object-added', objectAddedHandler);
 
       scene.add(mesh);
 
@@ -138,7 +138,7 @@ describe('Scene', () => {
       const objectAddedHandler = vi.fn();
       const meshA = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
       const meshB = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
-      scene.events.on('objectAdded', objectAddedHandler);
+      scene.events.on('object-added', objectAddedHandler);
 
       scene.add(meshA, meshB);
 
@@ -171,7 +171,7 @@ describe('Scene', () => {
       const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
       scene.add(mesh);
 
-      scene.events.on('objectRemoved', objectRemovedHandler);
+      scene.events.on('object-removed', objectRemovedHandler);
 
       scene.remove(mesh);
 
@@ -183,7 +183,7 @@ describe('Scene', () => {
       const meshA = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
       const meshB = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
       scene.add(meshA, meshB);
-      scene.events.on('objectRemoved', objectRemovedHandler);
+      scene.events.on('object-removed', objectRemovedHandler);
 
       scene.remove(meshA, meshB);
 

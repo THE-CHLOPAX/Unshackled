@@ -48,7 +48,7 @@ export abstract class Scene extends THREE.Scene {
 
   public update(deltaTime: number, renderer: THREE.WebGLRenderer | null): void {
     // Assign current renderer
-    if (this._renderer !== renderer) this.events.trigger('rendererChange', { renderer });
+    if (this._renderer !== renderer) this.events.trigger('renderer-change', { renderer });
     this._renderer = renderer;
 
     // Update camera
@@ -106,7 +106,7 @@ export abstract class Scene extends THREE.Scene {
       });
       super.add(object);
 
-      this.events.trigger('objectAdded', { object });
+      this.events.trigger('object-added', { object });
 
       ResourceTracker.trackObject(object);
     });
@@ -124,7 +124,7 @@ export abstract class Scene extends THREE.Scene {
 
       super.remove(object);
 
-      this.events.trigger('objectRemoved', { object });
+      this.events.trigger('object-removed', { object });
 
       ResourceTracker.disposeObjectResources(object);
       ResourceTracker.untrackObject(object);

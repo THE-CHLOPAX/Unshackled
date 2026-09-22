@@ -18,6 +18,7 @@ export const GameOverModal = ({ emitter }: GameOverModalProps) => {
 
   useEffect(() => {
     const handleGameOver = () => {
+      console.log('GAME OVER');
       setIsVisible(true);
     };
     emitter.once('game-over', handleGameOver);

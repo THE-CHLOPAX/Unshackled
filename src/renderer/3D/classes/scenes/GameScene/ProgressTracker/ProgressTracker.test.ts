@@ -49,7 +49,7 @@ function createTracker(
   objective: ProgressTrackerObjective,
   players: Player[]
 ): ProgressTracker {
-  return new ProgressTracker(scene, { objective, players });
+  return new ProgressTracker(scene, scene.options.emitter, { objective, players });
 }
 
 function survivedTimeObjective(timeGoalAmount: number): ProgressTrackerObjective {
@@ -80,11 +80,9 @@ describe('ProgressTracker', () => {
 
     it('does not trigger objectiveComplete before the time goal is reached', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, survivedTimeObjective(10), [
-        createFakePlayer(false),
-      ]);
+      createTracker(scene, survivedTimeObjective(10), [createFakePlayer(false)]);
       const completeListener = vi.fn();
-      tracker.events.on('objectiveComplete', completeListener);
+      scene.options.emitter.on('level-complete', completeListener);
 
       scene.events.trigger('update', { deltaTime: 5 });
 
@@ -93,11 +91,9 @@ describe('ProgressTracker', () => {
 
     it('triggers objectiveComplete exactly once when the time goal is reached, even across later ticks', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, survivedTimeObjective(10), [
-        createFakePlayer(false),
-      ]);
+      createTracker(scene, survivedTimeObjective(10), [createFakePlayer(false)]);
       const completeListener = vi.fn();
-      tracker.events.on('objectiveComplete', completeListener);
+      scene.options.emitter.on('level-complete', completeListener);
 
       scene.events.trigger('update', { deltaTime: 10 });
       scene.events.trigger('update', { deltaTime: 1 });
@@ -138,11 +134,9 @@ describe('ProgressTracker', () => {
 
     it('does not trigger objectiveComplete before the kill goal is reached', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, entitiesKilledObjective(2), [
-        createFakePlayer(false),
-      ]);
+      createTracker(scene, entitiesKilledObjective(2), [createFakePlayer(false)]);
       const completeListener = vi.fn();
-      tracker.events.on('objectiveComplete', completeListener);
+      scene.options.emitter.on('level-complete', completeListener);
 
       killEntity(createObjectiveEntity(scene));
 
@@ -151,11 +145,9 @@ describe('ProgressTracker', () => {
 
     it('triggers objectiveComplete exactly once when the kill goal is reached', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, entitiesKilledObjective(2), [
-        createFakePlayer(false),
-      ]);
+      createTracker(scene, entitiesKilledObjective(2), [createFakePlayer(false)]);
       const completeListener = vi.fn();
-      tracker.events.on('objectiveComplete', completeListener);
+      scene.options.emitter.on('level-complete', completeListener);
 
       killEntity(createObjectiveEntity(scene));
       killEntity(createObjectiveEntity(scene));
@@ -166,11 +158,9 @@ describe('ProgressTracker', () => {
 
     it('still triggers objectiveFailed when all players die before the kill goal is reached', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, entitiesKilledObjective(5), [
-        createFakePlayer(true),
-      ]);
+      createTracker(scene, entitiesKilledObjective(5), [createFakePlayer(true)]);
       const failedListener = vi.fn();
-      tracker.events.on('objectiveFailed', failedListener);
+      scene.options.emitter.on('game-over', failedListener);
 
       scene.events.trigger('update', { deltaTime: 1 });
 
@@ -179,14 +169,12 @@ describe('ProgressTracker', () => {
 
     it('does not trigger objectiveComplete for a kill happening after objectiveFailed already resolved the objective', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, entitiesKilledObjective(1), [
-        createFakePlayer(true),
-      ]);
+      createTracker(scene, entitiesKilledObjective(1), [createFakePlayer(true)]);
       const objectiveEntity = createObjectiveEntity(scene);
       const completeListener = vi.fn();
       const failedListener = vi.fn();
-      tracker.events.on('objectiveComplete', completeListener);
-      tracker.events.on('objectiveFailed', failedListener);
+      scene.options.emitter.on('level-complete', completeListener);
+      scene.options.emitter.on('game-over', failedListener);
 
       // All players are already dead, so this tick resolves the objective as failed.
       scene.events.trigger('update', { deltaTime: 1 });
@@ -202,11 +190,9 @@ describe('ProgressTracker', () => {
   describe('objectiveFailed', () => {
     it('triggers objectiveFailed exactly once when all players are dead', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, survivedTimeObjective(10), [
-        createFakePlayer(true),
-      ]);
+      createTracker(scene, survivedTimeObjective(10), [createFakePlayer(true)]);
       const failedListener = vi.fn();
-      tracker.events.on('objectiveFailed', failedListener);
+      scene.options.emitter.on('game-over', failedListener);
 
       scene.events.trigger('update', { deltaTime: 1 });
       scene.events.trigger('update', { deltaTime: 1 });
@@ -216,12 +202,12 @@ describe('ProgressTracker', () => {
 
     it('does not trigger objectiveFailed when only some players are dead', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, survivedTimeObjective(10), [
+      createTracker(scene, survivedTimeObjective(10), [
         createFakePlayer(true),
         createFakePlayer(false),
       ]);
       const failedListener = vi.fn();
-      tracker.events.on('objectiveFailed', failedListener);
+      scene.options.emitter.on('game-over', failedListener);
 
       scene.events.trigger('update', { deltaTime: 1 });
 
@@ -230,9 +216,9 @@ describe('ProgressTracker', () => {
 
     it('does not trigger objectiveFailed when there are no players', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, survivedTimeObjective(10), []);
+      createTracker(scene, survivedTimeObjective(10), []);
       const failedListener = vi.fn();
-      tracker.events.on('objectiveFailed', failedListener);
+      scene.options.emitter.on('game-over', failedListener);
 
       scene.events.trigger('update', { deltaTime: 1 });
 

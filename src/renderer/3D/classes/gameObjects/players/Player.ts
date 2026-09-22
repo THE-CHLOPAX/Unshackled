@@ -8,16 +8,21 @@ export class Player extends Entity {
 
   constructor(
     scene: GameScene,
-    public options: PlayerOptions
+    public readonly options: PlayerOptions
   ) {
     super(scene, options);
   }
 
   protected override onDamageTaken(): void {
     this.scene.camera.addShake(0.5);
+
+    const { emitter } = this.scene.options;
+    emitter.trigger('player-damage-taken');
   }
 
   protected override onDeath(): void {
     this.scene.camera.addShake(3);
+    const { emitter } = this.scene.options;
+    emitter.trigger('player-damage-taken');
   }
 }

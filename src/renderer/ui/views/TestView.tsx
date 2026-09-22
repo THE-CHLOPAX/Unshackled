@@ -1,7 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Emitter, useGraphicsStore } from '@tgdf';
-
-import { GameEventsMap } from 'renderer/types';
+import { useState } from 'react';
+import { useGraphicsStore } from '@tgdf';
 
 import { LoadingView } from './LoadingView';
 import { useLoadScene } from '../../3D/hooks/useLoadScene';
@@ -11,10 +9,8 @@ import { GameUIOverlay } from '../components/GameUIOverlay/GameUIOverlay';
 import { ThreeDViewerPixelated } from '../components/ThreeDViewerPixelated';
 
 export function TestView() {
-  const gameEventsEmitter = useMemo(() => new Emitter<GameEventsMap>(), []);
-
   const { resolution } = useGraphicsStore();
-  const { scene, loadingProgress } = useLoadScene(TestScene, gameEventsEmitter);
+  const { scene, loadingProgress, emitter } = useLoadScene(TestScene);
 
   const [loadingFinished, setLoadingFinished] = useState(false);
 
@@ -30,7 +26,7 @@ export function TestView() {
             resY={resolution.height}
             debug
           />
-          <GameUIOverlay emitter={gameEventsEmitter} />
+          <GameUIOverlay emitter={emitter} />
         </>
       )}
     </BackToViewLayout>

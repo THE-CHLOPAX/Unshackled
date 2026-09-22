@@ -16,7 +16,7 @@ export const attackActions: AIAttackAction[] = [
     action: punch,
     soundPath: FMOD_EVENTS.ATTACK,
     minRange: 0,
-    maxRange: 2,
+    maxRange: 1,
   },
 ];
 
