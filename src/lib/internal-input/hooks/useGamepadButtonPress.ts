@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { GamepadButton, Input, InputState } from '@tgdf';
 
 import { InputNotifiable } from '../Input';
@@ -21,25 +21,26 @@ import { InputNotifiable } from '../Input';
  * ```
  */
 export function useGamepadButtonPress(button: GamepadButton, callback: () => void): void {
-  const [isPressed, setIsPressed] = useState(false);
-
-  const notifiableObject: InputNotifiable = {
-    onInputNotify: (inputState: InputState) => {
-      setIsPressed(inputState.gamepad.isButtonPressed(button));
-    },
-  };
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
 
   useEffect(() => {
-    if (isPressed) {
-      callback();
-    }
-  }, [isPressed]);
+    let wasPressed = false;
 
-  useEffect(() => {
-    Input.registerNotifiable(notifiableObject);
+    const notifiable: InputNotifiable = {
+      onInputNotify: (inputState: InputState) => {
+        const isPressed = inputState.gamepad.isButtonPressed(button);
+        if (isPressed && !wasPressed) {
+          callbackRef.current();
+        }
+        wasPressed = isPressed;
+      },
+    };
+
+    Input.registerNotifiable(notifiable);
 
     return () => {
-      Input.unregisterNotifiable(notifiableObject);
+      Input.unregisterNotifiable(notifiable);
     };
-  }, []);
+  }, [button]);
 }

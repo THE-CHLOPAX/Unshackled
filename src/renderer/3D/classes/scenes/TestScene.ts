@@ -72,8 +72,5 @@ export class TestScene extends GameScene {
     const monk = new Monk(this, { inputSource: PlayerInput.keyboard() });
     this.add(monk);
     this.camera.follow(monk);
-
-    const monk2 = new Monk(this, { inputSource: PlayerInput.gamepad(0) });
-    this.add(monk2);
   }
 }
