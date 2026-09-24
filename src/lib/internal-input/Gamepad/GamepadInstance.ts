@@ -1,10 +1,10 @@
 import { AxisListener, ButtonListener, GamepadButtonState } from '../types';
 import {
-  GAMEPAD_BUTTON_MAPPING,
-  GAMEPAD_AXIS_MAPPING,
+  GAMEPAD_BUTTON_CODE_MAPPING,
+  GAMEPAD_AXIS_CODE_MAPPING,
   GamepadButton as GamepadButtonName,
   GamepadAxis as GamepadAxisName,
-} from './GamepadMappings';
+} from '../constants';
 
 const DEFAULT_PRESS_THRESHOLD_MS = 50;
 
@@ -216,7 +216,7 @@ export class GamepadInstance {
     for (const listener of this._buttonListeners) {
       const listenerButtonIndex =
         typeof listener.button === 'string'
-          ? GAMEPAD_BUTTON_MAPPING[listener.button]
+          ? GAMEPAD_BUTTON_CODE_MAPPING[listener.button]
           : listener.button;
 
       if (listenerButtonIndex === buttonIndex) {
@@ -263,7 +263,9 @@ export class GamepadInstance {
   private _triggerAxisListeners(axisIndex: number, value: number): void {
     for (const listener of this._axisListeners) {
       const listenerAxisIndex =
-        typeof listener.axis === 'string' ? GAMEPAD_AXIS_MAPPING[listener.axis] : listener.axis;
+        typeof listener.axis === 'string'
+          ? GAMEPAD_AXIS_CODE_MAPPING[listener.axis]
+          : listener.axis;
 
       if (listenerAxisIndex === axisIndex) {
         listener.callback(value);

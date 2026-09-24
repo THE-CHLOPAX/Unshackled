@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { AssetRecord, useAssetStore } from '@tgdf';
+import { AssetRecord, PlayerInput, useAssetStore } from '@tgdf';
 
 import { LevelRecord } from 'renderer/3D/types';
 import { GameEventsEmitter } from 'renderer/types';
@@ -69,7 +69,7 @@ export class TestScene extends GameScene {
   }
 
   protected override onInit(): void {
-    const monk = new Monk(this);
+    const monk = new Monk(this, { inputSource: PlayerInput.keyboard() });
     this.add(monk);
     this.camera.follow(monk);
   }

@@ -1,35 +1,50 @@
-import { GamepadAxis, GamepadButton } from './Gamepad/GamepadMappings';
+import { GamepadInstance } from './Gamepad/GamepadInstance';
+import { GamepadManager, GamepadManagerEventMap } from './Gamepad/GamepadManager';
+import {
+  GAMEPAD_AXIS_CODE_MAPPING,
+  GAMEPAD_BUTTON_CODE_MAPPING,
+  GamepadAxis,
+  GamepadButton,
+} from './constants';
 
 export class GamepadInput {
-  private _pressedButtons = new Set<GamepadButton>();
-  private _axisValues = new Map<GamepadAxis | number, number>();
   private _gamepadDisabled = false;
   private _onInputCallback?: () => void;
+  private _unsubscribeInteraction: (() => void) | null = null;
+
+  constructor(private readonly _gamepadIndex: number = 0) {}
 
   public initialize(onInputCallback?: () => void): void {
     this._onInputCallback = onInputCallback;
-    // Gamepad uses polling, not event listeners
+
+    const manager = GamepadManager.getInstance();
+    const gamepad = manager.getGamepad(this._gamepadIndex);
+
+    if (gamepad) {
+      this._bindGamepad(gamepad);
+    }
+
+    manager.events.on('gamepadconnected', this._handleGamepadConnected);
   }
 
   public dispose(): void {
-    this._pressedButtons.clear();
-    this._axisValues.clear();
+    GamepadManager.getInstance().events.off('gamepadconnected', this._handleGamepadConnected);
+    this._unsubscribeInteraction?.();
+    this._unsubscribeInteraction = null;
+    this._onInputCallback = undefined;
   }
 
   public isButtonPressed(button: GamepadButton): boolean {
-    return this._pressedButtons.has(button);
+    const gamepad = this._getGamepad();
+    if (!gamepad) return false;
+    return gamepad.isButtonPressed(GAMEPAD_BUTTON_CODE_MAPPING[button]);
   }
 
   public getAxisValue(axis: GamepadAxis | number): number {
-    return this._axisValues.get(axis) ?? 0;
-  }
-
-  public get pressedButtons(): Set<GamepadButton> {
-    return new Set(this._pressedButtons);
-  }
-
-  public get axisValues(): Map<GamepadAxis | number, number> {
-    return new Map(this._axisValues);
+    const gamepad = this._getGamepad();
+    if (!gamepad) return 0;
+    const axisIndex = typeof axis === 'number' ? axis : GAMEPAD_AXIS_CODE_MAPPING[axis];
+    return gamepad.getAxis(axisIndex) ?? 0;
   }
 
   public disable(): void {
@@ -44,39 +59,23 @@ export class GamepadInput {
     return this._gamepadDisabled;
   }
 
-  // Called by Input singleton during update/poll cycle
-  public updateState(
-    buttonStates: Map<GamepadButton, boolean>,
-    axisStates: Map<GamepadAxis | number, number>
-  ): void {
-    if (this._gamepadDisabled) return;
+  private _getGamepad(): GamepadInstance | undefined {
+    if (this._gamepadDisabled) return undefined;
+    return GamepadManager.getInstance().getGamepad(this._gamepadIndex);
+  }
 
-    let hasChanges = false;
+  private _handleGamepadConnected = ({
+    gamepad,
+  }: GamepadManagerEventMap['gamepadconnected']): void => {
+    if (gamepad.index !== this._gamepadIndex) return;
+    this._bindGamepad(gamepad);
+  };
 
-    // Update button states
-    for (const [button, pressed] of buttonStates) {
-      const wasPressed = this._pressedButtons.has(button);
-      if (pressed && !wasPressed) {
-        this._pressedButtons.add(button);
-        hasChanges = true;
-      } else if (!pressed && wasPressed) {
-        this._pressedButtons.delete(button);
-        hasChanges = true;
-      }
-    }
-
-    // Update axis values
-    for (const [axis, value] of axisStates) {
-      const oldValue = this._axisValues.get(axis) ?? 0;
-      if (Math.abs(value - oldValue) > 0.01) {
-        // Threshold for axis change
-        this._axisValues.set(axis, value);
-        hasChanges = true;
-      }
-    }
-
-    if (hasChanges) {
+  private _bindGamepad(gamepad: GamepadInstance): void {
+    this._unsubscribeInteraction?.();
+    this._unsubscribeInteraction = gamepad.onAnyInteraction(() => {
+      if (this._gamepadDisabled) return;
       this._onInputCallback?.();
-    }
+    });
   }
 }

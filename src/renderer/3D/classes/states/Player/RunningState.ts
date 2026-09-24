@@ -1,10 +1,9 @@
 import * as THREE from 'three';
-import { Input, InputState, logger } from '@tgdf';
+import { InputState, logger } from '@tgdf';
 
 import { State } from '..';
 import { AnimationClipNamesShared } from '../../../types';
 import { Player } from '../../gameObjects/players/Player';
-import { mapInputToControls } from '../../../utils/mapInputToControls';
 
 export class RunningState extends State {
   constructor(public entity: Player) {
@@ -20,7 +19,7 @@ export class RunningState extends State {
   public override onInput(_inputState: InputState): void {}
 
   public override onUpdate(_deltaTime: number): void {
-    const controlsStates = mapInputToControls(Input.getState());
+    const controlsStates = this.entity.inputSource.getControls();
     const movementState = controlsStates.find((controlState) => 'direction' in controlState);
 
     if (!movementState) return;
