@@ -1,5 +1,5 @@
-import { Input } from '@tgdf';
 import * as THREE from 'three';
+import { Input, KEYBOARD_MAPPINGS } from '@tgdf';
 
 import { OrtographicCamera, OrtographicCameraOptions } from './OrtographicCamera';
 
@@ -30,9 +30,11 @@ export class FreeOrtographicCamera extends OrtographicCamera {
     const { keyboard } = Input.getState();
 
     const forwardAxis =
-      (keyboard.isKeyPressed('KeyW') ? 1 : 0) - (keyboard.isKeyPressed('KeyS') ? 1 : 0);
+      (keyboard.isKeyPressed(KEYBOARD_MAPPINGS.KeyW) ? 1 : 0) -
+      (keyboard.isKeyPressed(KEYBOARD_MAPPINGS.KeyS) ? 1 : 0);
     const strafeAxis =
-      (keyboard.isKeyPressed('KeyD') ? 1 : 0) - (keyboard.isKeyPressed('KeyA') ? 1 : 0);
+      (keyboard.isKeyPressed(KEYBOARD_MAPPINGS.KeyD) ? 1 : 0) -
+      (keyboard.isKeyPressed(KEYBOARD_MAPPINGS.KeyA) ? 1 : 0);
 
     if (forwardAxis === 0 && strafeAxis === 0) return;
 

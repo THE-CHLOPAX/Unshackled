@@ -1,17 +1,14 @@
-import { InputState } from '@tgdf';
-
 import { PlayerActionType, StateNode } from 'renderer/3D/types';
-import { mapInputToControls } from 'renderer/3D/utils/mapInputToControls';
+import { PlayerActionEvent } from 'renderer/3D/classes/gameObjects/players/PlayerRegisterableInputSource';
 
 export type StateTransition =
   | [PlayerActionType, () => StateNode]
   | [PlayerActionType, () => StateNode, boolean];
 
 export function getInputBasedStateNode(
-  input: InputState,
+  controlsStates: PlayerActionEvent[],
   transitions: StateTransition[]
 ): StateNode | null {
-  const controlsStates = mapInputToControls(input);
   for (const [actionType, newStateNodeFactory, additionalCondition] of transitions) {
     const additionalConditionResolved =
       additionalCondition === undefined || additionalCondition === true;

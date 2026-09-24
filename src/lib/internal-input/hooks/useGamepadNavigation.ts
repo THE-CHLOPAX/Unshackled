@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGamepadStore, useGamepadIndicator } from '@tgdf';
+import { useGamepadStore, useGamepadIndicator, GAMEPAD_MAPPINGS } from '@tgdf';
 
 export type NavigationItem = {
   id: string;
@@ -84,7 +84,7 @@ export function useGamepadNavigation({
     const validItems = itemsRef.current.filter((item) => !item.disabled);
     const selectedItem = validItems[selectedIndex];
 
-    const cleanupAButton = gamepad.addButtonDownListener('A', () => {
+    const cleanupAButton = gamepad.addButtonDownListener(GAMEPAD_MAPPINGS.A, () => {
       if (selectedItem && !selectedItem.disabled) {
         selectedItem.onSelect();
       }
@@ -97,7 +97,7 @@ export function useGamepadNavigation({
   useEffect(() => {
     if (!enabled || !gamepad || !onBackPress) return;
 
-    const cleanupBButton = gamepad.addButtonDownListener('B', () => {
+    const cleanupBButton = gamepad.addButtonDownListener(GAMEPAD_MAPPINGS.B, () => {
       onBackPress();
     });
 

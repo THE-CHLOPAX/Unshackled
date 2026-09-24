@@ -1,5 +1,6 @@
 import { Scene } from '../Scene/Scene';
 import { InputState } from '../../internal-input/types';
+import { RegisterableInputSource } from '../../internal-input/Input';
 
 export type GameObjectComponentTemplate = {
   name: string;
@@ -9,6 +10,7 @@ export type GameObjectComponentTemplate = {
 export type GameObjectConstructorOptions = {
   scene: Scene;
   skipUpdate?: boolean;
+  inputSource?: RegisterableInputSource;
 };
 
 /**

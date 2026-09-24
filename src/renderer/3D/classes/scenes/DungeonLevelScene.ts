@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { AssetRecord } from '@tgdf';
+import { AssetRecord, PlayerInput } from '@tgdf';
 
 import { LevelRecord } from 'renderer/3D/types';
 import { getModelClone } from 'renderer/3D/utils/getModelClone';
@@ -53,7 +53,7 @@ export class DungeonLevelScene extends GameScene {
 
     if (marker !== undefined) {
       const { x, y, z } = marker.position;
-      const monk = new Monk(this);
+      const monk = new Monk(this, { inputSource: PlayerInput.keyboard() });
       monk.position.set(x, y, z);
       this.add(monk);
       this.camera.follow(monk);

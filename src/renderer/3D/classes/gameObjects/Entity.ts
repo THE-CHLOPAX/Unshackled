@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { MovementController, RigidBody, RigidBodyOptions } from '@tgdf';
+import { MovementController, RegisterableInputSource, RigidBody, RigidBodyOptions } from '@tgdf';
 
 import { StateNode } from '3D/types';
 import { COLORS } from 'renderer/constants';
@@ -42,6 +42,7 @@ export type EntityOptions = {
   animationControllerOptions?: AnimationControllerOptions;
   movementOptions?: EntityMovementOptions;
   stateMachine: StateNode;
+  inputSource?: RegisterableInputSource;
 };
 
 export class Entity extends GameSceneObject {
@@ -66,7 +67,7 @@ export class Entity extends GameSceneObject {
     scene: GameScene,
     public options: EntityOptions
   ) {
-    super({ scene });
+    super({ scene, inputSource: options.inputSource });
 
     const speed = options.movementOptions?.speed ?? 0;
     this.defaultSpeed = speed;

@@ -1,4 +1,11 @@
-import { InternalButton, useKeyPress, useViewsStore } from '@tgdf';
+import {
+  InternalButton,
+  useKeyPress,
+  useGamepadButtonPress,
+  KEYBOARD_MAPPINGS,
+  GAMEPAD_MAPPINGS,
+  useViewsStore,
+} from '@tgdf';
 
 import * as views from '../views';
 
@@ -11,7 +18,12 @@ export function BackToViewLayout({ backToView, children }: BackToViewLayoutProps
   const { setView } = useViewsStore();
 
   // Listen for Escape key to go back
-  useKeyPress('Escape', () => {
+  useKeyPress(KEYBOARD_MAPPINGS.Escape, () => {
+    setView(backToView);
+  });
+
+  // Listen for Start button to go back
+  useGamepadButtonPress(GAMEPAD_MAPPINGS.START, () => {
     setView(backToView);
   });
 
