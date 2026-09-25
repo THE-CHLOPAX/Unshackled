@@ -10,7 +10,7 @@ export const config: PlayerOptions = {
     id: MODELS.MONK.id,
   },
   movementOptions: {
-    speed: 2.3,
+    defaultSpeed: 2.3,
     sprintSpeed: 4,
     walkSpeed: 1,
   },

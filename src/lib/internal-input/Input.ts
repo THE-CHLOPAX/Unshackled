@@ -9,12 +9,18 @@ export type InputNotifiable = {
   onInputNotify(inputState: InputState): void;
 };
 
+export type RegisterableInputSource = {
+  getState(): InputState;
+  registerNotifiable(notifiable: InputNotifiable): void;
+  unregisterNotifiable(notifiable: InputNotifiable): void;
+};
+
 /**
  * Singleton Input class that manages keyboard, mouse, and gamepad inputs.
  * This class is initialized once and can be accessed from anywhere in the application,
  * both in React components and in three.js scenes/classes.
  */
-export class Input {
+export class Input implements RegisterableInputSource {
   private static _instance: Input | null = null;
 
   private _keyboard: KeyboardInput = new KeyboardInput();

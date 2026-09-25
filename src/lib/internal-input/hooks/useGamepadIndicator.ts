@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { GAMEPAD_MAPPINGS } from '../constants';
 import { useGamepadStore } from '../../internal-store/useGamepadStore';
 
 export function useGamepadIndicator({ gamepadIndex }: { gamepadIndex: number }) {
@@ -12,7 +13,7 @@ export function useGamepadIndicator({ gamepadIndex }: { gamepadIndex: number }) 
   );
 
   useEffect(() => {
-    gamepad?.addButtonDownListener('DPAD_UP', () => {
+    gamepad?.addButtonDownListener(GAMEPAD_MAPPINGS.DPAD_UP, () => {
       setIndicatorIndex((prev) => {
         if (prev === 0) {
           return 0;
@@ -21,7 +22,7 @@ export function useGamepadIndicator({ gamepadIndex }: { gamepadIndex: number }) 
       });
     });
 
-    gamepad?.addButtonDownListener('DPAD_DOWN', () => {
+    gamepad?.addButtonDownListener(GAMEPAD_MAPPINGS.DPAD_DOWN, () => {
       setIndicatorIndex((prev) => {
         return prev + 1;
       });

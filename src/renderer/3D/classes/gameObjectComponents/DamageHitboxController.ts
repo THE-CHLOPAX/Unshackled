@@ -28,6 +28,10 @@ export class DamageHitboxController extends GameObjectComponent {
     });
   }
 
+  public toggleDebug(enabled: boolean): void {
+    this._attackHitbox?.rigidBody.toggleDebug(enabled);
+  }
+
   public removeDamageHitbox(): void {
     if (!this._attackHitbox) return;
     this.entity.modelRenderer.removeAttachment(this._attackHitbox);

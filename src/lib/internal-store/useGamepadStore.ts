@@ -3,11 +3,9 @@ import { devtools } from 'zustand/middleware';
 
 import { Emitter } from '../internal-3d/Emitter';
 import { GamepadInstance } from '../internal-input/Gamepad/GamepadInstance';
+import { GamepadManager, GamepadManagerEventMap } from '../internal-input/Gamepad/GamepadManager';
 
-export type GamepadEventMap = {
-  gamepadconnected: { gamepad: GamepadInstance };
-  gamepaddisconnected: { gamepad: GamepadInstance };
-};
+export type GamepadEventMap = GamepadManagerEventMap;
 
 export type GamepadState = {
   connectedGamepads: Map<number, GamepadInstance>;
@@ -15,11 +13,13 @@ export type GamepadState = {
   setConnectedGamepads: (gamepads: Map<number, GamepadInstance>) => void;
 };
 
+const gamepadManager = GamepadManager.getInstance();
+
 export const useGamepadStore = create<GamepadState>()(
   devtools(
     (set) => ({
-      connectedGamepads: new Map(),
-      gamepadEvents: new Emitter<GamepadEventMap>(),
+      connectedGamepads: gamepadManager.getConnectedGamepads(),
+      gamepadEvents: gamepadManager.events,
 
       setConnectedGamepads: (gamepads: Map<number, GamepadInstance>) =>
         set({ connectedGamepads: gamepads }),
@@ -30,24 +30,12 @@ export const useGamepadStore = create<GamepadState>()(
   )
 );
 
-function handleGamepadConnected(e: GamepadEvent) {
-  const { gamepadEvents, connectedGamepads, setConnectedGamepads } = useGamepadStore.getState();
-  gamepadEvents.trigger('gamepadconnected', { gamepad: new GamepadInstance(e.gamepad) });
-  // Add to connected gamepads state
-  setConnectedGamepads(
-    new Map(connectedGamepads).set(e.gamepad.index, new GamepadInstance(e.gamepad))
-  );
-}
+// Mirror GamepadManager's connected-gamepads map into the store so React
+// consumers re-render on connect/disconnect.
+gamepadManager.events.on('gamepadconnected', () => {
+  useGamepadStore.getState().setConnectedGamepads(gamepadManager.getConnectedGamepads());
+});
 
-function handleGamepadDisconnected(e: GamepadEvent) {
-  const { gamepadEvents, connectedGamepads, setConnectedGamepads } = useGamepadStore.getState();
-  gamepadEvents.trigger('gamepaddisconnected', { gamepad: new GamepadInstance(e.gamepad) });
-  // Remove from connected gamepads state
-  const updatedGamepads = new Map(connectedGamepads);
-  updatedGamepads.delete(e.gamepad.index);
-  setConnectedGamepads(updatedGamepads);
-}
-
-// Listen for gamepad connection events
-window.addEventListener('gamepadconnected', handleGamepadConnected);
-window.addEventListener('gamepaddisconnected', handleGamepadDisconnected);
+gamepadManager.events.on('gamepaddisconnected', () => {
+  useGamepadStore.getState().setConnectedGamepads(gamepadManager.getConnectedGamepads());
+});

@@ -1,5 +1,8 @@
+import { Input, PlayerInput } from '@tgdf';
+
 import { Entity, EntityOptions } from '../Entity';
 import { GameScene } from '../../scenes/GameScene/GameScene';
+import { PlayerRegisterableInputSource } from './PlayerRegisterableInputSource';
 
 export type PlayerOptions = EntityOptions;
 
@@ -10,19 +13,24 @@ export class Player extends Entity {
     scene: GameScene,
     public readonly options: PlayerOptions
   ) {
-    super(scene, options);
+    super(scene, {
+      ...options,
+      inputSource: new PlayerRegisterableInputSource(options.inputSource ?? Input),
+    });
   }
 
-  protected override onDamageTaken(): void {
-    this.scene.camera.addShake(0.5);
-
-    const { emitter } = this.scene.options;
-    emitter.trigger('player-damage-taken');
+  public override get inputSource(): PlayerRegisterableInputSource {
+    return super.inputSource as PlayerRegisterableInputSource;
   }
 
-  protected override onDeath(): void {
-    this.scene.camera.addShake(3);
-    const { emitter } = this.scene.options;
-    emitter.trigger('player-damage-taken');
+  protected override onDestroyed(): void {
+    const { source } = this.inputSource;
+    this.inputSource.dispose();
+
+    if (source instanceof PlayerInput) {
+      source.dispose();
+    }
+
+    super.onDestroyed();
   }
 }

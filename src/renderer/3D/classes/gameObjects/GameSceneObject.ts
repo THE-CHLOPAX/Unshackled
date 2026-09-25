@@ -7,8 +7,8 @@ export type GameSceneObjectConstructorOptions = GameObjectConstructorOptions & {
 };
 
 export class GameSceneObject extends GameObject {
-  constructor({ scene }: GameSceneObjectConstructorOptions) {
-    super({ scene });
+  constructor({ scene, skipUpdate, inputSource }: GameSceneObjectConstructorOptions) {
+    super({ scene, skipUpdate, inputSource });
   }
 
   public get scene(): GameScene {

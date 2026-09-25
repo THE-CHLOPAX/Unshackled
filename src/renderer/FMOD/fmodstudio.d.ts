@@ -3,6 +3,15 @@ export type FMODOutVal<T = unknown> = { val: T | undefined };
 
 export type FMODEventCallback = (type: number, event: FMODEventInstance) => number;
 
+export type FMODVector = { x: number; y: number; z: number };
+
+export interface FMOD3DAttributes {
+  position: FMODVector;
+  velocity: FMODVector;
+  forward: FMODVector;
+  up: FMODVector;
+}
+
 export interface FMODEventInstance {
   start(): number;
   stop(mode: number): number;
@@ -16,6 +25,7 @@ export interface FMODEventInstance {
   /** Drive a named parameter defined in FMOD Studio (e.g. intensity, distance). */
   setParameterByName(name: string, value: number, ignoreSeekSpeed: boolean): number;
   getParameterByName(name: string, outval: FMODOutVal<number>): number;
+  set3DAttributes(attributes: FMOD3DAttributes): number;
 }
 
 export type FMODEventInstanceWithPointer = FMODEventInstance & {
@@ -24,10 +34,21 @@ export type FMODEventInstanceWithPointer = FMODEventInstance & {
   };
 };
 
+export interface FMODParameterDescription {
+  name: string;
+  minimum: number;
+  maximum: number;
+  defaultvalue: number;
+  type: number;
+  flags: number;
+}
+
 export interface FMODEventDescription {
   createInstance(outval: FMODOutVal<FMODEventInstance>): number;
   loadSampleData(): number;
   getPath(outval: FMODOutVal<string>, size: number, retrieved: null): number;
+  getParameterDescriptionCount(outval: FMODOutVal<number>): number;
+  getParameterDescriptionByIndex(index: number, parameter: FMODParameterDescription): number;
 }
 
 export interface FMODBank {
@@ -63,6 +84,11 @@ export interface FMODStudioSystem {
   loadBankFile(filename: string, flags: number, outval: FMODOutVal<FMODBank>): number;
   getEvent(path: string, outval: FMODOutVal<FMODEventDescription>): number;
   update(): number;
+  setListenerAttributes(
+    listener: number,
+    attributes: FMOD3DAttributes,
+    attenuationposition: FMODVector | null
+  ): number;
 }
 
 /** The FMOD module object — passed as config, then populated with the full API on runtime init. */
@@ -78,6 +104,7 @@ export interface FMODObject {
   readonly OK: number;
   readonly STUDIO_INIT_NORMAL: number;
   readonly INIT_NORMAL: number;
+  readonly INIT_3D_RIGHTHANDED: number;
   readonly STUDIO_LOAD_BANK_NORMAL: number;
   readonly STUDIO_STOP_IMMEDIATE: number;
   readonly STUDIO_STOP_ALLOWFADEOUT: number;
@@ -86,6 +113,8 @@ export interface FMODObject {
 
   // ── Core API ───────────────────────────────────────────────────────────────
   ErrorString(result: number): string;
+  STUDIO_PARAMETER_DESCRIPTION(): FMODParameterDescription;
+  _3D_ATTRIBUTES(): FMOD3DAttributes;
   Studio_System_Create(outval: FMODOutVal<FMODStudioSystem>): number;
 
   // ── Audio context resume (call on first user gesture if audio is silent) ──

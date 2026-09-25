@@ -12,7 +12,7 @@ import {
 import { Emitter } from '../Emitter';
 import { Scene } from '../Scene/Scene';
 import { GAME_OBJECT_MESSAGES } from './constants';
-import { InputNotifiable } from '../../internal-input/Input';
+import { InputNotifiable, RegisterableInputSource } from '../../internal-input/Input';
 
 export class GameObject extends THREE.Object3D implements InputNotifiable {
   public readonly skipUpdate: boolean;
@@ -23,16 +23,18 @@ export class GameObject extends THREE.Object3D implements InputNotifiable {
   private _isAwake: boolean = false;
   private _isDestroyed: boolean = false;
   private _inputEnabled: boolean = true;
+  private _inputSource: RegisterableInputSource;
 
-  constructor({ scene, skipUpdate = false }: GameObjectConstructorOptions) {
+  constructor({ scene, skipUpdate = false, inputSource }: GameObjectConstructorOptions) {
     super();
     this._scene = scene;
     this.skipUpdate = skipUpdate;
     this._gameObjectComponents = new Map<string, GameObjectComponent>();
+    this._inputSource = inputSource ?? Input;
 
     this.addEventListener('added', this._onAwakeHandler);
 
-    Input.registerNotifiable(this);
+    this._inputSource.registerNotifiable(this);
   }
 
   public get scene(): Scene {
@@ -53,6 +55,10 @@ export class GameObject extends THREE.Object3D implements InputNotifiable {
 
   public get inputEnabled(): boolean {
     return this._inputEnabled;
+  }
+
+  public get inputSource(): RegisterableInputSource {
+    return this._inputSource;
   }
 
   public toggleInput(enabled: boolean): void {
@@ -107,15 +113,14 @@ export class GameObject extends THREE.Object3D implements InputNotifiable {
   }
 
   /**
-   * Unregisters from Input singleton and triggers the destroyed event.
+   * Unregisters from its input source and triggers the destroyed event.
    * Does not remove the 3D object from the parent.
    */
   public destroy(): void {
     if (this._isDestroyed) return;
     this._isDestroyed = true;
 
-    // Unregister from Input singleton
-    Input.unregisterNotifiable(this);
+    this._inputSource.unregisterNotifiable(this);
 
     this._emitter.trigger('destroyed');
     this._gameObjectComponents.clear();

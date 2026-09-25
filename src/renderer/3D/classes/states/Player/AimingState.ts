@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { Input, InputState, useAssetStore } from '@tgdf';
+import { InputState, useAssetStore } from '@tgdf';
 
 import { COLORS } from 'renderer/constants';
+import { FMOD_EVENTS } from 'renderer/FMOD';
 import { PlayerActionType } from 'renderer/3D/types';
 import { pixelateTexture } from 'renderer/3D/utils/pixelateTexture';
 
@@ -9,7 +10,6 @@ import { State } from '..';
 import { Player } from '../../gameObjects/players/Player';
 import { GameScene } from '../../scenes/GameScene/GameScene';
 import { AIMING_ARROW_TEXTURE, MATERIALS } from '../../../constants';
-import { mapInputToControls } from '../../../utils/mapInputToControls';
 import { ProjectileOptions, Projectile } from '../../gameObjects/Projectile';
 
 export type AimingProjectileConstructor = new (
@@ -59,7 +59,7 @@ export class AimingState extends State {
   public override onInput(_inputState: InputState): void {}
 
   public override onUpdate(_deltaTime: number): void {
-    const controlsStates = mapInputToControls(Input.getState());
+    const controlsStates = this.entity.inputSource.getControls();
 
     const isTriggerHeld = controlsStates.some(
       (controlState) => controlState.type === this._options.triggerInput
@@ -74,6 +74,7 @@ export class AimingState extends State {
         this._indicator = null;
       }
 
+      this.entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_SWOOSH);
       this.entity.animationController.playAnimation('throw', {
         clampWhenFinished: true,
         playbackRate: 2,

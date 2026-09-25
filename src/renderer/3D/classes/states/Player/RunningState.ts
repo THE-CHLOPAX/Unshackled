@@ -1,10 +1,11 @@
 import * as THREE from 'three';
-import { Input, InputState, logger } from '@tgdf';
+import { InputState, logger } from '@tgdf';
 
 import { State } from '..';
 import { AnimationClipNamesShared } from '../../../types';
 import { Player } from '../../gameObjects/players/Player';
-import { mapInputToControls } from '../../../utils/mapInputToControls';
+
+const FOOTSTEP_INTERVAL_MS = 400;
 
 export class RunningState extends State {
   constructor(public entity: Player) {
@@ -12,15 +13,19 @@ export class RunningState extends State {
   }
 
   public override onEnter(): void {
+    this.entity.fmodSoundController.startFootsteps({ intervalMs: FOOTSTEP_INTERVAL_MS });
+
     this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, { loop: true });
   }
 
-  public override onExit(): void {}
+  public override onExit(): void {
+    this.entity.fmodSoundController.stopFootsteps();
+  }
 
   public override onInput(_inputState: InputState): void {}
 
   public override onUpdate(_deltaTime: number): void {
-    const controlsStates = mapInputToControls(Input.getState());
+    const controlsStates = this.entity.inputSource.getControls();
     const movementState = controlsStates.find((controlState) => 'direction' in controlState);
 
     if (!movementState) return;

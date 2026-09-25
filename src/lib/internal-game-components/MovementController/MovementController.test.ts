@@ -10,8 +10,13 @@ import { RigidBody } from '../RigidBody';
 import { Scene } from '../../internal-3d/Scene/Scene';
 import { MockCamera } from '../../internal-3d/testUtils/MockCamera';
 import { GameObject } from '../../internal-3d/GameObject/GameObject';
-import { MovementController, ROTATION_LERP_FACTOR } from './MovementController';
 import { MOVE_TO_ARRIVAL_THRESHOLD, MOVEMENT_CONTROLLER_MESSAGES } from './constants';
+import {
+  DEFAULT_SPRINT_SPEED_MULTIPLIER,
+  DEFAULT_WALK_SPEED_MULTIPLIER,
+  MovementController,
+  ROTATION_LERP_FACTOR,
+} from './MovementController';
 
 class TestScene extends Scene {
   camera = new MockCamera();
@@ -54,6 +59,38 @@ function createMovementController(position = new THREE.Vector3(0, 0, 0)) {
 describe('MovementController', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  describe('speeds', () => {
+    it('exposes the configured speeds', () => {
+      const { controller } = createMovementController();
+
+      expect(controller.defaultSpeed).toBe(5);
+      expect(controller.sprintSpeed).toBe(10);
+      expect(controller.walkSpeed).toBe(2.5);
+    });
+
+    it('derives sprint and walk speeds from the default speed when omitted', () => {
+      const { gameObject, rigidBody } = createMovementController();
+
+      const controller = new MovementController(gameObject, rigidBody, { defaultSpeed: 4 });
+
+      expect(controller.sprintSpeed).toBe(4 * DEFAULT_SPRINT_SPEED_MULTIPLIER);
+      expect(controller.walkSpeed).toBe(4 * DEFAULT_WALK_SPEED_MULTIPLIER);
+    });
+
+    it('uses explicitly provided sprint and walk speeds', () => {
+      const { gameObject, rigidBody } = createMovementController();
+
+      const controller = new MovementController(gameObject, rigidBody, {
+        defaultSpeed: 4,
+        sprintSpeed: 7,
+        walkSpeed: 1,
+      });
+
+      expect(controller.sprintSpeed).toBe(7);
+      expect(controller.walkSpeed).toBe(1);
+    });
   });
 
   describe('moveTo', () => {

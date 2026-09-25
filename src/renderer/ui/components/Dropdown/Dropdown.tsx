@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { styled } from 'styled-components';
-import { useKeyPress, useClickOutside } from '@tgdf';
+import { useKeyPress, useClickOutside, KEYBOARD_MAPPINGS } from '@tgdf';
 
 import { Text } from '../Text/Text';
 import { COLORS } from '../../../constants';
@@ -40,7 +40,7 @@ export const Dropdown = ({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useKeyPress('Escape', () => setOpen(false));
+  useKeyPress(KEYBOARD_MAPPINGS.Escape, () => setOpen(false));
   useClickOutside(containerRef, () => setOpen(false), open);
 
   const selectedOption = options.find((option) => option.value === value);

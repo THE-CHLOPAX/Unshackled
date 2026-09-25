@@ -24,12 +24,16 @@ export { logger } from './internal-ui/utils/logger';
 
 // Internal Input
 export * from './internal-input/types';
+export * from './internal-input/constants';
+export * from './internal-input/PlayerInput';
 export * from './internal-input/hooks/useKeyPress';
 export * from './internal-input/hooks/useMouseButton';
 export * from './internal-input/Gamepad/GamepadInstance';
-export * from './internal-input/Gamepad/GamepadMappings';
+export * from './internal-input/Gamepad/GamepadManager';
+export * from './internal-input/hooks/useGamepadButtonPress';
 export * from './internal-input/hooks/useGamepadNavigation';
 export * from './internal-input/hooks/useGamepadIndicator';
+export type { InputNotifiable, RegisterableInputSource } from './internal-input/Input';
 
 const AppInput = Input.getInstance();
 export { AppInput as Input };

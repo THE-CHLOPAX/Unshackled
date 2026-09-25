@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import { devtools } from 'zustand/middleware';
-import { GamepadInstance, useGamepadStore } from '@tgdf';
+import { GamepadInstance, GamepadManager, useGamepadStore } from '@tgdf';
+
+export const MAX_PLAYERS = 4;
 
 export type ActivePlayerState = {
   id: string;
@@ -26,6 +28,7 @@ export type ActivePlayersState = {
     controls: 'keyboard' | 'gamepad',
     gamepadIndex?: number
   ) => void;
+  syncConnectedGamepads: () => void;
 };
 
 const initialBasePlayer: ActivePlayerState = {
@@ -69,7 +72,15 @@ export const useActivePlayersStore = create<ActivePlayersState>()(
         );
       },
 
-      setEnableAdditionalPlayers: (enabled: boolean) => set({ enableAdditionalPlayers: enabled }),
+      setEnableAdditionalPlayers: (enabled: boolean) => {
+        if (!enabled) {
+          set({ enableAdditionalPlayers: false, additionalPlayers: new Set() });
+          return;
+        }
+
+        set({ enableAdditionalPlayers: true });
+        get().syncConnectedGamepads();
+      },
 
       setAdditionalPlayers: (players: Set<ActivePlayerState>) => {
         set({
@@ -101,18 +112,39 @@ export const useActivePlayersStore = create<ActivePlayersState>()(
       },
 
       changePlayerControls: (playerId, controls, gamepadIndex) => {
-        const { basePlayer, additionalPlayers } = get();
+        const { basePlayer, additionalPlayers, getUnoccupiedGamepads, getKeyboardPlayers } = get();
+
+        let resolvedGamepadIndex = gamepadIndex;
+
+        if (controls === 'gamepad') {
+          const unoccupiedGamepad = getUnoccupiedGamepads().values().next().value;
+          if (!unoccupiedGamepad) return;
+          resolvedGamepadIndex = unoccupiedGamepad.gamepad.index;
+        }
+
+        if (controls === 'keyboard') {
+          const keyboardTakenByAnotherPlayer = Array.from(getKeyboardPlayers()).some(
+            (player) => player.id !== playerId
+          );
+          if (keyboardTakenByAnotherPlayer) return;
+          resolvedGamepadIndex = undefined;
+        }
+
         let updatedBasePlayer = basePlayer;
         const updatedAdditionalPlayers = new Set<ActivePlayerState>();
 
         if (basePlayer.id === playerId) {
-          updatedBasePlayer = { ...basePlayer, controls, gamepadIndex };
+          updatedBasePlayer = { ...basePlayer, controls, gamepadIndex: resolvedGamepadIndex };
           additionalPlayers.forEach((player) => updatedAdditionalPlayers.add(player));
         } else {
           updatedBasePlayer = { ...basePlayer };
           additionalPlayers.forEach((player) => {
             if (player.id === playerId) {
-              updatedAdditionalPlayers.add({ ...player, controls, gamepadIndex });
+              updatedAdditionalPlayers.add({
+                ...player,
+                controls,
+                gamepadIndex: resolvedGamepadIndex,
+              });
             } else {
               updatedAdditionalPlayers.add(player);
             }
@@ -124,6 +156,15 @@ export const useActivePlayersStore = create<ActivePlayersState>()(
           additionalPlayers: updatedAdditionalPlayers,
         });
       },
+
+      syncConnectedGamepads: () => {
+        GamepadManager.getInstance().scanForConnectedGamepads();
+
+        for (const gamepad of get().getUnoccupiedGamepads()) {
+          if (get().getActivePlayers().size >= MAX_PLAYERS) break;
+          registerGamepadPlayer(gamepad);
+        }
+      },
     }),
     {
       name: 'active-players-store',
@@ -131,9 +172,7 @@ export const useActivePlayersStore = create<ActivePlayersState>()(
   )
 );
 
-// Listen for gamepad connections to add new players, or switch base player to gamepad controls
-// if enableAdditionalPlayers is false and the base player doesn't already have gamepad controls.
-useGamepadStore.getState().gamepadEvents.on('gamepadconnected', ({ gamepad: gamepadInstance }) => {
+function registerGamepadPlayer(gamepadInstance: GamepadInstance): void {
   const {
     enableAdditionalPlayers,
     basePlayer,
@@ -141,6 +180,8 @@ useGamepadStore.getState().gamepadEvents.on('gamepadconnected', ({ gamepad: game
     setBasePlayer,
     getActivePlayers,
   } = useActivePlayersStore.getState();
+
+  if (getActivePlayers().size >= MAX_PLAYERS) return;
 
   if (!enableAdditionalPlayers) {
     // If base player doesn't have gamepad controls, switch them to the new gamepad
@@ -165,6 +206,12 @@ useGamepadStore.getState().gamepadEvents.on('gamepadconnected', ({ gamepad: game
   };
 
   useActivePlayersStore.setState({ additionalPlayers: new Set([...additionalPlayers, newPlayer]) });
+}
+
+// Listen for gamepad connections to add new players, or switch base player to gamepad controls
+// if enableAdditionalPlayers is false and the base player doesn't already have gamepad controls.
+useGamepadStore.getState().gamepadEvents.on('gamepadconnected', ({ gamepad }) => {
+  registerGamepadPlayer(gamepad);
 });
 
 // Listen for gamepad disconnections to remove players or switch to keyboard controls

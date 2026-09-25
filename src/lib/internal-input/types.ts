@@ -1,7 +1,4 @@
-import {
-  GamepadButton as GamepadButtonName,
-  GamepadAxis as GamepadAxisName,
-} from './Gamepad/GamepadMappings';
+import { GamepadButton as GamepadButtonName, GamepadAxis as GamepadAxisName } from './constants';
 
 export type KeyMatcher = string | string[] | ((e: KeyboardEvent) => boolean);
 

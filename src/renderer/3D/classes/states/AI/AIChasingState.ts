@@ -8,12 +8,20 @@ import { getTargetEnemy } from '../utils/getTargetEnemy';
 import { AIAttackAction, AnimationClipNamesShared } from '../../../types';
 
 const UPDATE_THROTTLE_INTERVAL_MS = 250;
+const FOOTSTEP_INTERVAL_MS = 370;
+
+export type AIChasingOptions = {
+  footstepEventPath: string;
+};
 
 export class AIChasingState extends State {
   private _bestAttack: AIAttackAction | null = null;
   private _pathfindingFailed = false;
 
-  constructor(public entity: EntityAI) {
+  constructor(
+    public entity: EntityAI,
+    public readonly options?: AIChasingOptions
+  ) {
     super(entity);
   }
 
@@ -26,12 +34,17 @@ export class AIChasingState extends State {
   }
 
   public onEnter(): void {
+    this.entity.fmodSoundController.startFootsteps({
+      intervalMs: FOOTSTEP_INTERVAL_MS,
+      eventPath: this.options?.footstepEventPath,
+    });
     this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, {
       loop: true,
     });
   }
 
   public onExit(): void {
+    this.entity.fmodSoundController.stopFootsteps();
     this.entity.movementController.resetMoveTo();
   }
 

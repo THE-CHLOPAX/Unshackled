@@ -51,14 +51,6 @@ export type ChainedAction = ActionWithSound & {
   };
 };
 
-export type AIRoamingOptions = {
-  radius: number;
-  interval: {
-    min: number;
-    max: number;
-  };
-};
-
 export type AIAttackOptions = {
   actions: AIAttackAction[];
 };
@@ -148,3 +140,16 @@ export type StateNode<S extends State = State> = StateNodeFor<S['entity'], S>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EntityClass = abstract new (...args: any[]) => Entity;
+
+export type StateMachineContext = {
+  entity: Entity;
+  currentState: State | null;
+};
+
+export type StateMachine = {
+  initialNode: StateNode;
+  onDamage(
+    ctx: StateMachineContext & { currentHealth: number; damageAmount: number }
+  ): StateNode | null;
+  onDeath(ctx: StateMachineContext): StateNode | null;
+};

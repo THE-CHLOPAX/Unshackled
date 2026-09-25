@@ -7,10 +7,13 @@ import { GameObject } from '../../internal-3d/GameObject/GameObject';
 import { MOVE_TO_ARRIVAL_THRESHOLD, MOVEMENT_CONTROLLER_MESSAGES } from './constants';
 
 export const ROTATION_LERP_FACTOR = 0.1;
+export const DEFAULT_SPRINT_SPEED_MULTIPLIER = 1.5;
+export const DEFAULT_WALK_SPEED_MULTIPLIER = 0.5;
 
 export type MovementControllerOptions = {
   defaultSpeed: number;
-  sprintSpeed: number;
+  sprintSpeed?: number;
+  walkSpeed?: number;
 };
 
 // Module scoped, allocated once to avoid allocating new vectors
@@ -24,6 +27,7 @@ export class MovementController extends GameObjectComponent<MovementControllerOp
   private _rigidBody: RigidBody;
   private _defaultSpeed: number;
   private _sprintSpeed: number;
+  private _walkSpeed: number;
 
   private _currentSpeed: number;
   private _movementDisabled: boolean = false;
@@ -44,13 +48,27 @@ export class MovementController extends GameObjectComponent<MovementControllerOp
 
     this._rigidBody = rigidBody;
     this._defaultSpeed = options.defaultSpeed;
-    this._sprintSpeed = options.sprintSpeed;
+    this._sprintSpeed =
+      options.sprintSpeed ?? options.defaultSpeed * DEFAULT_SPRINT_SPEED_MULTIPLIER;
+    this._walkSpeed = options.walkSpeed ?? options.defaultSpeed * DEFAULT_WALK_SPEED_MULTIPLIER;
     this._currentSpeed = this._defaultSpeed;
     this._currentMoveToSpeed = this._defaultSpeed;
   }
 
   public get currentSpeed(): number {
     return this._currentSpeed;
+  }
+
+  public get defaultSpeed(): number {
+    return this._defaultSpeed;
+  }
+
+  public get sprintSpeed(): number {
+    return this._sprintSpeed;
+  }
+
+  public get walkSpeed(): number {
+    return this._walkSpeed;
   }
 
   public get velocity(): THREE.Vector3 {

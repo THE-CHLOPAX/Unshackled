@@ -1,7 +1,13 @@
 export const FMOD_EVENTS = {
-  MUSIC_SYSTEM: 'event:/Music/Music System',
-  HURT: 'event:/SFX/Take Damage',
-  ATTACK: 'event:/SFX/Attack',
+  MONK_ATTACK_3: 'event:/SFX/Player/Attack no. 3',
+  GENERIC_HIT: 'event:/SFX/Player/Hit',
+  GENERIC_FOOTSTEP: 'event:/SFX/Player/Footstep',
+  GENERIC_DASH: 'event:/SFX/Player/Dash',
+  GENERIC_SWOOSH: 'event:/SFX/Player/Attack',
+  SKELETON_FOOTSTEP: 'event:/SFX/Enemies/Skeleton/Footstep',
+  SKELETON_ATTACK: 'event:/SFX/Enemies/Skeleton/Attack',
+  SKELETON_DEATH: 'event:/SFX/Enemies/Skeleton/Death',
+  SKELETON_SPAWN: 'event:/SFX/Enemies/Skeleton/Spawn',
 };
 
 export const MESSAGES = {
@@ -18,7 +24,10 @@ export const MESSAGES = {
   EVENT_COUNT_NOT_FOUND: '[FMOD] Event count not found',
   EVENT_LIST_NOT_FOUND: '[FMOD] Event list not found',
   EVENT_PATH_NOT_FOUND: '[FMOD] Event path not found',
-  EVENT_PATHS_LABEL: '[FMOD] Event Paths',
+  AVAILABLE_EVENTS_LABEL: '[FMOD] Available Events',
+  PARAMETER_COUNT_NOT_FOUND: '[FMOD] Parameter count not found',
+  PARAMETER_NOT_SET: (eventPath: string, name: string, error: string) =>
+    `[FMOD] Failed to set parameter "${name}" on "${eventPath}": ${error}`,
   BANK_NOT_LOADED: '[FMOD] Bank not loaded',
   BANK_LOAD_FAILED: (url: string, error: unknown) =>
     `[FMOD] Failed to load bank "${url}": ${error}`,

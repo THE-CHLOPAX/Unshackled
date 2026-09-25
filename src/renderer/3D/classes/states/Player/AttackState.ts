@@ -1,10 +1,10 @@
 import { gsap } from 'gsap';
-import { InputState, MAIN_SOUND_CHANNEL } from '@tgdf';
+import { InputState } from '@tgdf';
 
 import { State } from '..';
 import { ChainedAction } from '../../../types';
+import { FMODEventInstance } from '../../../../FMOD';
 import { Player } from '../../gameObjects/players/Player';
-import { FMODAudio, FMODEventInstance } from '../../../../FMOD';
 
 export class AttackState extends State {
   private _attackInProgress = false;
@@ -37,10 +37,7 @@ export class AttackState extends State {
 
   public override onEnter(): void {
     if (this._attackAction.soundPath !== undefined) {
-      this._eventInstance = FMODAudio.playEventInSoundChannel({
-        eventPath: this._attackAction.soundPath,
-        channelId: MAIN_SOUND_CHANNEL,
-      });
+      this._eventInstance = this.entity.fmodSoundController.playSound(this._attackAction.soundPath);
     }
 
     this._attackInProgress = true;
@@ -57,7 +54,7 @@ export class AttackState extends State {
 
   public override onExit(): void {
     if (this._eventInstance !== null) {
-      FMODAudio.stopEvent(this._eventInstance);
+      this.entity.fmodSoundController.stopSound(this._eventInstance);
       this._eventInstance = null;
     }
 
@@ -69,7 +66,16 @@ export class AttackState extends State {
 
   public override onInput(_inputState: InputState): void {}
 
-  public override onUpdate(_deltaTime: number): void {}
+  public override onUpdate(_deltaTime: number): void {
+    const controlsStates = this.entity.inputSource.getControls();
+    const movementState = controlsStates.find((controlState) => 'direction' in controlState);
+
+    if (!movementState) return;
+
+    const targetPosition = this.entity.position.clone().add(movementState.direction);
+
+    this.entity.movementController.rotateTowardsPosition(targetPosition);
+  }
 
   private _startChainWindow(): void {
     const chain = this._attackAction.chain;

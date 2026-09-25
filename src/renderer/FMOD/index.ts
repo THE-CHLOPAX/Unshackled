@@ -1,6 +1,7 @@
 import { FMODAudio } from './FMODAudio';
 
 export type {
+  FMOD3DAttributes,
   FMODBank,
   FMODCoreSystem,
   FMODEventDescription,
@@ -8,7 +9,9 @@ export type {
   FMODObject,
   FMODOutVal,
   FMODStudioSystem,
+  FMODVector,
 } from './fmodstudio';
+export type { FMODPlayEventOptions } from './FMODAudio';
 
 const fmodAudio = FMODAudio.getInstance();
 
