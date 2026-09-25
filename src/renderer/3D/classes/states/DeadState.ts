@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { InputState, MAIN_SOUND_CHANNEL } from '@tgdf';
+import { InputState } from '@tgdf';
 
 import { State } from '.';
 import { Entity } from '../gameObjects/Entity';
+import { FMODEventInstance } from '../../../FMOD';
 import { AnimationClipNamesShared } from '../../types';
-import { FMODAudio, FMODEventInstance, FMOD_EVENTS } from '../../../FMOD';
 
 export class DeadState extends State {
   private _eventInstance: FMODEventInstance | null = null;
@@ -16,10 +16,7 @@ export class DeadState extends State {
   public onEnter(): void {
     this.entity.rigidBody.setSensor(true);
     this.entity.rigidBody.setLinearVelocity(new THREE.Vector3(0, 0, 0));
-    this._eventInstance = FMODAudio.playEventInSoundChannel({
-      eventPath: FMOD_EVENTS.HURT,
-      channelId: MAIN_SOUND_CHANNEL,
-    });
+
     this.entity.animationController.playAnimation(AnimationClipNamesShared.FALL, {
       loop: false,
       clampWhenFinished: true,
@@ -28,7 +25,6 @@ export class DeadState extends State {
 
   public onExit(): void {
     if (this._eventInstance === null) return;
-    FMODAudio.stopEvent(this._eventInstance);
     this._eventInstance = null;
   }
 

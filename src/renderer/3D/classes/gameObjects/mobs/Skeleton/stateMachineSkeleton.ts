@@ -1,3 +1,4 @@
+import { FMOD_EVENTS } from 'renderer/FMOD';
 import { AIRoamingOptions, StateNode } from '3D/types';
 import { shouldChase } from '3D/classes/states/utils/shouldChase';
 import { shouldAttack } from '3D/classes/states/utils/shouldAttack';
@@ -29,7 +30,8 @@ const aiAttackStateNode: StateNode<AIAttackState> = {
 };
 
 const aiChasingStateNode: StateNode<AIChasingState> = {
-  state: (entity) => new AIChasingState(entity),
+  state: (entity) =>
+    new AIChasingState(entity, { footstepEventPath: FMOD_EVENTS.SKELETON_FOOTSTEP }),
   onUpdate: ({ entity, currentState }) => {
     if (!currentState.bestAttack) return aiIdleStateNode;
     if (shouldAttack(entity, currentState.bestAttack)) return aiAttackStateNode;

@@ -24,10 +24,21 @@ export type FMODEventInstanceWithPointer = FMODEventInstance & {
   };
 };
 
+export interface FMODParameterDescription {
+  name: string;
+  minimum: number;
+  maximum: number;
+  defaultvalue: number;
+  type: number;
+  flags: number;
+}
+
 export interface FMODEventDescription {
   createInstance(outval: FMODOutVal<FMODEventInstance>): number;
   loadSampleData(): number;
   getPath(outval: FMODOutVal<string>, size: number, retrieved: null): number;
+  getParameterDescriptionCount(outval: FMODOutVal<number>): number;
+  getParameterDescriptionByIndex(index: number, parameter: FMODParameterDescription): number;
 }
 
 export interface FMODBank {
@@ -86,6 +97,7 @@ export interface FMODObject {
 
   // ── Core API ───────────────────────────────────────────────────────────────
   ErrorString(result: number): string;
+  STUDIO_PARAMETER_DESCRIPTION(): FMODParameterDescription;
   Studio_System_Create(outval: FMODOutVal<FMODStudioSystem>): number;
 
   // ── Audio context resume (call on first user gesture if audio is silent) ──

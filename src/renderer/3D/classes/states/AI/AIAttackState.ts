@@ -1,4 +1,6 @@
-import { InputState } from '@tgdf';
+import { InputState, MAIN_SOUND_CHANNEL } from '@tgdf';
+
+import { FMODAudio, FMODEventInstance } from 'renderer/FMOD';
 
 import { State } from '..';
 import { AIAttackAction } from '../../../types';
@@ -10,6 +12,7 @@ import { getTargetEnemy } from '../utils/getTargetEnemy';
 export class AIAttackState extends State {
   private _isAttacking: boolean = false;
   private _bestAttack: AIAttackAction | null = null;
+  private _eventInstance: FMODEventInstance | null = null;
 
   constructor(public entity: EntityAI) {
     super(entity);
@@ -26,6 +29,10 @@ export class AIAttackState extends State {
   public onEnter(): void {}
 
   public onExit(): void {
+    if (this._eventInstance !== null) {
+      FMODAudio.stopEvent(this._eventInstance);
+      this._eventInstance = null;
+    }
     this.entity.damageHitboxController.clearHitboxEvents();
   }
 
@@ -50,6 +57,12 @@ export class AIAttackState extends State {
   public onInput(_inputState: InputState): void {}
 
   private _performAttack(bestAttack: AIAttackAction): void {
+    if (bestAttack.soundPath !== undefined) {
+      this._eventInstance = FMODAudio.playEventInSoundChannel({
+        eventPath: bestAttack.soundPath,
+        channelId: MAIN_SOUND_CHANNEL,
+      });
+    }
     this._isAttacking = true;
     bestAttack.action(this.entity).then(() => {
       this._isAttacking = false;

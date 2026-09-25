@@ -3,6 +3,7 @@ import type {
   FMODEventInstance,
   FMODEventDescription,
   FMODObject,
+  FMODParameterDescription,
   FMODOutVal,
   FMODBank,
   FMODStudioSystem,
@@ -16,15 +17,11 @@ import FMODModuleFactory from './fmodstudio';
 import { fetchBankBinary } from './utils/fetchBankBinary';
 import { fmodCheckOrThrow } from './utils/fmodCheckOrThrow';
 import { getInstancePointer } from './utils/getInstancePointer';
+import { formatParameterDescription } from './utils/formatParameterDescription';
 
 export type FMODPlayEventOptions = {
   playbackRate?: number;
   volume?: number;
-  parameters?: Record<string, number>;
-};
-
-export type FMODPlayEventInChannelOptions = {
-  playbackRate?: number;
   parameters?: Record<string, number>;
 };
 
@@ -164,7 +161,7 @@ export class FMODAudio {
     if (options?.playbackRate) {
       fmodCheckOrThrow(this._fmod, instanceOut.val.setPitch(options.playbackRate));
     }
-    if (options?.volume) {
+    if (options?.volume !== undefined) {
       fmodCheckOrThrow(this._fmod, instanceOut.val.setVolume(options.volume));
     }
     if (options?.parameters) {
@@ -187,7 +184,7 @@ export class FMODAudio {
   }: {
     eventPath: string;
     channelId: string;
-    options?: FMODPlayEventInChannelOptions;
+    options?: FMODPlayEventOptions;
   }): FMODEventInstance | null {
     const instance = this.playEvent({ eventPath, options });
 
@@ -196,13 +193,15 @@ export class FMODAudio {
       return null;
     }
 
+    const eventVolume = options?.volume ?? 1;
+
     const applyChannel = () => {
       const channel = useSoundsStore.getState().soundChannels.get(channelId);
       if (channel) {
         if (channel.muted) {
           instance.setVolume(0);
         } else {
-          instance.setVolume(channel.volume);
+          instance.setVolume(channel.volume * eventVolume);
         }
       }
     };
@@ -250,8 +249,8 @@ export class FMODAudio {
     this._system?.update();
   }
 
-  public logEventPaths(): void {
-    const eventPaths: string[] = [];
+  public logAvailableEvents(): void {
+    const eventLines: string[] = [];
     const banks = Array.from(this._banks.values());
 
     for (const bank of banks) {
@@ -270,17 +269,35 @@ export class FMODAudio {
         const pathOut = fmodOut<string>();
         fmodCheckOrThrow(this._fmod, desc.getPath(pathOut, 256, null));
         assert(pathOut.val !== undefined, MESSAGES.EVENT_PATH_NOT_FOUND);
-        eventPaths.push(pathOut.val);
+        eventLines.push(pathOut.val);
+
+        for (const parameter of this._getParameterDescriptions(desc)) {
+          eventLines.push(`  ${formatParameterDescription(parameter)}`);
+        }
       }
     }
 
     logger({
-      group: { label: MESSAGES.EVENT_PATHS_LABEL, body: eventPaths.join('\n') },
+      group: { label: MESSAGES.AVAILABLE_EVENTS_LABEL, body: eventLines.join('\n') },
       type: 'info',
     });
   }
 
   // ── Private ──────────────────────────────────────────────────────────────
+
+  private _getParameterDescriptions(desc: FMODEventDescription): FMODParameterDescription[] {
+    const countOut = fmodOut<number>();
+    fmodCheckOrThrow(this._fmod, desc.getParameterDescriptionCount(countOut));
+    assert(countOut.val !== undefined, MESSAGES.PARAMETER_COUNT_NOT_FOUND);
+
+    const parameters: FMODParameterDescription[] = [];
+    for (let index = 0; index < countOut.val; index++) {
+      const parameter = this._fmod.STUDIO_PARAMETER_DESCRIPTION();
+      fmodCheckOrThrow(this._fmod, desc.getParameterDescriptionByIndex(index, parameter));
+      parameters.push(parameter);
+    }
+    return parameters;
+  }
 
   private async _loadBank(url: string, bankName: string, system: FMODStudioSystem): Promise<void> {
     try {

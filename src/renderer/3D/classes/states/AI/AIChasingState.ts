@@ -2,18 +2,28 @@ import { InputState, throttleWithLastValue } from '@tgdf';
 
 import { State } from '..';
 import { shouldAttack } from '../utils/shouldAttack';
+import { playFootstep } from '../utils/playFootstep';
 import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from '../utils/getBestAttack';
 import { getTargetEnemy } from '../utils/getTargetEnemy';
 import { AIAttackAction, AnimationClipNamesShared } from '../../../types';
 
 const UPDATE_THROTTLE_INTERVAL_MS = 250;
+const FOOTSTEP_INTERVAL_MS = 370;
+
+export type AIChasingOptions = {
+  footstepEventPath: string;
+};
 
 export class AIChasingState extends State {
   private _bestAttack: AIAttackAction | null = null;
   private _pathfindingFailed = false;
+  private _footstepSoundEventInterval: NodeJS.Timeout | null = null;
 
-  constructor(public entity: EntityAI) {
+  constructor(
+    public entity: EntityAI,
+    public readonly options?: AIChasingOptions
+  ) {
     super(entity);
   }
 
@@ -26,12 +36,19 @@ export class AIChasingState extends State {
   }
 
   public onEnter(): void {
+    this._playFootstep();
+    this._footstepSoundEventInterval = setInterval(() => {
+      this._playFootstep();
+    }, FOOTSTEP_INTERVAL_MS);
     this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, {
       loop: true,
     });
   }
 
   public onExit(): void {
+    if (this._footstepSoundEventInterval) {
+      clearInterval(this._footstepSoundEventInterval);
+    }
     this.entity.movementController.resetMoveTo();
   }
 
@@ -66,4 +83,8 @@ export class AIChasingState extends State {
     UPDATE_THROTTLE_INTERVAL_MS,
     undefined
   );
+
+  private _playFootstep(): void {
+    playFootstep({ eventPath: this.options?.footstepEventPath, options: { volume: 0.15 } });
+  }
 }

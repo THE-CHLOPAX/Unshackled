@@ -1,6 +1,7 @@
 import type {
   FMODEventInstance,
   FMODEventDescription,
+  FMODParameterDescription,
   FMODEventCallback,
   FMODBank,
   FMODObject,
@@ -68,6 +69,21 @@ function makeMocks(instanceMock: Mock<FMODEventInstance>) {
       out.val = 'event:/Test/Event';
       return OK;
     }),
+    getParameterDescriptionCount: vi.fn((out: FMODOutVal<number>) => {
+      out.val = 1;
+      return OK;
+    }),
+    getParameterDescriptionByIndex: vi.fn((_index: number, parameter: FMODParameterDescription) => {
+      Object.assign(parameter, {
+        name: 'Intensity',
+        minimum: 0,
+        maximum: 1,
+        defaultvalue: 0.5,
+        type: 0,
+        flags: 0x08,
+      });
+      return OK;
+    }),
   };
 
   const bank = {
@@ -102,6 +118,7 @@ function makeMocks(instanceMock: Mock<FMODEventInstance>) {
     STUDIO_EVENT_CALLBACK_STOPPED,
     ErrorString: () => '',
     FS_createDataFile: vi.fn(),
+    STUDIO_PARAMETER_DESCRIPTION: () => ({}) as FMODParameterDescription,
   };
 
   return { desc, bank, system, fmod };
@@ -286,8 +303,8 @@ describe('FMODAudio', () => {
     });
   });
 
-  describe('logEventPaths', () => {
-    it('iterates all banks and logs their event paths', () => {
+  describe('logAvailableEvents', () => {
+    it('iterates all banks and logs their event paths with parameters', () => {
       const m = buildInstanceMock();
       const { bank, system, fmod } = makeMocks(m);
       const audio = FMODAudio.getInstance({
@@ -297,11 +314,17 @@ describe('FMODAudio', () => {
       audio['_initialized'] = true;
       audio['_banks'] = new Map([['Master.bank', bank as FMODBank]]);
 
-      audio.logEventPaths();
+      audio.logAvailableEvents();
 
       expect(bank.getEventCount).toHaveBeenCalled();
       expect(bank.getEventList).toHaveBeenCalled();
-      expect(vi.mocked(logger)).toHaveBeenCalledWith(expect.objectContaining({ type: 'info' }));
+      expect(vi.mocked(logger)).toHaveBeenCalledWith({
+        group: {
+          label: '[FMOD] Available Events',
+          body: 'event:/Test/Event\n  Intensity: 0 to 1 (default 0.5) [discrete]',
+        },
+        type: 'info',
+      });
     });
   });
 
@@ -318,6 +341,51 @@ describe('FMODAudio', () => {
       audio.playEventInSoundChannel({ eventPath: 'event:/Sfx/Amb', channelId: CHANNEL });
 
       m.verify((x) => x.setVolume(0.6), Times.Once());
+    });
+
+    it('multiplies the channel volume by the volume from options', () => {
+      const m = buildInstanceMock();
+      const { audio } = wireAudio(m);
+      vi.mocked(useSoundsStore.getState).mockReturnValue({
+        soundChannels: new Map([[CHANNEL, { id: CHANNEL, volume: 0.5, muted: false }]]),
+      } as never);
+
+      audio.playEventInSoundChannel({
+        eventPath: 'event:/Sfx/Amb',
+        channelId: CHANNEL,
+        options: { volume: 0.4 },
+      });
+
+      m.verify((x) => x.setVolume(0.2), Times.Once());
+    });
+
+    it('keeps the volume from options when the channel volume changes', () => {
+      const m = buildInstanceMock();
+      const { audio } = wireAudio(m);
+      const channels = { volume: 0.5 };
+      vi.mocked(useSoundsStore.getState).mockImplementation(
+        () =>
+          ({
+            soundChannels: new Map([
+              [CHANNEL, { id: CHANNEL, volume: channels.volume, muted: false }],
+            ]),
+          }) as never
+      );
+      let onStoreChange: () => void = () => {};
+      vi.mocked(useSoundsStore.subscribe).mockImplementation((listener) => {
+        onStoreChange = listener as () => void;
+        return () => {};
+      });
+
+      audio.playEventInSoundChannel({
+        eventPath: 'event:/Sfx/Amb',
+        channelId: CHANNEL,
+        options: { volume: 0.5 },
+      });
+      channels.volume = 0.8;
+      onStoreChange();
+
+      m.verify((x) => x.setVolume(0.4), Times.Once());
     });
 
     it('sets volume to 0 when the channel is muted', () => {

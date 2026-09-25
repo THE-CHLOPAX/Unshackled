@@ -1,6 +1,7 @@
 import { gsap } from 'gsap';
 import * as THREE from 'three';
 
+import { FMOD_EVENTS } from 'renderer/FMOD';
 import { spawnSwingTrail } from '3D/utils/spawnSwingTrail';
 
 import { Player } from '../Player';
@@ -26,6 +27,7 @@ function applyForwardImpulse(entity: Entity, strength: number): void {
 }
 
 export const kick: ActionWithSound = {
+  soundPath: FMOD_EVENTS.MONK_ATTACK_3,
   action: (entity: Entity) =>
     new Promise<void>((resolve) => {
       const HITBOX_DELAY = 0.2; // Delay in seconds before the hitbox is attached
@@ -73,6 +75,7 @@ export const kick: ActionWithSound = {
 };
 
 export const punchLeft: ChainedAction = {
+  soundPath: FMOD_EVENTS.GENERIC_SWOOSH,
   action: (entity: Entity) =>
     new Promise<void>((resolve) => {
       const HITBOX_DELAY = 0.1;
@@ -125,10 +128,11 @@ export const punchLeft: ChainedAction = {
 };
 
 export const punchRight: ChainedAction = {
+  soundPath: FMOD_EVENTS.GENERIC_SWOOSH,
   action: (entity: Entity) =>
     new Promise<void>((resolve) => {
-      const HITBOX_DELAY = 0;
-      const HITBOX_DURATION = 0.4;
+      const HITBOX_DELAY = 0.15;
+      const HITBOX_DURATION = 0.25;
 
       entity.damageHitboxController.hitboxTimeline = gsap
         .timeline()

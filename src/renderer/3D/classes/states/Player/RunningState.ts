@@ -2,19 +2,33 @@ import * as THREE from 'three';
 import { InputState, logger } from '@tgdf';
 
 import { State } from '..';
+import { playFootstep } from '../utils/playFootstep';
 import { AnimationClipNamesShared } from '../../../types';
 import { Player } from '../../gameObjects/players/Player';
 
+const FOOTSTEP_INTERVAL_MS = 400;
+
 export class RunningState extends State {
+  protected footstepSoundEventInterval: NodeJS.Timeout | null = null;
+
   constructor(public entity: Player) {
     super(entity);
   }
 
   public override onEnter(): void {
+    this.playFootstep();
+    this.footstepSoundEventInterval = setInterval(() => {
+      this.playFootstep();
+    }, FOOTSTEP_INTERVAL_MS);
+
     this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, { loop: true });
   }
 
-  public override onExit(): void {}
+  public override onExit(): void {
+    if (this.footstepSoundEventInterval) {
+      clearInterval(this.footstepSoundEventInterval);
+    }
+  }
 
   public override onInput(_inputState: InputState): void {}
 
@@ -54,5 +68,16 @@ export class RunningState extends State {
     rotatedMove.addScaledVector(cameraForward, -moveVector.z);
 
     this.entity.movementController.move(rotatedMove);
+  }
+
+  protected playFootstep() {
+    return playFootstep({
+      options: {
+        parameters: {
+          surface: 1,
+        },
+        volume: 0.15,
+      },
+    });
   }
 }

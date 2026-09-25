@@ -1,10 +1,17 @@
 import * as THREE from 'three';
-import { MovementController, RegisterableInputSource, RigidBody, RigidBodyOptions } from '@tgdf';
+import {
+  MAIN_SOUND_CHANNEL,
+  MovementController,
+  RegisterableInputSource,
+  RigidBody,
+  RigidBodyOptions,
+} from '@tgdf';
 
 import { StateNode } from '3D/types';
 import { COLORS } from 'renderer/constants';
 import { DeadState } from '3D/classes/states';
 import { flashMaterial } from '3D/utils/flashMaterial';
+import { FMOD_EVENTS, FMODAudio } from 'renderer/FMOD';
 
 import { GameSceneObject } from './GameSceneObject';
 import { GameScene } from '../scenes/GameScene/GameScene';
@@ -143,11 +150,19 @@ export class Entity extends GameSceneObject {
 
   private _onDamageTaken = (): void => {
     this.onDamageTaken();
+    FMODAudio.playEventInSoundChannel({
+      eventPath: FMOD_EVENTS.GENERIC_HIT,
+      channelId: MAIN_SOUND_CHANNEL,
+    });
     this._flashRed();
   };
 
   private _onDeath = (): void => {
     this._flashRed();
+    FMODAudio.playEventInSoundChannel({
+      eventPath: FMOD_EVENTS.GENERIC_HIT,
+      channelId: MAIN_SOUND_CHANNEL,
+    });
     this.stateController.requestTransition(new DeadState(this));
     this.onDeath();
   };
