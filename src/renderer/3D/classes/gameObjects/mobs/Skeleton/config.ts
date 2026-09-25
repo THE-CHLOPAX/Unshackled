@@ -13,7 +13,7 @@ export const config: EntityAIOptions = {
     scale: new THREE.Vector3(0.012, 0.012, 0.012),
   },
   movementOptions: {
-    speed: 2.5,
+    defaultSpeed: 2.5,
     sprintSpeed: 4,
     walkSpeed: 0.3,
   },

@@ -1,15 +1,19 @@
 import * as THREE from 'three';
-import { MovementController, RegisterableInputSource, RigidBody, RigidBodyOptions } from '@tgdf';
+import {
+  MovementController,
+  MovementControllerOptions,
+  RegisterableInputSource,
+  RigidBody,
+  RigidBodyOptions,
+} from '@tgdf';
 
-import { StateNode } from '3D/types';
-import { COLORS } from 'renderer/constants';
-import { DeadState } from '3D/classes/states';
-import { flashMaterial } from '3D/utils/flashMaterial';
+import { StateMachine } from '3D/types';
 
 import { GameSceneObject } from './GameSceneObject';
 import { GameScene } from '../scenes/GameScene/GameScene';
 import { StateController } from '../gameObjectComponents/StateController';
 import { CooldownController } from '../gameObjectComponents/CooldownController';
+import { FMODSoundController } from '../gameObjectComponents/FMODSoundController';
 import { DamageHitboxController } from '../gameObjectComponents/DamageHitboxController';
 import {
   ModelRenderer,
@@ -28,20 +32,14 @@ import {
   AnimationControllerOptions,
 } from '../gameObjectComponents/AnimationController/AnimationController';
 
-export type EntityMovementOptions = {
-  speed?: number;
-  sprintSpeed?: number;
-  walkSpeed?: number;
-};
-
 export type EntityOptions = {
   modelOptions: ModelRendererOptions;
   healthOptions: HealthPointsControllerOptions;
   healthBarOptions?: HealthBarRendererOptions;
   rigidBodyOptions?: RigidBodyOptions;
   animationControllerOptions?: AnimationControllerOptions;
-  movementOptions?: EntityMovementOptions;
-  stateMachine: StateNode;
+  movementOptions?: MovementControllerOptions;
+  stateMachine: StateMachine;
   inputSource?: RegisterableInputSource;
 };
 
@@ -54,12 +52,10 @@ export class Entity extends GameSceneObject {
   public animationController: AnimationController;
   public damageHitboxController: DamageHitboxController;
   public cooldownController: CooldownController;
+  public fmodSoundController: FMODSoundController;
   public healthPointsController: HealthPointsController;
   public healthBarRenderer: HealthBarRenderer;
   public movementController: MovementController;
-  public defaultSpeed: number;
-  public sprintSpeed: number;
-  public walkSpeed: number;
 
   private _spawnPosition: THREE.Vector3 = new THREE.Vector3();
 
@@ -68,11 +64,6 @@ export class Entity extends GameSceneObject {
     public options: EntityOptions
   ) {
     super({ scene, inputSource: options.inputSource });
-
-    const speed = options.movementOptions?.speed ?? 0;
-    this.defaultSpeed = speed;
-    this.sprintSpeed = options.movementOptions?.sprintSpeed ?? speed * 1.5;
-    this.walkSpeed = options.movementOptions?.walkSpeed ?? speed * 0.5;
 
     this.modelRenderer = this.addComponent(
       'ModelRenderer',
@@ -91,10 +82,7 @@ export class Entity extends GameSceneObject {
 
     this.movementController = this.addComponent(
       'MovementController',
-      new MovementController(this, this.rigidBody, {
-        defaultSpeed: this.defaultSpeed,
-        sprintSpeed: this.sprintSpeed,
-      })
+      new MovementController(this, this.rigidBody, options.movementOptions ?? { defaultSpeed: 0 })
     );
 
     this.healthPointsController = this.addComponent(
@@ -114,13 +102,15 @@ export class Entity extends GameSceneObject {
 
     this.cooldownController = this.addComponent('CooldownController', new CooldownController(this));
 
-    this.stateController = this.addComponent(
-      'StateController',
-      new StateController(this, this.options.stateMachine)
+    this.fmodSoundController = this.addComponent(
+      'FMODSoundController',
+      new FMODSoundController(this)
     );
 
-    this.healthPointsController.events.on('damagetaken', this._onDamageTaken);
-    this.healthPointsController.events.on('death', this._onDeath);
+    this.stateController = this.addComponent(
+      'StateController',
+      new StateController(this, this.options.stateMachine, this.healthPointsController)
+    );
   }
 
   public get spawnPosition(): THREE.Vector3 {
@@ -130,34 +120,4 @@ export class Entity extends GameSceneObject {
   protected override onAwake(): void {
     this._spawnPosition.copy(this.position);
   }
-
-  protected override onDestroyed(): void {
-    this.healthPointsController.events.off('damagetaken', this._onDamageTaken);
-    this.healthPointsController.events.off('death', this._onDeath);
-    super.onDestroyed();
-  }
-
-  protected onDamageTaken(): void {}
-
-  protected onDeath(): void {}
-
-  private _onDamageTaken = (): void => {
-    this.onDamageTaken();
-    this._flashRed();
-  };
-
-  private _onDeath = (): void => {
-    this._flashRed();
-    this.stateController.requestTransition(new DeadState(this));
-    this.onDeath();
-  };
-
-  private _flashRed = (): void => {
-    flashMaterial({
-      entity: this,
-      material: new THREE.MeshBasicMaterial({ color: COLORS.RED }),
-      duration: 0.1,
-      fadeOut: { duration: 0.15 },
-    });
-  };
 }

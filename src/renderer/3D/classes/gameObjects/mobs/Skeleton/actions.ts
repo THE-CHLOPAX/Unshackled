@@ -14,7 +14,7 @@ export enum SkeletonAttackAnimations {
 export const attackActions: AIAttackAction[] = [
   {
     action: punch,
-    soundPath: FMOD_EVENTS.ATTACK,
+    soundPath: FMOD_EVENTS.SKELETON_ATTACK,
     minRange: 0,
     maxRange: 2,
   },

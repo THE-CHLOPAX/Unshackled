@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { InputState, useAssetStore } from '@tgdf';
 
 import { COLORS } from 'renderer/constants';
+import { FMOD_EVENTS } from 'renderer/FMOD';
 import { PlayerActionType } from 'renderer/3D/types';
 import { pixelateTexture } from 'renderer/3D/utils/pixelateTexture';
 
@@ -73,6 +74,7 @@ export class AimingState extends State {
         this._indicator = null;
       }
 
+      this.entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_SWOOSH);
       this.entity.animationController.playAnimation('throw', {
         clampWhenFinished: true,
         playbackRate: 2,

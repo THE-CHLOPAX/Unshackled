@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 
+import { FMOD_EVENTS } from 'renderer/FMOD';
+
 import { State } from '.';
 import { Player } from '../gameObjects/players/Player';
 
@@ -28,6 +30,8 @@ export class DashState extends State {
     this.entity.rigidBody.setSensor(true);
     // Freeze the dash heading on entry - direction is locked for the whole dash.
     this.entity.getWorldDirection(this._direction);
+
+    this.entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_DASH);
 
     this._durationTimeout = setTimeout(() => {
       this._dashComplete = true;

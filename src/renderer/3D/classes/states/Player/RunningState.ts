@@ -5,16 +5,22 @@ import { State } from '..';
 import { AnimationClipNamesShared } from '../../../types';
 import { Player } from '../../gameObjects/players/Player';
 
+const FOOTSTEP_INTERVAL_MS = 400;
+
 export class RunningState extends State {
   constructor(public entity: Player) {
     super(entity);
   }
 
   public override onEnter(): void {
+    this.entity.fmodSoundController.startFootsteps({ intervalMs: FOOTSTEP_INTERVAL_MS });
+
     this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, { loop: true });
   }
 
-  public override onExit(): void {}
+  public override onExit(): void {
+    this.entity.fmodSoundController.stopFootsteps();
+  }
 
   public override onInput(_inputState: InputState): void {}
 

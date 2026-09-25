@@ -45,7 +45,7 @@ export const useFMODAudioInitialization = ({
         await loadBanks(audioInstance);
         setIsReady(true);
         setIsLoading(false);
-        audioInstance.logEventPaths();
+        audioInstance.logAvailableEvents();
       } else {
         onError();
       }

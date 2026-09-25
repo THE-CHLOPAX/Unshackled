@@ -1,7 +1,7 @@
 import { randFromRange } from '@tgdf';
 
 import { AIIdleState } from './AIIdleState';
-import { AIRoamingOptions } from '../../../types';
+import { AIRoamingOptions } from './AIRoamingState';
 import { EntityAI } from '../../gameObjects/EntityAI';
 
 export class AIIdleStateRoaming extends AIIdleState {

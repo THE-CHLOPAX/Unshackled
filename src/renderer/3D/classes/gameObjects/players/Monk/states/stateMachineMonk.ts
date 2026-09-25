@@ -1,4 +1,7 @@
-import { ChainedAction, PlayerActionType, StateNode } from '3D/types';
+import { FMOD_EVENTS } from 'renderer/FMOD';
+import { flashRed } from '3D/utils/flashRed';
+import { deadStateNode } from '3D/classes/states/utils/deadStateNode';
+import { ChainedAction, PlayerActionType, StateMachine, StateNode } from '3D/types';
 import { getInputBasedStateNode } from '3D/classes/states/utils/getInputBasedStateNode';
 import {
   AimingState,
@@ -109,4 +112,18 @@ function getAttackStateNode(action: ChainedAction): StateNode<AttackState> {
   };
 }
 
-export const stateMachineMonk = idleStateNode;
+export const stateMachineMonk: StateMachine = {
+  initialNode: idleStateNode,
+  onDamage: ({ entity }) => {
+    entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_HIT);
+    entity.scene.camera.addShake(0.5);
+    flashRed(entity);
+    return null;
+  },
+  onDeath: ({ entity }) => {
+    flashRed(entity);
+    entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_HIT);
+    entity.scene.camera.addShake(3);
+    return deadStateNode;
+  },
+};
