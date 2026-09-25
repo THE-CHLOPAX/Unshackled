@@ -1,7 +1,6 @@
-import { MAIN_SOUND_CHANNEL } from '@tgdf';
 import { NavMesh, Crowd } from '@recast-navigation/core';
 
-import { FMOD_EVENTS, FMODAudio } from 'renderer/FMOD';
+import { FMOD_EVENTS } from 'renderer/FMOD';
 
 import { config } from './config';
 import { EntityAI } from '../../EntityAI';
@@ -20,22 +19,6 @@ export class Skeleton extends EntityAI {
 
   protected override onAwake(): void {
     super.onAwake();
-    FMODAudio.playEventInSoundChannel({
-      eventPath: FMOD_EVENTS.SKELETON_ATTACK,
-      channelId: MAIN_SOUND_CHANNEL,
-      options: {
-        volume: 0.5,
-      },
-    });
-  }
-
-  protected override onDeath(): void {
-    FMODAudio.playEventInSoundChannel({
-      eventPath: FMOD_EVENTS.SKELETON_ATTACK,
-      channelId: MAIN_SOUND_CHANNEL,
-      options: {
-        volume: 0.5,
-      },
-    });
+    this.fmodSoundController.playSound(FMOD_EVENTS.SKELETON_ATTACK, { volume: 0.5 });
   }
 }

@@ -26,6 +26,8 @@ export const MESSAGES = {
   EVENT_PATH_NOT_FOUND: '[FMOD] Event path not found',
   AVAILABLE_EVENTS_LABEL: '[FMOD] Available Events',
   PARAMETER_COUNT_NOT_FOUND: '[FMOD] Parameter count not found',
+  PARAMETER_NOT_SET: (eventPath: string, name: string, error: string) =>
+    `[FMOD] Failed to set parameter "${name}" on "${eventPath}": ${error}`,
   BANK_NOT_LOADED: '[FMOD] Bank not loaded',
   BANK_LOAD_FAILED: (url: string, error: unknown) =>
     `[FMOD] Failed to load bank "${url}": ${error}`,

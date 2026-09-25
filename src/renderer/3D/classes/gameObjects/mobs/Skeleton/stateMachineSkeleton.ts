@@ -1,7 +1,9 @@
 import { FMOD_EVENTS } from 'renderer/FMOD';
-import { AIRoamingOptions, StateNode } from '3D/types';
+import { flashRed } from '3D/utils/flashRed';
 import { shouldChase } from '3D/classes/states/utils/shouldChase';
 import { shouldAttack } from '3D/classes/states/utils/shouldAttack';
+import { AIRoamingOptions, StateMachine, StateNode } from '3D/types';
+import { deadStateNode } from '3D/classes/states/utils/deadStateNode';
 import {
   AIIdleStateRoaming,
   AIRoamingState,
@@ -69,4 +71,17 @@ export const aiIdleStateNode: StateNode<AIIdleStateRoaming> = {
   },
 };
 
-export const stateMachineSkeleton = aiIdleStateNode;
+export const stateMachineSkeleton: StateMachine = {
+  initialNode: aiIdleStateNode,
+  onDamage: ({ entity }) => {
+    entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_HIT);
+    flashRed(entity);
+    return null;
+  },
+  onDeath: ({ entity }) => {
+    flashRed(entity);
+    entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_HIT);
+    entity.fmodSoundController.playSound(FMOD_EVENTS.SKELETON_ATTACK, { volume: 0.5 });
+    return deadStateNode;
+  },
+};

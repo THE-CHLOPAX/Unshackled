@@ -23,14 +23,6 @@ export class Player extends Entity {
     return super.inputSource as PlayerRegisterableInputSource;
   }
 
-  protected override onDamageTaken(): void {
-    this.scene.camera.addShake(0.5);
-  }
-
-  protected override onDeath(): void {
-    this.scene.camera.addShake(3);
-  }
-
   protected override onDestroyed(): void {
     const { source } = this.inputSource;
     this.inputSource.dispose();

@@ -1,8 +1,6 @@
 import * as THREE from 'three';
-import { AssetRecord, MAIN_SOUND_CHANNEL, PlayerInput, useAssetStore } from '@tgdf';
+import { AssetRecord, PlayerInput, useAssetStore } from '@tgdf';
 
-import { FMODAudio } from 'renderer/FMOD';
-import { FMOD_EVENTS } from 'renderer/FMOD';
 import { LevelRecord } from 'renderer/3D/types';
 import { GameEventsEmitter } from 'renderer/types';
 import { getModelClone } from 'renderer/3D/utils/getModelClone';
@@ -74,11 +72,5 @@ export class TestScene extends GameScene {
     const monk = new Monk(this, { inputSource: PlayerInput.keyboard() });
     this.add(monk);
     this.camera.follow(monk);
-
-    console.log('HERE');
-    FMODAudio.playEventInSoundChannel({
-      eventPath: FMOD_EVENTS.SKELETON_DEATH,
-      channelId: MAIN_SOUND_CHANNEL,
-    });
   }
 }

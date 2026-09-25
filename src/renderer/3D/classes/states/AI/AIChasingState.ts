@@ -2,7 +2,6 @@ import { InputState, throttleWithLastValue } from '@tgdf';
 
 import { State } from '..';
 import { shouldAttack } from '../utils/shouldAttack';
-import { playFootstep } from '../utils/playFootstep';
 import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from '../utils/getBestAttack';
 import { getTargetEnemy } from '../utils/getTargetEnemy';
@@ -85,6 +84,6 @@ export class AIChasingState extends State {
   );
 
   private _playFootstep(): void {
-    playFootstep({ eventPath: this.options?.footstepEventPath, options: { volume: 0.15 } });
+    this.entity.fmodSoundController.playFootstep(this.options?.footstepEventPath);
   }
 }

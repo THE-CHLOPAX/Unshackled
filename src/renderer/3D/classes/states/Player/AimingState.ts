@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { InputState, MAIN_SOUND_CHANNEL, useAssetStore } from '@tgdf';
+import { InputState, useAssetStore } from '@tgdf';
 
 import { COLORS } from 'renderer/constants';
+import { FMOD_EVENTS } from 'renderer/FMOD';
 import { PlayerActionType } from 'renderer/3D/types';
-import { FMOD_EVENTS, FMODAudio } from 'renderer/FMOD';
 import { pixelateTexture } from 'renderer/3D/utils/pixelateTexture';
 
 import { State } from '..';
@@ -74,10 +74,7 @@ export class AimingState extends State {
         this._indicator = null;
       }
 
-      FMODAudio.playEventInSoundChannel({
-        eventPath: FMOD_EVENTS.GENERIC_SWOOSH,
-        channelId: MAIN_SOUND_CHANNEL,
-      });
+      this.entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_SWOOSH);
       this.entity.animationController.playAnimation('throw', {
         clampWhenFinished: true,
         playbackRate: 2,

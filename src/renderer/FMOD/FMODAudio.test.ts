@@ -1,4 +1,5 @@
 import type {
+  FMOD3DAttributes,
   FMODEventInstance,
   FMODEventDescription,
   FMODParameterDescription,
@@ -44,6 +45,7 @@ function buildInstanceMock(onSetCallback?: (callback: FMODEventCallback) => void
   m.setup((x) => x.setVolume(It.IsAny())).returns(OK);
   m.setup((x) => x.setPitch(It.IsAny())).returns(OK);
   m.setup((x) => x.setParameterByName(It.IsAny(), It.IsAny(), It.IsAny())).returns(OK);
+  m.setup((x) => x.set3DAttributes(It.IsAny())).returns(OK);
   if (onSetCallback) {
     m.setup((x) => x.setCallback(It.IsAny(), It.IsAny())).callback((interaction) => {
       onSetCallback(interaction.args[0] as FMODEventCallback);
@@ -104,6 +106,9 @@ function makeMocks(instanceMock: Mock<FMODEventInstance>) {
       return OK;
     }),
     update: vi.fn(() => OK),
+    setListenerAttributes: vi.fn(
+      (_listener: number, _attributes: FMOD3DAttributes, _position: null) => OK
+    ),
     loadBankFile: vi.fn((_f: string, _fl: number, out: FMODOutVal<FMODBank>) => {
       out.val = bank as FMODBank;
       return OK;
@@ -119,6 +124,12 @@ function makeMocks(instanceMock: Mock<FMODEventInstance>) {
     ErrorString: () => '',
     FS_createDataFile: vi.fn(),
     STUDIO_PARAMETER_DESCRIPTION: () => ({}) as FMODParameterDescription,
+    _3D_ATTRIBUTES: (): FMOD3DAttributes => ({
+      position: { x: 0, y: 0, z: 0 },
+      velocity: { x: 0, y: 0, z: 0 },
+      forward: { x: 0, y: 0, z: 0 },
+      up: { x: 0, y: 0, z: 0 },
+    }),
   };
 
   return { desc, bank, system, fmod };
@@ -170,6 +181,7 @@ describe('FMODAudio', () => {
           OK,
           STUDIO_INIT_NORMAL: 0,
           INIT_NORMAL: 0,
+          INIT_3D_RIGHTHANDED: 4,
           SPEAKERMODE_DEFAULT: 0,
           ErrorString: () => '',
           Studio_System_Create: (out: FMODOutVal<typeof system>) => {
@@ -185,6 +197,7 @@ describe('FMODAudio', () => {
       expect(await audio.init(wasmBinary)).toBe(true);
       expect(await audio.init(wasmBinary)).toBe(true); // idempotent
       expect(vi.mocked(FMODModuleFactory)).toHaveBeenCalledTimes(1);
+      expect(system.initialize).toHaveBeenCalledWith(1024, 0, 4, null);
     });
 
     it('returns existing promise when init is called multiple times before it resolves', async () => {
@@ -274,6 +287,92 @@ describe('FMODAudio', () => {
       m.verify((x) => x.setPitch(1.5), Times.Once());
       m.verify((x) => x.setParameterByName('intensity', 2, false), Times.Once());
       m.verify((x) => x.setParameterByName('wetness', 0.3, false), Times.Once());
+    });
+  });
+
+  describe('3D attributes', () => {
+    const ATTRIBUTES: FMOD3DAttributes = {
+      position: { x: 1, y: 2, z: 3 },
+      velocity: { x: 0, y: 0, z: 0 },
+      forward: { x: 0, y: 0, z: 1 },
+      up: { x: 0, y: 1, z: 0 },
+    };
+
+    it('applies 3D attributes before starting the instance', () => {
+      const calls: string[] = [];
+      const m = buildInstanceMock();
+      m.setup((x) => x.set3DAttributes(It.IsAny())).callback(() => {
+        calls.push('set3DAttributes');
+        return OK;
+      });
+      m.setup((x) => x.start()).callback(() => {
+        calls.push('start');
+        return OK;
+      });
+      const { audio } = wireAudio(m);
+
+      audio.playEvent({ eventPath: 'event:/Sfx/Hit', options: { attributes3D: ATTRIBUTES } });
+
+      m.verify((x) => x.set3DAttributes(It.Is((a) => (a as FMOD3DAttributes).position.x === 1)));
+      expect(calls).toEqual(['set3DAttributes', 'start']);
+    });
+
+    it('does not set 3D attributes when none are provided', () => {
+      const m = buildInstanceMock();
+      const { audio } = wireAudio(m);
+
+      audio.playEvent({ eventPath: 'event:/Sfx/Hit' });
+
+      m.verify((x) => x.set3DAttributes(It.IsAny()), Times.Never());
+    });
+
+    it('copies listener attributes into an FMOD struct for listener 0', () => {
+      const { audio, system } = wireAudio(buildInstanceMock());
+
+      audio.setListenerAttributes(ATTRIBUTES);
+
+      expect(system.setListenerAttributes).toHaveBeenCalledWith(0, ATTRIBUTES, null);
+      expect(system.setListenerAttributes.mock.calls[0][1]).not.toBe(ATTRIBUTES);
+    });
+  });
+
+  describe('parameters', () => {
+    it('warns once instead of throwing when a parameter cannot be set', () => {
+      const m = buildInstanceMock();
+      m.setup((x) => x.setParameterByName('surface', It.IsAny(), It.IsAny())).returns(OK + 1);
+      const { audio } = wireAudio(m);
+
+      const play = () =>
+        audio.playEvent({ eventPath: 'event:/Sfx/Step', options: { parameters: { surface: 1 } } });
+
+      expect(play).not.toThrow();
+      play();
+
+      const warnings = vi
+        .mocked(logger)
+        .mock.calls.filter(([entry]) => 'type' in entry && entry.type === 'warn');
+      expect(warnings).toHaveLength(1);
+    });
+  });
+
+  describe('onStopped', () => {
+    it('calls onStopped when the STOPPED callback fires', () => {
+      const captured: { callback: FMODEventCallback | null } = { callback: null };
+      const m = buildInstanceMock((callback) => {
+        captured.callback = callback;
+      });
+      vi.mocked(getInstancePointer).mockReturnValue(INSTANCE_PTR);
+      const { audio } = wireAudio(m);
+      const onStopped = vi.fn();
+
+      audio.playEvent({ eventPath: 'event:/Sfx/Hit', onStopped });
+
+      const callbackWrapper = { release: vi.fn(() => OK) } as unknown as FMODEventInstance;
+      assert(captured.callback !== null);
+      captured.callback(STUDIO_EVENT_CALLBACK_STOPPED, callbackWrapper);
+
+      expect(onStopped).toHaveBeenCalledTimes(1);
+      expect(audio['_stopListeners'].has(INSTANCE_PTR)).toBe(false);
     });
   });
 

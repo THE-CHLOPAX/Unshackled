@@ -71,7 +71,7 @@ export const kick: ActionWithSound = {
         },
       });
     }),
-  freezeDurationMs: 200,
+  freezeDurationMs: 100,
 };
 
 export const punchLeft: ChainedAction = {

@@ -103,7 +103,7 @@ export class AIRoamingState extends State {
       }
 
       this.entity.movementController
-        .moveAlongPath(path, this.entity.walkSpeed)
+        .moveAlongPath(path, this.entity.movementController.walkSpeed)
         .then(() => resolve())
         .catch(() => {});
     });

@@ -1,4 +1,5 @@
 import type {
+  FMOD3DAttributes,
   FMODCoreSystem,
   FMODEventInstance,
   FMODEventDescription,
@@ -7,6 +8,7 @@ import type {
   FMODOutVal,
   FMODBank,
   FMODStudioSystem,
+  FMODVector,
 } from './fmodstudio';
 
 import { assert, logger, useSoundsStore } from '@tgdf';
@@ -23,6 +25,7 @@ export type FMODPlayEventOptions = {
   playbackRate?: number;
   volume?: number;
   parameters?: Record<string, number>;
+  attributes3D?: FMOD3DAttributes;
 };
 
 export type FMODDependencies = {
@@ -48,6 +51,8 @@ export class FMODAudio {
   private _initPromise: Promise<boolean> | null = null;
   private _updateInterval: ReturnType<typeof setInterval> | null = null;
   private _channelSubscriptions = new Map<number, () => void>();
+  private _stopListeners = new Map<number, () => void>();
+  private _warnedMissingParameters = new Set<string>();
 
   constructor(dependencies: FMODDependencies = { fmod: {} as FMODObject, system: null }) {
     this._fmod = dependencies.fmod;
@@ -131,9 +136,11 @@ export class FMODAudio {
   public playEvent({
     eventPath,
     options,
+    onStopped,
   }: {
     eventPath: string;
     options?: FMODPlayEventOptions;
+    onStopped?: () => void;
   }): FMODEventInstance | null {
     if (!this._initialized || this._system === null) {
       logger({ message: MESSAGES.SYSTEM_NOT_INITIALIZED, type: 'error' });
@@ -148,7 +155,15 @@ export class FMODAudio {
     fmodCheckOrThrow(this._fmod, descOut.val.createInstance(instanceOut));
     assert(instanceOut.val !== undefined, MESSAGES.EVENT_INSTANCE_NOT_CREATED);
 
+    if (options?.attributes3D) {
+      this.set3DAttributes(instanceOut.val, options.attributes3D);
+    }
+
     fmodCheckOrThrow(this._fmod, instanceOut.val.start());
+
+    if (onStopped) {
+      this._stopListeners.set(getInstancePointer(instanceOut.val), onStopped);
+    }
 
     // On event stopped, release the instance and clear the subscription (if any).
     instanceOut.val.setCallback((type, instance) => {
@@ -166,7 +181,10 @@ export class FMODAudio {
     }
     if (options?.parameters) {
       for (const [name, value] of Object.entries(options.parameters)) {
-        fmodCheckOrThrow(this._fmod, instanceOut.val.setParameterByName(name, value, false));
+        const result = instanceOut.val.setParameterByName(name, value, false);
+        if (result !== this._fmod.OK) {
+          this._warnParameterNotSet(eventPath, name, result);
+        }
       }
     }
     return instanceOut.val;
@@ -181,12 +199,14 @@ export class FMODAudio {
     eventPath,
     channelId,
     options,
+    onStopped,
   }: {
     eventPath: string;
     channelId: string;
     options?: FMODPlayEventOptions;
+    onStopped?: () => void;
   }): FMODEventInstance | null {
-    const instance = this.playEvent({ eventPath, options });
+    const instance = this.playEvent({ eventPath, options, onStopped });
 
     if (instance === null) {
       logger({ message: MESSAGES.EVENT_NOT_FOUND, type: 'error' });
@@ -228,6 +248,22 @@ export class FMODAudio {
       : this._fmod.STUDIO_STOP_IMMEDIATE;
 
     instance.stop(mode);
+  }
+
+  public set3DAttributes(instance: FMODEventInstance, attributes: FMOD3DAttributes): void {
+    fmodCheckOrThrow(this._fmod, instance.set3DAttributes(this._to3DAttributes(attributes)));
+  }
+
+  public setListenerAttributes(
+    attributes: FMOD3DAttributes,
+    attenuationPosition: FMODVector | null = null
+  ): void {
+    if (!this._initialized || this._system === null) return;
+
+    fmodCheckOrThrow(
+      this._fmod,
+      this._system.setListenerAttributes(0, this._to3DAttributes(attributes), attenuationPosition)
+    );
   }
 
   /**
@@ -346,11 +382,47 @@ export class FMODAudio {
 
     fmodCheckOrThrow(
       this._fmod,
-      this._system.initialize(1024, this._fmod.STUDIO_INIT_NORMAL, this._fmod.INIT_NORMAL, null)
+      this._system.initialize(
+        1024,
+        this._fmod.STUDIO_INIT_NORMAL,
+        this._fmod.INIT_NORMAL | this._fmod.INIT_3D_RIGHTHANDED,
+        null
+      )
     );
   }
 
+  private _to3DAttributes(attributes: FMOD3DAttributes): FMOD3DAttributes {
+    const fmodAttributes = this._fmod._3D_ATTRIBUTES();
+    this._copyVector(fmodAttributes.position, attributes.position);
+    this._copyVector(fmodAttributes.velocity, attributes.velocity);
+    this._copyVector(fmodAttributes.forward, attributes.forward);
+    this._copyVector(fmodAttributes.up, attributes.up);
+    return fmodAttributes;
+  }
+
+  private _copyVector(target: FMODVector, source: FMODVector): void {
+    target.x = source.x;
+    target.y = source.y;
+    target.z = source.z;
+  }
+
+  private _warnParameterNotSet(eventPath: string, name: string, result: number): void {
+    const key = `${eventPath}:${name}`;
+    if (this._warnedMissingParameters.has(key)) return;
+    this._warnedMissingParameters.add(key);
+    logger({
+      message: MESSAGES.PARAMETER_NOT_SET(eventPath, name, this._fmod.ErrorString(result)),
+      type: 'warn',
+    });
+  }
+
   private _onEventStopped(instance: FMODEventInstance): void {
+    const onStopped = this._stopListeners.get(getInstancePointer(instance));
+    if (onStopped) {
+      this._stopListeners.delete(getInstancePointer(instance));
+      onStopped();
+    }
+
     const unsubscribe = this._channelSubscriptions.get(getInstancePointer(instance));
     if (unsubscribe) {
       logger({ message: MESSAGES.EVENT_SOUND_CHANNEL_SUBSCRIPTION_CLEARED, type: 'info' });
