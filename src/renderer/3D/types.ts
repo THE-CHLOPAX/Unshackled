@@ -51,14 +51,6 @@ export type ChainedAction = ActionWithSound & {
   };
 };
 
-export type AIRoamingOptions = {
-  radius: number;
-  interval: {
-    min: number;
-    max: number;
-  };
-};
-
 export type AIAttackOptions = {
   actions: AIAttackAction[];
 };

@@ -141,6 +141,111 @@ describe('FMODSoundController', () => {
     expect(FMODAudio.set3DAttributes).not.toHaveBeenCalled();
   });
 
+  describe('footstep loop', () => {
+    function footstepCount(): number {
+      return vi.mocked(FMODAudio.playEventInSoundChannel).mock.calls.length;
+    }
+
+    it('plays a footstep immediately when started', () => {
+      const { entity } = makeEntity(camera);
+      const controller = new FMODSoundController(entity);
+
+      controller.startFootsteps({ intervalMs: 400 });
+
+      expect(footstepCount()).toBe(1);
+      expect(lastPlayArgs().eventPath).toBe('event:/Footstep');
+    });
+
+    it('plays the next footstep once the accumulated delta time reaches the interval', () => {
+      const { entity, events } = makeEntity(camera);
+      const controller = new FMODSoundController(entity);
+
+      controller.startFootsteps({ intervalMs: 400 });
+      events.trigger('update', { deltaTime: 0.2 });
+      events.trigger('update', { deltaTime: 0.19 });
+
+      expect(footstepCount()).toBe(1);
+
+      events.trigger('update', { deltaTime: 0.02 });
+
+      expect(footstepCount()).toBe(2);
+    });
+
+    it('plays a single footstep per frame even after a long frame', () => {
+      const { entity, events } = makeEntity(camera);
+      const controller = new FMODSoundController(entity);
+
+      controller.startFootsteps({ intervalMs: 400 });
+      events.trigger('update', { deltaTime: 2 });
+
+      expect(footstepCount()).toBe(2);
+    });
+
+    it('uses the provided event path, surface and volume', () => {
+      const { entity, events } = makeEntity(camera);
+      const controller = new FMODSoundController(entity);
+
+      controller.startFootsteps({
+        intervalMs: 400,
+        eventPath: 'event:/Skeleton/Footstep',
+        surface: 2,
+        volume: 0.5,
+      });
+      events.trigger('update', { deltaTime: 0.4 });
+
+      const args = lastPlayArgs();
+      expect(args.eventPath).toBe('event:/Skeleton/Footstep');
+      expect(args.options?.parameters).toEqual({ surface: 2 });
+      expect(args.options?.volume).toBe(0.5);
+    });
+
+    it('stops playing footsteps after stopFootsteps', () => {
+      const { entity, events } = makeEntity(camera);
+      const controller = new FMODSoundController(entity);
+
+      controller.startFootsteps({ intervalMs: 400 });
+      controller.stopFootsteps();
+      events.trigger('update', { deltaTime: 1 });
+
+      expect(footstepCount()).toBe(1);
+    });
+
+    it('restarts the accumulated time when started again', () => {
+      const { entity, events } = makeEntity(camera);
+      const controller = new FMODSoundController(entity);
+
+      controller.startFootsteps({ intervalMs: 400 });
+      events.trigger('update', { deltaTime: 0.3 });
+      controller.startFootsteps({ intervalMs: 300 });
+      events.trigger('update', { deltaTime: 0.2 });
+
+      expect(footstepCount()).toBe(2);
+    });
+  });
+
+  it('stops active instances with fadeout when destroyed', () => {
+    const { entity, events } = makeEntity(camera);
+    const controller = new FMODSoundController(entity);
+
+    controller.playSound('event:/Loop');
+    controller.destroy();
+    events.trigger('update', { deltaTime: 0.016 });
+
+    expect(FMODAudio.stopEvent).toHaveBeenCalledWith(instance, true);
+    expect(FMODAudio.set3DAttributes).not.toHaveBeenCalled();
+  });
+
+  it('does not stop already finished instances when destroyed', () => {
+    const { entity } = makeEntity(camera);
+    const controller = new FMODSoundController(entity);
+
+    controller.playSound('event:/Hit');
+    lastPlayArgs().onStopped?.();
+    controller.destroy();
+
+    expect(FMODAudio.stopEvent).not.toHaveBeenCalled();
+  });
+
   it('stops the instance through FMODAudio', () => {
     const { entity } = makeEntity(camera);
     const controller = new FMODSoundController(entity);

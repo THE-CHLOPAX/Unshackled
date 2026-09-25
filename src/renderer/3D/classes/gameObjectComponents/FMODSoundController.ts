@@ -20,6 +20,11 @@ export type FMODFootstepOptions = {
   volume?: number;
 };
 
+export type FMODFootstepLoopOptions = FMODFootstepOptions & {
+  intervalMs: number;
+  eventPath?: string;
+};
+
 const FOOTSTEP_SURFACE_PARAMETER = 'surface';
 const DEFAULT_FOOTSTEP_SURFACE = 1;
 const DEFAULT_FOOTSTEP_VOLUME = 0.15;
@@ -31,6 +36,8 @@ export class FMODSoundController extends GameObjectComponent {
   private _worldQuaternion = new THREE.Quaternion();
   private _entityAttributes = createAttributes();
   private _listenerAttributes = createAttributes();
+  private _footstepLoop: FMODFootstepLoopOptions | null = null;
+  private _footstepElapsedMs = 0;
 
   constructor(gameObject: Entity) {
     super(gameObject);
@@ -76,7 +83,47 @@ export class FMODSoundController extends GameObjectComponent {
     });
   }
 
-  protected override onUpdate(_deltaTime: number): void {
+  public startFootsteps(options: FMODFootstepLoopOptions): void {
+    this._footstepLoop = options;
+    this._footstepElapsedMs = 0;
+    this._playLoopedFootstep(options);
+  }
+
+  public stopFootsteps(): void {
+    this._footstepLoop = null;
+    this._footstepElapsedMs = 0;
+  }
+
+  protected override onUpdate(deltaTime: number): void {
+    this._updateFootsteps(deltaTime);
+    this._updateActiveInstances();
+  }
+
+  protected override onDestroyed(): void {
+    super.onDestroyed();
+    this.stopFootsteps();
+    for (const instance of this._activeInstances) {
+      this.stopSound(instance, true);
+    }
+    this._activeInstances.clear();
+  }
+
+  private _updateFootsteps(deltaTime: number): void {
+    const footstepLoop = this._footstepLoop;
+    if (!footstepLoop) return;
+
+    this._footstepElapsedMs += deltaTime * 1000;
+    if (this._footstepElapsedMs < footstepLoop.intervalMs) return;
+
+    this._footstepElapsedMs %= footstepLoop.intervalMs;
+    this._playLoopedFootstep(footstepLoop);
+  }
+
+  private _playLoopedFootstep({ eventPath, surface, volume }: FMODFootstepLoopOptions): void {
+    this.playFootstep(eventPath, { surface, volume });
+  }
+
+  private _updateActiveInstances(): void {
     if (this._activeInstances.size === 0) return;
 
     this._updateListener();
@@ -85,11 +132,6 @@ export class FMODSoundController extends GameObjectComponent {
     for (const instance of this._activeInstances) {
       FMODAudio.set3DAttributes(instance, attributes);
     }
-  }
-
-  protected override onDestroyed(): void {
-    super.onDestroyed();
-    this._activeInstances.clear();
   }
 
   private _getEntityAttributes(): FMOD3DAttributes {

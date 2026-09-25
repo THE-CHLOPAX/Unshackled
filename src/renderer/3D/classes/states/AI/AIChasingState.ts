@@ -17,7 +17,6 @@ export type AIChasingOptions = {
 export class AIChasingState extends State {
   private _bestAttack: AIAttackAction | null = null;
   private _pathfindingFailed = false;
-  private _footstepSoundEventInterval: NodeJS.Timeout | null = null;
 
   constructor(
     public entity: EntityAI,
@@ -35,19 +34,17 @@ export class AIChasingState extends State {
   }
 
   public onEnter(): void {
-    this._playFootstep();
-    this._footstepSoundEventInterval = setInterval(() => {
-      this._playFootstep();
-    }, FOOTSTEP_INTERVAL_MS);
+    this.entity.fmodSoundController.startFootsteps({
+      intervalMs: FOOTSTEP_INTERVAL_MS,
+      eventPath: this.options?.footstepEventPath,
+    });
     this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, {
       loop: true,
     });
   }
 
   public onExit(): void {
-    if (this._footstepSoundEventInterval) {
-      clearInterval(this._footstepSoundEventInterval);
-    }
+    this.entity.fmodSoundController.stopFootsteps();
     this.entity.movementController.resetMoveTo();
   }
 
@@ -82,8 +79,4 @@ export class AIChasingState extends State {
     UPDATE_THROTTLE_INTERVAL_MS,
     undefined
   );
-
-  private _playFootstep(): void {
-    this.entity.fmodSoundController.playFootstep(this.options?.footstepEventPath);
-  }
 }

@@ -8,25 +8,18 @@ import { Player } from '../../gameObjects/players/Player';
 const FOOTSTEP_INTERVAL_MS = 400;
 
 export class RunningState extends State {
-  protected footstepSoundEventInterval: NodeJS.Timeout | null = null;
-
   constructor(public entity: Player) {
     super(entity);
   }
 
   public override onEnter(): void {
-    this.entity.fmodSoundController.playFootstep();
-    this.footstepSoundEventInterval = setInterval(() => {
-      this.entity.fmodSoundController.playFootstep();
-    }, FOOTSTEP_INTERVAL_MS);
+    this.entity.fmodSoundController.startFootsteps({ intervalMs: FOOTSTEP_INTERVAL_MS });
 
     this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, { loop: true });
   }
 
   public override onExit(): void {
-    if (this.footstepSoundEventInterval) {
-      clearInterval(this.footstepSoundEventInterval);
-    }
+    this.entity.fmodSoundController.stopFootsteps();
   }
 
   public override onInput(_inputState: InputState): void {}

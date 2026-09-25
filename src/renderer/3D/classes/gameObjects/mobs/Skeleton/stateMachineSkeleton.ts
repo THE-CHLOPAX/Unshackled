@@ -1,9 +1,10 @@
 import { FMOD_EVENTS } from 'renderer/FMOD';
 import { flashRed } from '3D/utils/flashRed';
+import { StateMachine, StateNode } from '3D/types';
 import { shouldChase } from '3D/classes/states/utils/shouldChase';
 import { shouldAttack } from '3D/classes/states/utils/shouldAttack';
-import { AIRoamingOptions, StateMachine, StateNode } from '3D/types';
 import { deadStateNode } from '3D/classes/states/utils/deadStateNode';
+import { AIRoamingOptions } from '3D/classes/states/AI/AIRoamingState';
 import {
   AIIdleStateRoaming,
   AIRoamingState,
@@ -44,7 +45,11 @@ const aiChasingStateNode: StateNode<AIChasingState> = {
 };
 
 const aiRoamingStateNode: StateNode<AIRoamingState> = {
-  state: (entity) => new AIRoamingState(entity, ROAMING_OPTIONS),
+  state: (entity) =>
+    new AIRoamingState(entity, {
+      ...ROAMING_OPTIONS,
+      footstepEventPath: FMOD_EVENTS.SKELETON_FOOTSTEP,
+    }),
   onUpdate: ({ entity, currentState }) => {
     if (currentState.bestAttack) {
       if (shouldChase(entity, currentState.bestAttack)) return aiChasingStateNode;

@@ -5,9 +5,19 @@ import { State } from '..';
 import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from '../utils/getBestAttack';
 import { getTargetEnemy } from '../utils/getTargetEnemy';
-import { AIAttackAction, AIRoamingOptions, AnimationClipNamesShared } from '../../../types';
+import { AIAttackAction, AnimationClipNamesShared } from '../../../types';
 import { getRandomNavMeshPointInRadius } from '../../../utils/getRandomNavMeshPointInRadius';
 
+export type AIRoamingOptions = {
+  radius: number;
+  footstepEventPath?: string;
+  interval: {
+    min: number;
+    max: number;
+  };
+};
+
+const FOOTSTEP_INTERVAL_MS = 600;
 const STUCK_CHECK_INTERVAL_SECONDS = 1;
 const STUCK_DISTANCE_THRESHOLD = 0.05;
 
@@ -36,6 +46,10 @@ export class AIRoamingState extends State {
     this.entity.animationController.playAnimation(AnimationClipNamesShared.WALK, {
       loop: true,
     });
+    this.entity.fmodSoundController.startFootsteps({
+      intervalMs: FOOTSTEP_INTERVAL_MS,
+      eventPath: this._roamingOptions.footstepEventPath,
+    });
     this._roamToRandomPoint()
       .catch((error) => {
         logger({ message: error.message, type: 'error' });
@@ -46,6 +60,7 @@ export class AIRoamingState extends State {
       });
   }
   public override onExit(): void {
+    this.entity.fmodSoundController.stopFootsteps();
     this.entity.movementController.resetMoveTo();
   }
 
