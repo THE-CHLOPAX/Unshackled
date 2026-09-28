@@ -6,6 +6,7 @@ import { isInstancedCell } from './isInstancedCell';
 import { getChunkBoundaries } from './getChunkBoundaries';
 import { GameScene } from '../classes/scenes/GameScene/GameScene';
 import { RigidStaticObject } from '../classes/gameObjects/RigidStaticObject';
+import { createFloorProjectionGeometry } from './createFloorProjectionGeometry';
 import { FLOOR_TILE_CODES, MODEL_TILE_SCALE, WORLD_CELL_SIZE } from '../constants';
 import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from '../worldDefinitions';
 import {
@@ -53,7 +54,14 @@ export async function generateChunkedLevel(
   floorGroup.name = LEVEL_FLOOR_GROUP_NAME;
   scene.add(floorGroup);
 
-  chunkedCells.forEach((chunkCells) => buildChunk(scene, chunkCells, floorGroup));
+  const floorGeometries: ColliderGeometryEntry[] = [];
+
+  chunkedCells.forEach((chunkCells) => buildChunk(scene, chunkCells, floorGroup, floorGeometries));
+
+  const floorColliderGeometry = createFloorProjectionGeometry(floorGeometries, WORLD_CELL_SIZE);
+  if (floorColliderGeometry) {
+    floorGroup.add(new RigidStaticObject(scene, { trimeshGeometry: floorColliderGeometry }));
+  }
 
   return Promise.resolve({ floorGroup });
 }
@@ -79,7 +87,12 @@ function getChunkedCells(
   });
 }
 
-function buildChunk(scene: Scene, chunkCells: ChunkCell[], floorGroup: THREE.Group): void {
+function buildChunk(
+  scene: Scene,
+  chunkCells: ChunkCell[],
+  floorGroup: THREE.Group,
+  floorGeometries: ColliderGeometryEntry[]
+): void {
   const instancedCellsByCode = groupInstancedCellsByCode(chunkCells);
   const chunkColliderEntries: ColliderGeometryEntry[] = [];
 
@@ -122,14 +135,18 @@ function buildChunk(scene: Scene, chunkCells: ChunkCell[], floorGroup: THREE.Gro
       instancedMesh.setMatrixAt(index, matrix);
 
       if (definition.collider) {
-        chunkColliderEntries.push({ geometry, matrix: matrix.clone() });
+        if (isFloorCellCode(code)) {
+          floorGeometries.push({ geometry, matrix: matrix.clone() });
+        } else {
+          chunkColliderEntries.push({ geometry, matrix: matrix.clone() });
+        }
       }
     });
 
     instancedMesh.instanceMatrix.needsUpdate = true;
     instancedMesh.computeBoundingSphere();
 
-    const parent = FLOOR_TILE_CODES.includes(code) ? floorGroup : scene;
+    const parent = isFloorCellCode(code) ? floorGroup : scene;
     parent.add(instancedMesh);
   });
 
@@ -167,7 +184,7 @@ function buildChunk(scene: Scene, chunkCells: ChunkCell[], floorGroup: THREE.Gro
 
     object.position.copy(position);
 
-    const parent = FLOOR_TILE_CODES.includes(cell.code) ? floorGroup : scene;
+    const parent = isFloorCellCode(cell.code) ? floorGroup : scene;
     parent.add(object);
 
     if (definition.collider) {
@@ -189,4 +206,8 @@ function groupInstancedCellsByCode(chunkCells: ChunkCell[]): Map<WorldTileCodes,
   });
 
   return grouped;
+}
+
+function isFloorCellCode(code: WorldTileCodes): boolean {
+  return FLOOR_TILE_CODES.includes(code);
 }
