@@ -137,8 +137,9 @@ function buildChunk(
       if (definition.collider) {
         if (isFloorCellCode(code)) {
           floorGeometries.push({ geometry, matrix: matrix.clone() });
+        } else {
+          chunkColliderEntries.push({ geometry, matrix: matrix.clone() });
         }
-        chunkColliderEntries.push({ geometry, matrix: matrix.clone() });
       }
     });
 
