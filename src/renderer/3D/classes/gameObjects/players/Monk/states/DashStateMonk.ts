@@ -9,6 +9,18 @@ import { DashOptions, DashState } from 'renderer/3D/classes/states';
 
 import { Player } from '../../Player';
 
+type FlashableMaterial = THREE.Material & {
+  color: THREE.Color;
+  emissive: THREE.Color;
+  emissiveIntensity: number;
+};
+
+type OriginalMaterialState = {
+  color: THREE.Color;
+  emissive: THREE.Color;
+  emissiveIntensity: number;
+};
+
 const DASH_FLASH_COLOR = new THREE.Color(COLORS.GOLDEN);
 const DASH_FLASH_EMISSIVE_INTENSITY = 3;
 const FLASH_IN_DURATION = 0.1;
@@ -19,28 +31,7 @@ const GHOST_FADE_DURATION = 0.35;
 const GHOST_INITIAL_OPACITY = 0.45;
 const GHOST_EMISSIVE_INTENSITY = 2;
 
-type FlashableMaterial = THREE.Material & {
-  color: THREE.Color;
-  emissive: THREE.Color;
-  emissiveIntensity: number;
-};
-
-function isFlashableMaterial(material: THREE.Material): material is FlashableMaterial {
-  return (
-    'color' in material &&
-    material.color instanceof THREE.Color &&
-    'emissive' in material &&
-    material.emissive instanceof THREE.Color &&
-    'emissiveIntensity' in material &&
-    typeof material.emissiveIntensity === 'number'
-  );
-}
-
-type OriginalMaterialState = {
-  color: THREE.Color;
-  emissive: THREE.Color;
-  emissiveIntensity: number;
-};
+const MONK_DASH_ANIMATION_CLIP_NAME = 'dash';
 
 export class DashStateMonk extends DashState {
   public static readonly COOLDOWN_MS = 1000;
@@ -58,6 +49,12 @@ export class DashStateMonk extends DashState {
 
   public override onEnter(): void {
     super.onEnter();
+
+    this.entity.animationController.playAnimation(MONK_DASH_ANIMATION_CLIP_NAME, {
+      clampWhenFinished: true,
+    });
+
+    this.entity.scene.camera.addShake(1);
 
     this.entity.cooldownController.startCooldown(
       DashStateMonk.COOLDOWN_ID,
@@ -158,4 +155,15 @@ export class DashStateMonk extends DashState {
       },
     });
   }
+}
+
+function isFlashableMaterial(material: THREE.Material): material is FlashableMaterial {
+  return (
+    'color' in material &&
+    material.color instanceof THREE.Color &&
+    'emissive' in material &&
+    material.emissive instanceof THREE.Color &&
+    'emissiveIntensity' in material &&
+    typeof material.emissiveIntensity === 'number'
+  );
 }
