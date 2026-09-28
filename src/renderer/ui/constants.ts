@@ -53,9 +53,9 @@ export const UI_BACKGROUND_IMAGE_URLS = {
 } as const;
 
 export const FONT_SIZES = {
-  sm: 12,
-  md: 18,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
+  sm: { fontSize: 12, lineHeight: 1 },
+  md: { fontSize: 18, lineHeight: 1 },
+  lg: { fontSize: 24, lineHeight: 1 },
+  xl: { fontSize: 32, lineHeight: 1 },
+  xxl: { fontSize: 48, lineHeight: 1 },
 } as const;

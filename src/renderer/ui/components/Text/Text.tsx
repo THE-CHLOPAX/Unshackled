@@ -31,8 +31,8 @@ export const Text = ({
 
 const StyledText = styled.span<{ $size: TextSize; $color: string; $nowrap: boolean }>`
   font-family: 'Alagard', monospace;
-  font-size: ${({ $size }) => FONT_SIZES[$size]}px;
-  line-height: 0.8;
+  font-size: ${({ $size }) => FONT_SIZES[$size].fontSize}px;
+  line-height: ${({ $size }) => FONT_SIZES[$size].lineHeight};
   color: ${({ $color }) => $color};
   white-space: ${({ $nowrap }) => ($nowrap ? 'nowrap' : 'initial')};
 `;

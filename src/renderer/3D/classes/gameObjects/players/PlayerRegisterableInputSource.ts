@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import {
   Emitter,
   GAMEPAD_MAPPINGS,
-  GamepadButton,
   InputNotifiable,
   InputState,
   KEYBOARD_MAPPINGS,
@@ -33,11 +32,26 @@ export type PlayerInputEventMap = {
 const AXIS_DEADZONE = 0.15;
 
 const ACTION_MAPPINGS = {
-  [PlayerActionType.ACTION_UP]: [KEYBOARD_MAPPINGS.ArrowUp, GAMEPAD_MAPPINGS.Y],
-  [PlayerActionType.ACTION_DOWN]: [KEYBOARD_MAPPINGS.ArrowDown, GAMEPAD_MAPPINGS.A],
-  [PlayerActionType.ACTION_LEFT]: [KEYBOARD_MAPPINGS.ArrowLeft, GAMEPAD_MAPPINGS.X],
-  [PlayerActionType.ACTION_RIGHT]: [KEYBOARD_MAPPINGS.ArrowRight, GAMEPAD_MAPPINGS.B],
-  [PlayerActionType.ACTION_FOCUS]: [KEYBOARD_MAPPINGS.Space, GAMEPAD_MAPPINGS.RB],
+  [PlayerActionType.ACTION_UP]: {
+    keyboard: KEYBOARD_MAPPINGS.ArrowUp,
+    gamepad: GAMEPAD_MAPPINGS.Y,
+  },
+  [PlayerActionType.ACTION_DOWN]: {
+    keyboard: KEYBOARD_MAPPINGS.ArrowDown,
+    gamepad: GAMEPAD_MAPPINGS.A,
+  },
+  [PlayerActionType.ACTION_LEFT]: {
+    keyboard: KEYBOARD_MAPPINGS.ArrowLeft,
+    gamepad: GAMEPAD_MAPPINGS.X,
+  },
+  [PlayerActionType.ACTION_RIGHT]: {
+    keyboard: KEYBOARD_MAPPINGS.ArrowRight,
+    gamepad: GAMEPAD_MAPPINGS.B,
+  },
+  [PlayerActionType.ACTION_FOCUS]: {
+    keyboard: KEYBOARD_MAPPINGS.Space,
+    gamepad: GAMEPAD_MAPPINGS.RB,
+  },
 } as const;
 
 export class PlayerRegisterableInputSource implements RegisterableInputSource, InputNotifiable {
@@ -101,11 +115,9 @@ export class PlayerRegisterableInputSource implements RegisterableInputSource, I
     const controls: PlayerActionEvent[] = [];
 
     for (const action of Object.keys(ACTION_MAPPINGS) as Array<keyof typeof ACTION_MAPPINGS>) {
-      const isActionPressed = ACTION_MAPPINGS[action].some(
-        (key) =>
-          inputState.keyboard.isKeyPressed(key) ||
-          inputState.gamepad.isButtonPressed(key as GamepadButton)
-      );
+      const { keyboard, gamepad } = ACTION_MAPPINGS[action];
+      const isActionPressed =
+        inputState.keyboard.isKeyPressed(keyboard) || inputState.gamepad.isButtonPressed(gamepad);
 
       if (isActionPressed) {
         controls.push({ type: action });
