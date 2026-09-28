@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { describe, it, expect } from 'vitest';
 
-import { createFloorProjectionGeometry } from './createFloorProjectionGeometry';
 import { ColliderGeometryEntry } from './mergeCollidersIntoTrimeshGeometry';
+import { createFloorProjectionGeometry } from './createFloorProjectionGeometry';
 
 const CELL_SIZE = 3;
 
@@ -76,10 +76,7 @@ describe('createFloorProjectionGeometry', () => {
   });
 
   it('cuts out holes where there are no floor tiles', () => {
-    const geometry = createFloorProjectionGeometry(
-      tilesFromMask(['###', '#.#', '###']),
-      CELL_SIZE
-    );
+    const geometry = createFloorProjectionGeometry(tilesFromMask(['###', '#.#', '###']), CELL_SIZE);
     assertGeometry(geometry);
 
     expect(getTriangles(geometry)).toHaveLength(8);
