@@ -4,8 +4,8 @@ import { assert, AssetRecord, Scene } from '@tgdf';
 import { LevelRecord } from '3D/types';
 import { GameEventsEmitter } from 'renderer/types';
 import { loadWorldMap } from '3D/utils/loadWorldMap';
-import { MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
 import { generateChunkedLevel } from '3D/utils/generateChunkedLevel';
+import { GAME_GRAVITY, LEVEL_CHUNK_SIZE, MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
 
 import { loadAssetRecord } from './loadAssetRecord';
 import { Player } from '../../gameObjects/players/Player';
@@ -13,9 +13,6 @@ import { ShadersManager, WarmupFactory } from './ShadersManager/ShadersManager';
 import { getDefaultWarmupMaterialFactories } from './getDefaultWarmupMaterialFactories';
 import { OrtographicCamera, OrtographicCameraOptions } from '../../cameras/OrtographicCamera';
 import { ProgressTracker, ProgressTrackerObjective } from './ProgressTracker/ProgressTracker';
-
-const GAME_GRAVITY = new THREE.Vector3(0, 0, 0);
-const LEVEL_CHUNK_SIZE = 16;
 
 export type GameSceneOptions = {
   emitter: GameEventsEmitter;

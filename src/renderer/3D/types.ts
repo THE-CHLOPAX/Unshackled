@@ -14,6 +14,7 @@ export enum AnimationClipNamesShared {
   FALL = 'fall',
   HIT = 'hit',
   STAND_UP = 'stand-up',
+  INTERACT = 'interact',
 }
 
 export enum PlayerActionType {
@@ -152,4 +153,9 @@ export type StateMachine = {
     ctx: StateMachineContext & { currentHealth: number; damageAmount: number }
   ): StateNode | null;
   onDeath(ctx: StateMachineContext): StateNode | null;
+  onInteract?(ctx: StateMachineContext & { target: Interactable }): StateNode | null;
+};
+
+export type Interactable = {
+  interact(entity: Entity): void;
 };

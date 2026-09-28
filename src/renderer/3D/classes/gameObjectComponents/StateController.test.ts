@@ -5,7 +5,7 @@ import { Emitter, GameObjectEventMap, InputState } from '@tgdf';
 import { State } from '../../classes/states';
 import { Entity } from '../gameObjects/Entity';
 import { StateController } from './StateController';
-import { StateMachine, StateNode } from '../../types';
+import { Interactable, StateMachine, StateNode } from '../../types';
 import { HealthPointsController, HealthPointsControllerEvents } from './HealthPointsController';
 
 vi.mock('electron', () => ({
@@ -99,8 +99,15 @@ describe('StateController', () => {
     onDeath = vi.fn<StateMachine['onDeath']>(() => null);
   });
 
-  function createController(initialNode: StateNode): StateController {
-    return new StateController(entity, { initialNode, onDamage, onDeath }, healthPointsController);
+  function createController(
+    initialNode: StateNode,
+    onInteract?: StateMachine['onInteract']
+  ): StateController {
+    return new StateController(
+      entity,
+      { initialNode, onDamage, onDeath, onInteract },
+      healthPointsController
+    );
   }
 
   function triggerInput(): void {
@@ -356,6 +363,59 @@ describe('StateController', () => {
 
       expect(onDamage).not.toHaveBeenCalled();
       expect(onDeath).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('requestInteraction', () => {
+    const target: Interactable = { interact: vi.fn() };
+
+    it('returns false and keeps the current node when the state machine has no onInteract', () => {
+      const controller = createController(nodeA);
+
+      const accepted = controller.requestInteraction(target);
+      triggerUpdate();
+
+      expect(accepted).toBe(false);
+      expect(controller.currentStateNode).toBe(nodeA);
+    });
+
+    it('returns false and keeps the current node when onInteract returns null', () => {
+      const onInteract = vi.fn<NonNullable<StateMachine['onInteract']>>(() => null);
+      const controller = createController(nodeA, onInteract);
+
+      const accepted = controller.requestInteraction(target);
+      triggerUpdate();
+
+      expect(accepted).toBe(false);
+      expect(controller.currentStateNode).toBe(nodeA);
+    });
+
+    it('calls onInteract with the entity, current state and target', () => {
+      const onInteract = vi.fn<NonNullable<StateMachine['onInteract']>>(() => null);
+      const controller = createController(nodeA, onInteract);
+
+      controller.requestInteraction(target);
+
+      expect(onInteract).toHaveBeenCalledWith({
+        entity,
+        currentState: controller.currentState,
+        target,
+      });
+    });
+
+    it('returns true and transitions to the returned node on the next tick', () => {
+      const onInteract = vi.fn<NonNullable<StateMachine['onInteract']>>(() => nodeB);
+      const controller = createController(nodeA, onInteract);
+
+      const accepted = controller.requestInteraction(target);
+
+      expect(accepted).toBe(true);
+      expect(controller.currentStateNode).toBe(nodeA);
+
+      triggerUpdate();
+
+      expect(controller.currentStateNode).toBe(nodeB);
+      expect((controller.currentState as FakeState).label).toBe('B');
     });
   });
 

@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { assert, GameObject, getModelFromStore, isMesh, RigidBody, Scene } from '@tgdf';
 
 import { MODELS } from '3D/constants';
-import { PlayerActionType } from '3D/types';
+import { Interactable, PlayerActionType } from '3D/types';
 import { pixelateModelMaterial } from 'renderer/3D/utils/pixelateModelMaterial';
 
 import { PlayerDetectionZone } from '../PlayerDetectionZone';
@@ -21,7 +21,7 @@ const OPEN_CLOSE_DURATION_S = 0.4;
 const HINT_PROPS_OPEN: HintBillboardRendererOptions = { hint: { icon: 'A', label: 'Open' } };
 const HINT_PROPS_CLOSE: HintBillboardRendererOptions = { hint: { icon: 'A', label: 'Close' } };
 
-export class DungeonDoor extends GameObject {
+export class DungeonDoor extends GameObject implements Interactable {
   private _leaf: GameObject;
   private _rigidBody: RigidBody;
   private _size = new THREE.Vector3();
@@ -67,6 +67,14 @@ export class DungeonDoor extends GameObject {
 
   public get isOpen(): boolean {
     return this._isOpen;
+  }
+
+  public interact(): void {
+    if (this._isOpen) {
+      this.close();
+    } else {
+      this.open();
+    }
   }
 
   public open(): void {
@@ -117,13 +125,9 @@ export class DungeonDoor extends GameObject {
 
     interactionZone.playerEvents.on('player-entered', updateHintVisibility);
     interactionZone.playerEvents.on('player-left', updateHintVisibility);
-    interactionZone.playerEvents.on('player-action', ({ action }) => {
+    interactionZone.playerEvents.on('player-action', ({ player, action }) => {
       if (action.type === PlayerActionType.ACTION_DOWN) {
-        if (this.isOpen) {
-          this.close();
-        } else {
-          this.open();
-        }
+        player.stateController.requestInteraction(this);
       }
     });
     this.add(interactionZone);

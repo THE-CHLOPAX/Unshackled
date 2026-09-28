@@ -21,6 +21,7 @@ export const config: PlayerOptions = {
       kick: 1.5,
       hit: 1.8,
       run: 0.9,
+      interact: 2.5,
     },
   },
   healthOptions: {

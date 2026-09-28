@@ -4,7 +4,7 @@ echo " "
 echo "====== Updating version ======"
 echo " "
 
-git add ./ && npm version patch --no-git-tag-version && git add ./
+npm version patch --no-git-tag-version && git add package.json package-lock.json
 
 status=$?
 
