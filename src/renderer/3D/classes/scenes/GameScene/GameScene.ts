@@ -1,9 +1,8 @@
 import * as THREE from 'three';
 import { assert, AssetRecord, Scene } from '@tgdf';
 
-import { LevelRecord } from '3D/types';
-import { GameEventsEmitter } from 'renderer/types';
-import { loadWorldMap } from '3D/utils/loadWorldMap';
+import { loadWorldMap } from 'renderer/utils/loadWorldMap';
+import { GameEventsEmitter, LevelIdentifier } from 'renderer/types';
 import { generateChunkedLevel } from '3D/utils/generateChunkedLevel';
 import { GAME_GRAVITY, LEVEL_CHUNK_SIZE, MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
 
@@ -16,13 +15,13 @@ import { ProgressTracker, ProgressTrackerObjective } from './ProgressTracker/Pro
 
 export type GameSceneOptions = {
   emitter: GameEventsEmitter;
+  level?: LevelIdentifier;
   objective?: ProgressTrackerObjective;
 };
 
 export abstract class GameScene extends Scene {
   public camera: OrtographicCamera;
 
-  public abstract readonly levelVariants: LevelRecord[];
   public abstract readonly preloadedAssets: AssetRecord[];
 
   protected additionalWarmupFactories: WarmupFactory[] = [];
@@ -87,14 +86,13 @@ export abstract class GameScene extends Scene {
 
   public async generateLevel(): Promise<void> {
     try {
-      if (this.levelVariants.length === 0) {
-        throw new Error('No level variants available for this scene');
+      const { level } = this.options;
+
+      if (!level) {
+        throw new Error('No level provided for this scene');
       }
 
-      const randomizedIndex = Math.floor(Math.random() * this.levelVariants.length);
-      const randomizedLevelVariant = this.levelVariants[randomizedIndex];
-
-      const levelData = await loadWorldMap(randomizedLevelVariant.url);
+      const levelData = await loadWorldMap(level.mapUrl);
       const { floorGroup } = await generateChunkedLevel(this, levelData.map, LEVEL_CHUNK_SIZE);
       assert(floorGroup.isGroup, 'Floor group is not a THREE.Group instance');
       await this.initializeNavMeshManager(floorGroup);

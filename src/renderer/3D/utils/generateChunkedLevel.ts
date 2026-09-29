@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { assert, Scene } from '@tgdf';
 
+import { WorldCell, WorldOutputData } from 'renderer/types';
+
 import { vec2toIndex } from './vec2ToIndex';
 import { isInstancedCell } from './isInstancedCell';
 import { getChunkBoundaries } from './getChunkBoundaries';
@@ -15,8 +17,6 @@ import {
 } from './mergeCollidersIntoTrimeshGeometry';
 import {
   WorldChunkBoundary,
-  WorldCell,
-  WorldOutputData,
   WorldTileCodes,
   LevelGeneratedData,
   WorldObjectDefinition,

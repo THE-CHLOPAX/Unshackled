@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { useGraphicsStore } from '@tgdf';
 
+import { GameUIOverlay } from 'UI';
+import { TestScene } from '3D/classes/scenes/TestScene';
+import { useLoadScene } from 'renderer/hooks/useLoadScene';
+
 import { LoadingView } from './LoadingView';
-import { useLoadScene } from '../../3D/hooks/useLoadScene';
-import { TestScene } from '../../3D/classes/scenes/TestScene';
 import { BackToViewLayout } from '../layouts/BackToViewLayout';
-import { GameUIOverlay } from '../components/GameUIOverlay/GameUIOverlay';
 import { ThreeDViewerPixelated } from '../components/ThreeDViewerPixelated';
 
 export function TestView() {
   const { resolution } = useGraphicsStore();
-  const { scene, loadingProgress, emitter } = useLoadScene(TestScene);
+  const { scene, loadingProgress, emitter } = useLoadScene((emitter) => new TestScene(emitter));
 
   const [loadingFinished, setLoadingFinished] = useState(false);
 

@@ -68,9 +68,7 @@ describe('ProgressTracker', () => {
   describe('survived-time objective', () => {
     it('accumulates elapsed time on every scene update', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, survivedTimeObjective(10), [
-        createFakePlayer(false),
-      ]);
+      const tracker = createTracker(scene, survivedTimeObjective(10), [createFakePlayer(false)]);
 
       scene.events.trigger('update', { deltaTime: 3 });
       scene.events.trigger('update', { deltaTime: 4 });
@@ -104,9 +102,7 @@ describe('ProgressTracker', () => {
 
     it('freezes elapsed time once the objective is resolved', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, survivedTimeObjective(10), [
-        createFakePlayer(false),
-      ]);
+      const tracker = createTracker(scene, survivedTimeObjective(10), [createFakePlayer(false)]);
 
       scene.events.trigger('update', { deltaTime: 10 });
       scene.events.trigger('update', { deltaTime: 5 });
@@ -118,9 +114,7 @@ describe('ProgressTracker', () => {
   describe('entities-killed objective', () => {
     it('increments objectiveEntitiesKilled only for tracked objective classes', () => {
       const scene = createScene();
-      const tracker = createTracker(scene, entitiesKilledObjective(2), [
-        createFakePlayer(false),
-      ]);
+      const tracker = createTracker(scene, entitiesKilledObjective(2), [createFakePlayer(false)]);
       const objectiveEntity = createObjectiveEntity(scene);
       const otherEntity = new OtherEntity({ scene });
       scene.add(otherEntity);

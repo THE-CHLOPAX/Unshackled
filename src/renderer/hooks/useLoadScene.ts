@@ -2,8 +2,7 @@ import { Emitter, logger } from '@tgdf';
 import { useEffect, useMemo, useState } from 'react';
 
 import { GameEventsEmitter, GameEventsMap } from 'renderer/types';
-
-import { GameScene } from '../classes/scenes/GameScene/GameScene';
+import { GameScene } from '3D/classes/scenes/GameScene/GameScene';
 
 export type UseLoadSceneResult = {
   scene: GameScene | null;
@@ -12,9 +11,9 @@ export type UseLoadSceneResult = {
   emitter: GameEventsEmitter;
 };
 
-export function useLoadScene(
-  sceneClass: new (emitter: GameEventsEmitter) => GameScene
-): UseLoadSceneResult {
+export type SceneFactory = (emitter: GameEventsEmitter) => GameScene;
+
+export function useLoadScene(createScene: SceneFactory): UseLoadSceneResult {
   const emitter = useMemo(() => new Emitter<GameEventsMap>(), []);
 
   const [scene, setScene] = useState<GameScene | null>(null);
@@ -24,7 +23,7 @@ export function useLoadScene(
   useEffect(() => {
     let cancelled = false;
 
-    const nextScene = new sceneClass(emitter);
+    const nextScene = createScene(emitter);
 
     const reportProgress = (progress: number): void => {
       if (!cancelled) setLoadingProgress(progress);

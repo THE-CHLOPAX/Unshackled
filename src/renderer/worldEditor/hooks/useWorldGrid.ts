@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { WORLD_LAYER_COUNT } from '3D/constants';
-import { WorldCell, WorldOutputData, WorldTileCodes } from '3D/types';
+import { WorldTileCodes } from '3D/types';
+import { WORLD_LAYER_COUNT } from 'renderer/constants';
+import { WorldCell, WorldOutputData } from 'renderer/types';
 
 import { WORLD_GRID_SIZE } from '../const';
 

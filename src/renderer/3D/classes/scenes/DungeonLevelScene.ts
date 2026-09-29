@@ -1,9 +1,8 @@
 import * as THREE from 'three';
 import { AssetRecord, PlayerInput } from '@tgdf';
 
-import { LevelRecord } from 'renderer/3D/types';
-import { GameEventsEmitter } from 'renderer/types';
 import { getModelClone } from 'renderer/3D/utils/getModelClone';
+import { GameEventsEmitter, LevelIdentifier } from 'renderer/types';
 import { MODELS, SPAWN_MARKER_NAME, TEXTURES } from 'renderer/3D/constants';
 
 import { GameScene } from './GameScene/GameScene';
@@ -14,8 +13,6 @@ import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
 import { OBJECTIVE_ENTITIES_KILLED } from './GameScene/ProgressTracker/ProgressTracker';
 
 export class DungeonLevelScene extends GameScene {
-  public readonly levelVariants: LevelRecord[] = [{ url: 'test.json' }];
-
   public readonly preloadedAssets: AssetRecord[] = [
     MODELS.MONK,
     MODELS.SKELETON,
@@ -41,9 +38,13 @@ export class DungeonLevelScene extends GameScene {
     return new FreeOrtographicCamera(options);
   } */
 
-  constructor(public readonly emitter: GameEventsEmitter) {
+  constructor(
+    public readonly emitter: GameEventsEmitter,
+    level: LevelIdentifier
+  ) {
     super({
       emitter,
+      level,
       objective: {
         type: OBJECTIVE_ENTITIES_KILLED,
         objectiveClasses: [Skeleton],

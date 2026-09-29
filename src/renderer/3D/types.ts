@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { InputState, Scene, SceneCamera } from '@tgdf';
 
+import { WorldCell } from 'renderer/types';
+
 import { State } from './classes/states';
 import { Entity } from './classes/gameObjects/Entity';
 
@@ -106,25 +108,9 @@ export type WorldObjectDefinition = InstancedWorldObjectDefinition | EntityWorld
 
 export type WorldVec2 = { x: number; z: number };
 
-export type WorldCell = {
-  code: number;
-  rotation: number;
-};
-
-export type WorldOutputData = {
-  version: 2;
-  width: number;
-  height: number;
-  layers: Map<number, WorldCell>[];
-};
-
 export type WorldChunkBoundary = {
   start: WorldVec2;
   end: WorldVec2;
-};
-
-export type LevelRecord = {
-  url: string;
 };
 
 export type LevelGeneratedData = {

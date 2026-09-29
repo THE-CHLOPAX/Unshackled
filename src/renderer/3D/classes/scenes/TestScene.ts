@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { AssetRecord, PlayerInput, useAssetStore } from '@tgdf';
 
-import { LevelRecord } from 'renderer/3D/types';
 import { GameEventsEmitter } from 'renderer/types';
 import { getModelClone } from 'renderer/3D/utils/getModelClone';
 import { pixelateTexture } from 'renderer/3D/utils/pixelateTexture';
@@ -23,8 +22,6 @@ const TEST_PLANE_SIZE = 30;
 const TEST_PLANE_CHECKERBOARD_REPEAT = 10;
 
 export class TestScene extends GameScene {
-  public readonly levelVariants: LevelRecord[] = [];
-
   public readonly preloadedAssets: AssetRecord[] = [
     MODELS.MONK,
     MODELS.SKELETON,

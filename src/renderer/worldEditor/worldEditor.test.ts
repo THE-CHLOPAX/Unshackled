@@ -1,12 +1,12 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 
-import { WORLD_LAYER_COUNT } from '3D/constants';
-import { serializeWorldMap } from '3D/utils/saveWorldMap';
-import { deserializeWorldMap } from '3D/utils/loadWorldMap';
+import { WORLD_LAYER_COUNT } from 'renderer/constants';
+import { deserializeWorldMap } from 'renderer/utils/loadWorldMap';
 
 import { WORLD_GRID_SIZE } from './const';
 import { useWorldGrid } from './hooks/useWorldGrid';
+import { serializeWorldMap } from './utils/saveWorldMap';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), once: vi.fn(), removeListener: vi.fn() },

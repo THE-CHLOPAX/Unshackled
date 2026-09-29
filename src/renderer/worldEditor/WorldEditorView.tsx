@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import { useCallback, useEffect, useState } from 'react';
 
-import { saveWorldMap } from '3D/utils/saveWorldMap';
-import { loadWorldMap } from '3D/utils/loadWorldMap';
+import { loadWorldMap } from 'renderer/utils/loadWorldMap';
 import { WORLD_TILE_DEFINITIONS } from '3D/worldDefinitions';
+import { saveWorldMap } from 'renderer/worldEditor/utils/saveWorldMap';
 import { useWorldEditorStore } from 'renderer/store/useWorldEditorStore';
 
 import { GRADIENTS } from '../constants';
