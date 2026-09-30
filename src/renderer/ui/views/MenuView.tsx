@@ -1,49 +1,100 @@
-import { useViewsStore, InternalButton, InternalFlex, ipc } from '@tgdf';
+import { useMemo } from 'react';
+import styled from 'styled-components';
+import { useViewsStore, InternalFlex, ipc } from '@tgdf';
 
-import * as views from '../views';
+import { Button, ButtonProps, Text } from 'UI';
+
 import { GRADIENTS } from '../../constants';
-
-const VIEW_LABELS: Partial<Record<keyof typeof views, string>> = {
-  GameView: 'Play',
-};
-
-const PRIORITY_VIEWS: (keyof typeof views)[] = ['GameView'];
-
-const ORDERED_VIEW_NAMES = [
-  ...PRIORITY_VIEWS,
-  ...Object.keys(views).filter(
-    (viewName) => !PRIORITY_VIEWS.includes(viewName as keyof typeof views)
-  ),
-];
+import { UI_BACKGROUND_IMAGE_URLS } from '../constants';
+import { VersionLayout } from '../layouts/VersionLayout';
 
 export function MenuView() {
   const { setView } = useViewsStore();
 
+  const buttonsData: ButtonProps[] = useMemo(
+    () => [
+      {
+        label: 'Continue',
+        onClick: () => setView('GameView'),
+      },
+      {
+        label: 'New game',
+        onClick: () => setView('NewGameView'),
+      },
+      {
+        label: 'Load game',
+        onClick: () => setView('LoadGameView'),
+      },
+      {
+        label: 'Settings',
+        onClick: () => setView('SettingsView'),
+      },
+      {
+        label: 'Quit',
+        onClick: () => {
+          ipc.send('app-quit-request', undefined);
+        },
+      },
+    ],
+    []
+  );
+
   return (
-    <InternalFlex
-      direction="column"
-      align="center"
-      justify="center"
-      style={{ height: '100vh', gap: '20px', background: GRADIENTS.BACKGROUND }}
-    >
-      <InternalFlex direction="column" align="center" gap={10}>
-        {ORDERED_VIEW_NAMES.map((viewName) => {
-          if (viewName === 'MenuView' || viewName === 'LoadingView') return null; // Skip non-navigable views
-
-          const label = VIEW_LABELS[viewName as keyof typeof views] ?? viewName;
-
-          return (
-            <InternalButton key={viewName} label={label} onClick={() => setView(viewName)} />
-          );
-        })}
-
-        <InternalButton
-          label="Quit"
-          onClick={() => {
-            ipc.send('app-quit-request', undefined);
-          }}
-        />
-      </InternalFlex>
-    </InternalFlex>
+    <VersionLayout>
+      <Wrapper>
+        <LogoWrapper>
+          <Logo />
+          <LogoOrnament />
+        </LogoWrapper>
+        <ButtonsWrapper direction="column" align="center" justify="center" gap={10}>
+          {buttonsData.map(({ label, onClick }) => {
+            return <Button key={label} label={label} onClick={onClick} />;
+          })}
+        </ButtonsWrapper>
+      </Wrapper>
+    </VersionLayout>
   );
 }
+
+const Wrapper = styled.div`
+  width: 100vw;
+  height: 100vh;
+  background: ${GRADIENTS.BACKGROUND};
+`;
+
+const ButtonsWrapper = styled(InternalFlex)`
+  position: absolute;
+  bottom: 22px;
+  left: 22px;
+`;
+
+const Logo = styled.div`
+  width: 538px;
+  height: 102px;
+  background-image: url(${UI_BACKGROUND_IMAGE_URLS.logoShort});
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+`;
+
+const LogoWrapper = styled.div`
+  position: absolute;
+  top: 31px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+`;
+
+const LogoOrnament = styled.div`
+  height: 30px;
+  width: 462px;
+  background-image: url(${UI_BACKGROUND_IMAGE_URLS.ornament});
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+`;

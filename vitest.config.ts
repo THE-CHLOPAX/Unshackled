@@ -1,7 +1,12 @@
 import path from 'path';
 import { defineConfig } from 'vitest/config';
 
+import { version } from './package.json';
+
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+  },
   test: {
     environment: 'jsdom',
     globals: true,

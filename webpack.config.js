@@ -1,6 +1,9 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+const { version } = require('./package.json');
 
 module.exports = {
   mode: 'development',
@@ -63,6 +66,9 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.DefinePlugin({
+      __APP_VERSION__: JSON.stringify(version),
+    }),
     new HtmlWebpackPlugin({
       template: './src/renderer/index.html',
     }),

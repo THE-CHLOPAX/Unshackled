@@ -2,6 +2,8 @@ import { NativeFileLocation } from '@tgdf';
 
 import { CampaignIdentifier, LevelIdentifier } from './types';
 
+export const APP_VERSION = __APP_VERSION__;
+
 // COLOR PALETTE
 export const COLORS = {
   // Base

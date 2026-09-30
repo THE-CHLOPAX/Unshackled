@@ -1,5 +1,4 @@
 import { Text } from './components/Text/Text';
-import { Button } from './components/Button/Button';
 import { Banner } from './components/Banner/Banner';
 import { Checkbox } from './components/Checkbox/Checkbox';
 import { Dropdown } from './components/Dropdown/Dropdown';
@@ -8,6 +7,7 @@ import { Scrollbar } from './components/Scrollbar/Scrollbar';
 import { TextInput } from './components/TextInput/TextInput';
 import { ButtonIcon } from './components/ButtonIcon/ButtonIcon';
 import { SmallPanel } from './components/SmallPanel/SmallPanel';
+import { Button, ButtonProps } from './components/Button/Button';
 import { BarOrnament } from './components/BarOrnament/BarOrnament';
 import { PanelScalable } from './components/PanelScalable/PanelScalable';
 import { GameUIOverlay } from './components/GameUIOverlay/GameUIOverlay';
@@ -32,6 +32,7 @@ export {
   HintBillboard,
   PanelScalable,
   GameUIOverlay,
+  type ButtonProps,
   type HealthBarProps,
   type HintBillboardProps,
 };

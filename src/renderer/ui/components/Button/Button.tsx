@@ -43,7 +43,7 @@ const Wrapper = styled.button`
   background-size: 100% auto;
   image-rendering: pixelated;
   cursor: pointer;
-  --button-label-color: ${COLORS.FONT_COLOR_PRIMARY};
+  --button-label-color: ${COLORS.FONT_COLOR_DIMMED};
 
   &:hover:not(:disabled) {
     background-image: url(${UI_BACKGROUND_IMAGE_URLS.buttonActiveBg});
