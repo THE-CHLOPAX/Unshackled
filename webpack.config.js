@@ -92,7 +92,10 @@ module.exports = {
       '@tgdf/*': path.resolve(__dirname, 'src/lib/*'),
       renderer: path.resolve(__dirname, 'src/renderer'),
       '3D': path.resolve(__dirname, 'src/renderer/3D'),
-      'UI': path.resolve(__dirname, 'src/renderer/ui')
+      'UI': path.resolve(__dirname, 'src/renderer/UI'),
+      'Store': path.resolve(__dirname, 'src/renderer/Store'),
+      'Views': path.resolve(__dirname, 'src/renderer/Views'),
+      'WorldEditor': path.resolve(__dirname, 'src/renderer/WorldEditor')
     },
   },
   devServer: {

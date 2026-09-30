@@ -4,7 +4,7 @@ import { MockCamera } from '@tgdf/internal-3d/testUtils/MockCamera';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { HintBillboard, HintBillboardProps } from 'UI';
-import { useOverlayStore, overlayElementRefs } from 'renderer/store/useOverlayStore';
+import { useOverlayStore, overlayElementRefs } from 'Store/useOverlayStore';
 
 import { HINT_BILLBOARD_OFFSET } from './constants';
 import { HintBillboardRenderer } from './HintBillboardRenderer';

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { COLORS } from 'renderer/constants';
 import { GameEventsEmitter } from 'renderer/types';
 import { Banner, PanelScalable, Button, Text } from 'UI';
-import { hexStringToRgbaString } from 'renderer/ui/utils/hexStringToRgbaString';
+import { hexStringToRgbaString } from 'UI/utils/hexStringToRgbaString';
 
 export type GameOverModalProps = {
   emitter: GameEventsEmitter;

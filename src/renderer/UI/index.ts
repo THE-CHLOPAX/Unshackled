@@ -1,5 +1,6 @@
 import { Text } from './components/Text/Text';
 import { Banner } from './components/Banner/Banner';
+import { UI_BACKGROUND_IMAGE_URLS } from './constants';
 import { Checkbox } from './components/Checkbox/Checkbox';
 import { Dropdown } from './components/Dropdown/Dropdown';
 import { BarSimple } from './components/BarSimple/BarSimple';
@@ -35,4 +36,5 @@ export {
   type ButtonProps,
   type HealthBarProps,
   type HintBillboardProps,
+  UI_BACKGROUND_IMAGE_URLS,
 };

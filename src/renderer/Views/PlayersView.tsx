@@ -7,9 +7,9 @@ import {
   InternalCheckbox,
 } from '@tgdf';
 
-import { COLORS } from '../../constants';
-import { BackToViewLayout } from '../layouts/BackToViewLayout';
-import { ActivePlayerState, useActivePlayersStore } from '../../store/useActivePlayersStore';
+import { COLORS } from 'renderer/constants';
+import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
+import { ActivePlayerState, useActivePlayersStore } from 'Store/useActivePlayersStore';
 
 export function PlayersView() {
   const {

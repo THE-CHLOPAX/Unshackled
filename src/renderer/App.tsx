@@ -4,10 +4,11 @@ import React, { useState } from 'react';
 import { Theme } from '@radix-ui/themes';
 import { useGamepadStore, ViewManager } from '@tgdf';
 
-import * as views from './ui/views';
+import * as views from 'Views';
+import { LoadingView } from 'Views/LoadingView';
+import { useActivePlayersStore } from 'Store/useActivePlayersStore';
+
 import { useFMODAudioInitialization } from './FMOD';
-import { LoadingView } from './ui/views/LoadingView';
-import { useActivePlayersStore } from './store/useActivePlayersStore';
 
 const App: React.FC = () => {
   useGamepadStore();

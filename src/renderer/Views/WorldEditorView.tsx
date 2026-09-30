@@ -1,16 +1,15 @@
 import styled from 'styled-components';
 import { useCallback, useEffect, useState } from 'react';
 
+import { GRADIENTS } from 'renderer/constants';
 import { loadWorldMap } from 'renderer/utils/loadWorldMap';
 import { WORLD_TILE_DEFINITIONS } from '3D/worldDefinitions';
-import { saveWorldMap } from 'renderer/worldEditor/utils/saveWorldMap';
-import { useWorldEditorStore } from 'renderer/store/useWorldEditorStore';
-
-import { GRADIENTS } from '../constants';
-import { WorldGridCanvas } from './WorldGridCanvas';
-import { useWorldGrid } from './hooks/useWorldGrid';
-import { WorldEditorPalette } from './WorldEditorPalette';
-import { BackToViewLayout } from '../ui/layouts/BackToViewLayout';
+import { saveWorldMap } from 'WorldEditor/utils/saveWorldMap';
+import { WorldGridCanvas } from 'WorldEditor/WorldGridCanvas';
+import { useWorldGrid } from 'WorldEditor/hooks/useWorldGrid';
+import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
+import { useWorldEditorStore } from 'Store/useWorldEditorStore';
+import { WorldEditorPalette } from 'WorldEditor/WorldEditorPalette';
 
 const FIRST_TILE_CODE = WORLD_TILE_DEFINITIONS[0]?.code ?? 0;
 

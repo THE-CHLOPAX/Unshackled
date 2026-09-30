@@ -2,8 +2,8 @@ import type { CSSProperties, ReactNode } from 'react';
 
 import styled from 'styled-components';
 
-import { TextSize } from 'renderer/ui/types';
-import { FONT_SIZES } from 'renderer/ui/constants';
+import { TextSize } from 'UI/types';
+import { FONT_SIZES } from 'UI/constants';
 
 import { COLORS } from '../../../constants';
 

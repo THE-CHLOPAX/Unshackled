@@ -104,7 +104,7 @@ export default defineConfig([
             'unknown',
           ],
 
-          internalPattern: ['^renderer/.+', '^3D/.+', '^UI'],
+          internalPattern: ['^renderer/.+', '^3D/.+', '^UI', '^Views', '^Store/.+', '^WorldEditor/.+'],
         },
       ],
     },

@@ -7,7 +7,7 @@ import {
   useViewsStore,
 } from '@tgdf';
 
-import * as views from '../views';
+import * as views from 'Views';
 
 export type BackToViewLayoutProps = {
   backToView: keyof typeof views;

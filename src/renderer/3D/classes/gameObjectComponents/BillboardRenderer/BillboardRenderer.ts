@@ -9,7 +9,7 @@ import {
   removeOverlayEntry,
   overlayElementRefs,
   overlayContainerSize,
-} from 'renderer/store/useOverlayStore';
+} from 'Store/useOverlayStore';
 
 import { BILLBOARD_POSITION_UPDATE_INTERVAL_MS, BILLBOARD_RENDERER_MESSAGES } from './constants';
 

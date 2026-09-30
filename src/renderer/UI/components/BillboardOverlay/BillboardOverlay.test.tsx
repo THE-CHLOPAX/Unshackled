@@ -9,7 +9,7 @@ import {
   removeOverlayEntry,
   overlayElementRefs,
   overlayContainerSize,
-} from 'renderer/store/useOverlayStore';
+} from 'Store/useOverlayStore';
 
 import { BillboardOverlay } from './BillboardOverlay';
 

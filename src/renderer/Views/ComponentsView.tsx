@@ -2,6 +2,9 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { InternalFlex, InternalText } from '@tgdf';
 
+import { COLORS, GRADIENTS } from 'renderer/constants';
+import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
+import { HintBillboard } from 'UI/components/HintBilboard/HintBillboard';
 import {
   Button,
   ButtonIcon,
@@ -16,10 +19,6 @@ import {
   ScrollableWrapper,
   PanelScalable,
 } from 'UI';
-
-import { COLORS, GRADIENTS } from '../../constants';
-import { BackToViewLayout } from '../layouts/BackToViewLayout';
-import { HintBillboard } from '../components/HintBilboard/HintBillboard';
 
 const TEXT_SIZES = ['sm', 'md', 'lg', 'xl', 'xxl'] as const;
 const DROPDOWN_OPTIONS = [

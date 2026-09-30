@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { COLORS } from 'renderer/constants';
-import { hexStringToRgbaString } from 'renderer/ui/utils/hexStringToRgbaString';
+import { hexStringToRgbaString } from 'UI/utils/hexStringToRgbaString';
 
 import { Text } from '../Text/Text';
 import { SmallPanel } from '../SmallPanel/SmallPanel';

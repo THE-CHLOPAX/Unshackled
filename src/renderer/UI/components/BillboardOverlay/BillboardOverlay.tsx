@@ -7,7 +7,7 @@ import {
   overlayElementRefs,
   overlayContainerSize,
   OverlayEntry,
-} from 'renderer/store/useOverlayStore';
+} from 'Store/useOverlayStore';
 
 // Single owning React tree for every billboard entity. Mounted once by the 3D viewer;
 // individual billboards register themselves via BillboardRenderer -> useOverlayStore

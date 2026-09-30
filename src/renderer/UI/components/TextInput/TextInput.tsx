@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react';
 
 import styled from 'styled-components';
 
-import { TextSize } from 'renderer/ui/types';
+import { TextSize } from 'UI/types';
 
 import { COLORS } from '../../../constants';
 import { FONT_SIZES, UI_BACKGROUND_IMAGE_URLS } from '../../constants';

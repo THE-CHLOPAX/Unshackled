@@ -4,10 +4,10 @@ import { useGraphicsStore } from '@tgdf';
 import { GameUIOverlay } from 'UI';
 import { TestScene } from '3D/classes/scenes/TestScene';
 import { useLoadScene } from 'renderer/hooks/useLoadScene';
+import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
+import { ThreeDViewerPixelated } from 'UI/components/ThreeDViewerPixelated';
 
 import { LoadingView } from './LoadingView';
-import { BackToViewLayout } from '../layouts/BackToViewLayout';
-import { ThreeDViewerPixelated } from '../components/ThreeDViewerPixelated';
 
 export function TestView() {
   const { resolution } = useGraphicsStore();

@@ -3,14 +3,14 @@ import { useGraphicsStore } from '@tgdf';
 
 import { GameUIOverlay } from 'UI';
 import { RunProgress } from 'renderer/types';
-import { useRunStore } from 'renderer/store/useRunStore';
+import { useRunStore } from 'Store/useRunStore';
 import { useLoadScene } from 'renderer/hooks/useLoadScene';
 import { pickRandomLevel } from '3D/utils/pickRandomLevel';
 import { BIOME_SCENES } from '3D/classes/scenes/biomeScenes';
+import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
+import { ThreeDViewerPixelated } from 'UI/components/ThreeDViewerPixelated';
 
 import { LoadingView } from './LoadingView';
-import { BackToViewLayout } from '../layouts/BackToViewLayout';
-import { ThreeDViewerPixelated } from '../components/ThreeDViewerPixelated';
 
 export function GameView() {
   const progress = useRunStore((state) => state.currentRun?.progress);

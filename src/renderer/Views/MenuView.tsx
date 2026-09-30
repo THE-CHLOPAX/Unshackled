@@ -2,11 +2,9 @@ import { useMemo } from 'react';
 import styled from 'styled-components';
 import { useViewsStore, InternalFlex, ipc } from '@tgdf';
 
-import { Button, ButtonProps, Text } from 'UI';
-
-import { GRADIENTS } from '../../constants';
-import { UI_BACKGROUND_IMAGE_URLS } from '../constants';
-import { VersionLayout } from '../layouts/VersionLayout';
+import { GRADIENTS } from 'renderer/constants';
+import { VersionLayout } from 'UI/layouts/VersionLayout';
+import { Button, ButtonProps, UI_BACKGROUND_IMAGE_URLS } from 'UI';
 
 export function MenuView() {
   const { setView } = useViewsStore();

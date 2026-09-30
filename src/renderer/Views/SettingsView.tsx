@@ -13,8 +13,8 @@ import {
   setChannelMuted,
 } from '@tgdf';
 
-import { COLORS, GRADIENTS } from '../../constants';
-import { BackToViewLayout } from '../layouts/BackToViewLayout';
+import { COLORS, GRADIENTS } from 'renderer/constants';
+import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
 
 export function SettingsView() {
   const { soundChannels } = useSoundsStore();

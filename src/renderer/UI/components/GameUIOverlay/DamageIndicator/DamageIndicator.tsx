@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components';
 
 import { COLORS } from 'renderer/constants';
 import { GameEventsEmitter } from 'renderer/types';
-import { hexStringToRgbaString } from 'renderer/ui/utils/hexStringToRgbaString';
+import { hexStringToRgbaString } from 'UI/utils/hexStringToRgbaString';
 
 const DAMAGE_FLASH_DURATION_MS = 400;
 
