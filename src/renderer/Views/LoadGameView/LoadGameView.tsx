@@ -203,17 +203,18 @@ const Wrapper = styled(PanelScalable)`
 
   > .panel-scalable-content {
     height: 100%;
+    padding-inline: 25px;
     padding-block: 0px;
   }
 
   .scrollable-track-vertical {
     position: relative;
     margin-left: -2px;
-    left: 8px;
-    padding-block: 15px;
+    left: 12px;
+    padding-block: 20px;
   }
 `;
 
 const ItemsWrapper = styled(InternalFlex)`
-  margin-block: px;
+  margin-block: 25px;
 `;
