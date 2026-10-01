@@ -6,3 +6,4 @@ export { SettingsView } from './SettingsView';
 export { WorldEditorView } from './WorldEditorView';
 export { ComponentsView } from './ComponentsView';
 export { LoadGameView } from './LoadGameView/LoadGameView';
+export { NewGameView } from './NewGameView/NewGameView';

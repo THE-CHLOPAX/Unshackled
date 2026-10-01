@@ -9,18 +9,17 @@ const SCALE = 3;
 
 const NATIVE_WIDTH = 35;
 const ACTIVE_HEIGHT = 20;
-const INACTIVE_HEIGHT = 18;
-const SPIKE_HEIGHT = ACTIVE_HEIGHT - INACTIVE_HEIGHT;
 
 export type ButtonProps = {
   onClick?: () => void;
   label: string;
   disabled?: boolean;
+  className?: string;
 };
 
-export const Button = ({ label, onClick, disabled = false }: ButtonProps) => {
+export const Button = ({ label, onClick, disabled = false, className }: ButtonProps) => {
   return (
-    <Wrapper type="button" disabled={disabled} onClick={onClick}>
+    <Wrapper type="button" disabled={disabled} onClick={onClick} className={className}>
       <ButtonLabel size="md">{label}</ButtonLabel>
     </Wrapper>
   );
@@ -34,7 +33,6 @@ const Wrapper = styled.button`
   background: none;
   border: none;
   padding: 0;
-  padding-top: ${SPIKE_HEIGHT * SCALE}px;
   min-width: ${NATIVE_WIDTH * SCALE}px;
   height: ${ACTIVE_HEIGHT * SCALE}px;
   background-image: url(${UI_BACKGROUND_IMAGE_URLS.buttonInactiveBg});
@@ -58,6 +56,6 @@ const Wrapper = styled.button`
 
 const ButtonLabel = styled(Text)`
   position: relative;
-  top: 2px;
+  top: 6px;
   color: var(--button-label-color);
 `;

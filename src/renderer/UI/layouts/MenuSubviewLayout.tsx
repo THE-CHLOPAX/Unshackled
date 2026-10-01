@@ -14,7 +14,7 @@ export const MenuSubviewLayout = ({
   return (
     <VersionLayout>
       <BackToViewLayout backToView="MenuView">
-        <Wrapper direction="column" justify="start" align="center">
+        <Wrapper direction="column" justify="center" align="center">
           <Header direction="column" justify="center" align="center" gap={20}>
             <Text size="xxl" color={COLORS.FONT_COLOR_HIGHLIGHT}>
               {title}
@@ -29,7 +29,6 @@ export const MenuSubviewLayout = ({
 };
 
 const Header = styled(InternalFlex)`
-  margin-top: 57px;
   margin-bottom: 49px;
 `;
 
@@ -43,7 +42,5 @@ const Content = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-bottom: 22px;
-  flex: 1;
   min-height: 0;
 `;

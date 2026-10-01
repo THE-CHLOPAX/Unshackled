@@ -4,10 +4,11 @@ import { UI_BACKGROUND_IMAGE_URLS } from 'UI';
 
 export type OrnamentProps = {
   short?: boolean;
+  className?: string;
 };
 
-export const Ornament = ({ short = false }: OrnamentProps) => {
-  return <Wrapper $short={short} />;
+export const Ornament = ({ short = false, className }: OrnamentProps) => {
+  return <Wrapper $short={short} className={className} />;
 };
 
 const Wrapper = styled.div<{ $short: boolean }>`

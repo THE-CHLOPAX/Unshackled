@@ -7,10 +7,17 @@ export type CheckboxProps = {
   checked: boolean;
   onChange?: (checked: boolean) => void;
   disabled?: boolean;
+  scale?: number;
   className?: string;
 };
 
-export const Checkbox = ({ checked, onChange, disabled = false, className }: CheckboxProps) => {
+export const Checkbox = ({
+  checked,
+  onChange,
+  disabled = false,
+  scale = 2,
+  className,
+}: CheckboxProps) => {
   return (
     <Wrapper
       type="button"
@@ -20,7 +27,9 @@ export const Checkbox = ({ checked, onChange, disabled = false, className }: Che
       className={className}
       onClick={() => onChange?.(!checked)}
     >
-      <SmallPanel active={checked}>{checked && <Mark size="lg">x</Mark>}</SmallPanel>
+      <SmallPanel active={checked} scale={scale}>
+        {checked && <Mark size="lg">x</Mark>}
+      </SmallPanel>
     </Wrapper>
   );
 };

@@ -200,6 +200,7 @@ const Wrapper = styled(PanelScalable)`
   position: relative;
   width: 602px;
   height: 100%;
+  max-height: 60vh;
 
   > .panel-scalable-content {
     height: 100%;
