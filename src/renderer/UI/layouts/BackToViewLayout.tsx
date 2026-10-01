@@ -1,5 +1,5 @@
+import styled from 'styled-components';
 import {
-  InternalButton,
   useKeyPress,
   useGamepadButtonPress,
   KEYBOARD_MAPPINGS,
@@ -8,6 +8,10 @@ import {
 } from '@tgdf';
 
 import * as views from 'Views';
+import { COLORS } from 'renderer/constants';
+
+import { Icon } from '../components/Icon/Icon';
+import { ButtonIcon } from '../components/ButtonIcon/ButtonIcon';
 
 export type BackToViewLayoutProps = {
   backToView: keyof typeof views;
@@ -35,13 +39,19 @@ export function BackToViewLayout({
   return (
     <>
       {noButton === false && (
-        <InternalButton
-          label="Back"
+        <StyledButtonIcon
+          icon={<Icon icon="arrowLeft" scale={2} color={COLORS.FONT_COLOR_DIMMED} />}
           onClick={() => setView(backToView)}
-          style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 1 }}
         />
       )}
       {children}
     </>
   );
 }
+
+const StyledButtonIcon = styled(ButtonIcon)`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+`;

@@ -4,9 +4,9 @@ import { useKeyPress, useClickOutside, KEYBOARD_MAPPINGS } from '@tgdf';
 
 import { Text } from '../Text/Text';
 import { COLORS } from '../../../constants';
-import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
+import { UI_IMAGE_URLS } from '../../constants';
 
-const { dropdownActiveBg, dropdownInactiveBg } = UI_BACKGROUND_IMAGE_URLS;
+const { dropdownActiveBg, dropdownInactiveBg } = UI_IMAGE_URLS;
 
 const SCALE = 3;
 

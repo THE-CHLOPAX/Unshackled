@@ -13,7 +13,7 @@ import { ClassSelector } from './ClassSelector';
 export const NewGameView = () => {
   const { basePlayer, additionalPlayers } = useActivePlayersStore();
   const players = useMemo(
-    () => [basePlayer, basePlayer, basePlayer, basePlayer],
+    () => [basePlayer, ...additionalPlayers],
     [basePlayer, additionalPlayers]
   );
 

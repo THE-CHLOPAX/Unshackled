@@ -24,7 +24,7 @@ export const LoadGameItem = ({ name, updatedAt, players, progress }: LoadGameIte
     <Wrapper>
       <RowsWrapper direction="column" justify="between">
         <Row>
-          <Text size="xl" color={COLORS.FONT_COLOR_HIGHLIGHT}>
+          <Text size="lg" color={COLORS.FONT_COLOR_HIGHLIGHT}>
             {name}
           </Text>
           <ProgressWrapper>

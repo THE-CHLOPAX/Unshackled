@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 import styled from 'styled-components';
 
-import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
+import { UI_IMAGE_URLS } from '../../constants';
 
 const DEFAULT_SCALE = 3;
 
@@ -62,9 +62,7 @@ const Wrapper = styled.div<{ $active: boolean; $activateOnHover: boolean; $scale
   height: ${({ $scale }) => ACTIVE_HEIGHT * $scale}px;
   padding-top: ${({ $scale }) => SPIKE_HEIGHT * $scale}px;
   background-image: url(${({ $active }) =>
-    $active
-      ? UI_BACKGROUND_IMAGE_URLS.smallPanelActiveBg
-      : UI_BACKGROUND_IMAGE_URLS.smallPanelInactiveBg});
+    $active ? UI_IMAGE_URLS.smallPanelActiveBg : UI_IMAGE_URLS.smallPanelInactiveBg});
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: 100% auto;
@@ -74,7 +72,7 @@ const Wrapper = styled.div<{ $active: boolean; $activateOnHover: boolean; $scale
     $activateOnHover &&
     `
     &:hover {
-      background-image: url(${UI_BACKGROUND_IMAGE_URLS.smallPanelActiveBg});
+      background-image: url(${UI_IMAGE_URLS.smallPanelActiveBg});
     }
   `}
 `;

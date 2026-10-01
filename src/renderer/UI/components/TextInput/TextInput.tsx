@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { TextSize } from 'UI/types';
 
 import { COLORS } from '../../../constants';
-import { FONT_SIZES, UI_BACKGROUND_IMAGE_URLS } from '../../constants';
+import { FONT_SIZES, UI_IMAGE_URLS } from '../../constants';
 
 const SCALE = 3;
 
@@ -56,7 +56,7 @@ const Input = styled.input<{ $fontSize: TextSize }>`
   border: none;
   outline: none;
   background: none;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.inputInactiveBg});
+  background-image: url(${UI_IMAGE_URLS.inputInactiveBg});
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: 100% auto;
@@ -72,7 +72,7 @@ const Input = styled.input<{ $fontSize: TextSize }>`
 
   &:focus {
     padding-top: ${SCALE * 2}px;
-    background-image: url(${UI_BACKGROUND_IMAGE_URLS.inputActiveBg});
+    background-image: url(${UI_IMAGE_URLS.inputActiveBg});
   }
 
   &:disabled {

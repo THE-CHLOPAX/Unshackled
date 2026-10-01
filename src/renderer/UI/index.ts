@@ -1,6 +1,6 @@
+import { UI_IMAGE_URLS } from './constants';
 import { Text } from './components/Text/Text';
 import { Banner } from './components/Banner/Banner';
-import { UI_BACKGROUND_IMAGE_URLS } from './constants';
 import { VersionLayout } from './layouts/VersionLayout';
 import { Checkbox } from './components/Checkbox/Checkbox';
 import { Dropdown } from './components/Dropdown/Dropdown';
@@ -13,6 +13,7 @@ import { ButtonIcon } from './components/ButtonIcon/ButtonIcon';
 import { SmallPanel } from './components/SmallPanel/SmallPanel';
 import { MenuSubviewLayout } from './layouts/MenuSubviewLayout';
 import { Button, ButtonProps } from './components/Button/Button';
+import { Icon, IconName, IconProps } from './components/Icon/Icon';
 import { BarOrnament } from './components/BarOrnament/BarOrnament';
 import { PanelScalable } from './components/PanelScalable/PanelScalable';
 import { GameUIOverlay } from './components/GameUIOverlay/GameUIOverlay';
@@ -26,6 +27,7 @@ export {
   Banner,
   Checkbox,
   Text,
+  Icon,
   TextInput,
   Dropdown,
   Scrollbar,
@@ -42,7 +44,9 @@ export {
   VersionLayout,
   Ornament,
   type ButtonProps,
+  type IconName,
+  type IconProps,
   type HealthBarProps,
   type HintBillboardProps,
-  UI_BACKGROUND_IMAGE_URLS,
+  UI_IMAGE_URLS,
 };

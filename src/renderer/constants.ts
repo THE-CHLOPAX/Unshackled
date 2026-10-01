@@ -17,6 +17,7 @@ export const COLORS = {
   ORANGE: '#ffaa33',
   GREEN: '#00AB06',
   BROWN: '#5D3E2F',
+  BROWN_DARK: '#090804',
   // Semantic
   BG_COLOR: '#191611',
   BG_COLOR_HIGHLIGHTED_HALF: '#211a0e',

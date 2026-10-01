@@ -3,7 +3,7 @@ import { styled } from 'styled-components';
 import { COLORS } from 'renderer/constants';
 
 import { Text } from '../Text/Text';
-import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
+import { UI_IMAGE_URLS } from '../../constants';
 
 const SCALE = 3;
 
@@ -35,7 +35,7 @@ const Wrapper = styled.button`
   padding: 0;
   min-width: ${NATIVE_WIDTH * SCALE}px;
   height: ${ACTIVE_HEIGHT * SCALE}px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.buttonInactiveBg});
+  background-image: url(${UI_IMAGE_URLS.buttonInactiveBg});
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: 100% auto;
@@ -44,7 +44,7 @@ const Wrapper = styled.button`
   --button-label-color: ${COLORS.FONT_COLOR_DIMMED};
 
   &:hover:not(:disabled) {
-    background-image: url(${UI_BACKGROUND_IMAGE_URLS.buttonActiveBg});
+    background-image: url(${UI_IMAGE_URLS.buttonActiveBg});
     --button-label-color: ${COLORS.FONT_COLOR_HIGHLIGHT};
   }
 

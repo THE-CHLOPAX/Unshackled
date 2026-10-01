@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { COLORS } from 'renderer/constants';
 
-import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
+import { UI_IMAGE_URLS } from '../../constants';
 
 const SCALE = 3;
 
@@ -149,7 +149,7 @@ const Arrow = styled.button<{ $orientation: ScrollbarProps['orientation'] }>`
     left: 50%;
     width: ${ARROW_THICKNESS_PX}px;
     height: ${ARROW_LENGTH_PX}px;
-    background-image: url(${UI_BACKGROUND_IMAGE_URLS.scrollArrow});
+    background-image: url(${UI_IMAGE_URLS.scrollArrow});
     background-repeat: no-repeat;
     background-position: center;
     background-size: 100% 100%;
@@ -196,7 +196,7 @@ const Thumb = styled.div<{ $orientation: ScrollbarProps['orientation']; $offset:
     left: 50%;
     width: ${THUMB_THICKNESS_PX}px;
     height: ${THUMB_LENGTH_PX}px;
-    background-image: url(${UI_BACKGROUND_IMAGE_URLS.scrollThumb});
+    background-image: url(${UI_IMAGE_URLS.scrollThumb});
     background-repeat: no-repeat;
     background-position: center;
     background-size: 100% 100%;

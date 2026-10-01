@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { COLORS } from 'renderer/constants';
 
 import { Text } from '../Text/Text';
-import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
+import { UI_IMAGE_URLS } from '../../constants';
 
 const SCALE = 3;
 
@@ -30,7 +30,7 @@ const Wrapper = styled.div`
   justify-content: center;
   width: ${NATIVE_WIDTH * SCALE}px;
   height: ${NATIVE_HEIGHT * SCALE}px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.bannerBg});
+  background-image: url(${UI_IMAGE_URLS.bannerBg});
   background-repeat: no-repeat;
   background-size: 100% 100%;
   image-rendering: pixelated;

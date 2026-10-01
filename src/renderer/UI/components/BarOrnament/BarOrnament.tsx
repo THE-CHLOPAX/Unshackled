@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { COLORS } from 'renderer/constants';
 
-import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
+import { UI_IMAGE_URLS } from '../../constants';
 
 const DEFAULT_SCALE = 3;
 
@@ -93,9 +93,7 @@ const Frame = styled.div<{ $short: boolean }>`
   position: absolute;
   inset: 0;
   background-image: url(${({ $short }) =>
-    $short
-      ? UI_BACKGROUND_IMAGE_URLS.barOrnamentShortFrame
-      : UI_BACKGROUND_IMAGE_URLS.barOrnamentFrame});
+    $short ? UI_IMAGE_URLS.barOrnamentShortFrame : UI_IMAGE_URLS.barOrnamentFrame});
   background-repeat: no-repeat;
   background-size: 100% 100%;
   image-rendering: pixelated;

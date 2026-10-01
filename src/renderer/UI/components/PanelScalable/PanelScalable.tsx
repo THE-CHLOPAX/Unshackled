@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { COLORS } from '../../../constants';
-import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
+import { UI_IMAGE_URLS } from '../../constants';
 
 const SCALE = 3;
 
@@ -75,7 +75,7 @@ const SegmentTopLeft = styled(Segment)`
   left: 0;
   width: ${CORNER_WIDTH_LEFT * SCALE}px;
   height: ${CORNER_HEIGHT_TOP * SCALE}px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.scalablePanelTopLeft});
+  background-image: url(${UI_IMAGE_URLS.scalablePanelTopLeft});
 `;
 
 const SegmentTopRight = styled(Segment)`
@@ -83,7 +83,7 @@ const SegmentTopRight = styled(Segment)`
   right: 0;
   width: ${CORNER_WIDTH_RIGHT * SCALE}px;
   height: ${CORNER_HEIGHT_TOP * SCALE}px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.scalablePanelTopRight});
+  background-image: url(${UI_IMAGE_URLS.scalablePanelTopRight});
 `;
 
 const SegmentBottomLeft = styled(Segment)`
@@ -91,7 +91,7 @@ const SegmentBottomLeft = styled(Segment)`
   left: 0;
   width: ${CORNER_WIDTH_LEFT * SCALE}px;
   height: ${CORNER_HEIGHT_BOTTOM * SCALE}px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.scalablePanelBottomLeft});
+  background-image: url(${UI_IMAGE_URLS.scalablePanelBottomLeft});
 `;
 
 const SegmentBottomRight = styled(Segment)`
@@ -99,7 +99,7 @@ const SegmentBottomRight = styled(Segment)`
   right: 0;
   width: ${CORNER_WIDTH_RIGHT * SCALE}px;
   height: ${CORNER_HEIGHT_BOTTOM * SCALE}px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.scalablePanelBottomRight});
+  background-image: url(${UI_IMAGE_URLS.scalablePanelBottomRight});
 `;
 
 const SegmentTop = styled(Segment)`
@@ -107,7 +107,7 @@ const SegmentTop = styled(Segment)`
   left: ${CORNER_WIDTH_LEFT * SCALE}px;
   right: ${CORNER_WIDTH_RIGHT * SCALE}px;
   height: ${EDGE_THICKNESS * SCALE}px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.scalablePanelTop});
+  background-image: url(${UI_IMAGE_URLS.scalablePanelTop});
 `;
 
 const SegmentBottom = styled(Segment)`
@@ -115,7 +115,7 @@ const SegmentBottom = styled(Segment)`
   left: ${CORNER_WIDTH_LEFT * SCALE}px;
   right: ${CORNER_WIDTH_RIGHT * SCALE}px;
   height: ${EDGE_THICKNESS * SCALE}px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.scalablePanelBottom});
+  background-image: url(${UI_IMAGE_URLS.scalablePanelBottom});
 `;
 
 const SegmentLeft = styled(Segment)`
@@ -123,7 +123,7 @@ const SegmentLeft = styled(Segment)`
   top: ${CORNER_HEIGHT_TOP * SCALE}px;
   bottom: ${CORNER_HEIGHT_BOTTOM * SCALE}px;
   width: ${EDGE_THICKNESS * SCALE}px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.scalablePanelLeft});
+  background-image: url(${UI_IMAGE_URLS.scalablePanelLeft});
 `;
 
 const SegmentRight = styled(Segment)`
@@ -131,5 +131,5 @@ const SegmentRight = styled(Segment)`
   top: ${CORNER_HEIGHT_TOP * SCALE}px;
   bottom: ${CORNER_HEIGHT_BOTTOM * SCALE}px;
   width: ${EDGE_THICKNESS * SCALE}px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.scalablePanelRight});
+  background-image: url(${UI_IMAGE_URLS.scalablePanelRight});
 `;

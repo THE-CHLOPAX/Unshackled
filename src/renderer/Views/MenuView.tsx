@@ -4,7 +4,8 @@ import { useViewsStore, InternalFlex, ipc } from '@tgdf';
 
 import { GRADIENTS } from 'renderer/constants';
 import { VersionLayout } from 'UI/layouts/VersionLayout';
-import { Button, ButtonProps, Ornament, UI_BACKGROUND_IMAGE_URLS } from 'UI';
+import { Button, ButtonProps, Ornament, UI_IMAGE_URLS } from 'UI';
+import { SidebarsLayout } from 'renderer/UI/layouts/SidebarsLayout';
 
 export function MenuView() {
   const { setView } = useViewsStore();
@@ -39,23 +40,25 @@ export function MenuView() {
 
   return (
     <VersionLayout>
-      <Wrapper>
-        <LogoWrapper>
-          <Logo />
-          <Ornament />
-        </LogoWrapper>
-        <ButtonsWrapper direction="column" align="center" justify="center" gap={10}>
-          {buttonsData.map(({ label, onClick }) => {
-            return <Button key={label} label={label} onClick={onClick} />;
-          })}
-        </ButtonsWrapper>
-      </Wrapper>
+      <SidebarsLayout>
+        <Wrapper>
+          <LogoWrapper>
+            <Logo />
+            <Ornament />
+          </LogoWrapper>
+          <ButtonsWrapper direction="column" align="center" justify="center" gap={10}>
+            {buttonsData.map(({ label, onClick }) => {
+              return <Button key={label} label={label} onClick={onClick} />;
+            })}
+          </ButtonsWrapper>
+        </Wrapper>
+      </SidebarsLayout>
     </VersionLayout>
   );
 }
 
 const Wrapper = styled.div`
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   background: ${GRADIENTS.BACKGROUND};
 `;
@@ -69,7 +72,7 @@ const ButtonsWrapper = styled(InternalFlex)`
 const Logo = styled.div`
   width: 538px;
   height: 102px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.logoShort});
+  background-image: url(${UI_IMAGE_URLS.logoShort});
   image-rendering: pixelated;
   background-repeat: no-repeat;
   background-size: contain;

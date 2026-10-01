@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { UI_BACKGROUND_IMAGE_URLS } from 'UI';
+import { UI_IMAGE_URLS } from 'UI';
 
 export type OrnamentProps = {
   short?: boolean;
@@ -15,9 +15,7 @@ const Wrapper = styled.div<{ $short: boolean }>`
   height: 30px;
   width: ${({ $short }) => ($short ? '156px' : '462px')};
   background-image: ${({ $short }) =>
-    $short
-      ? `url(${UI_BACKGROUND_IMAGE_URLS.ornamentShort})`
-      : `url(${UI_BACKGROUND_IMAGE_URLS.ornament})`};
+    $short ? `url(${UI_IMAGE_URLS.ornamentShort})` : `url(${UI_IMAGE_URLS.ornament})`};
   image-rendering: pixelated;
   background-repeat: no-repeat;
   background-size: contain;
