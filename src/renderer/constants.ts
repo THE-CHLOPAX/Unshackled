@@ -28,7 +28,7 @@ export const COLORS = {
 
 export const GRADIENTS = {
   BACKGROUND:
-    `radial-gradient(ellipse at center, ${COLORS.BG_COLOR_HIGHLIGHTED_HALF} 0%, ` +
+    `radial-gradient(ellipse at center, ${COLORS.BG_COLOR_HIGHLIGHTED} 0%, ` +
     `${COLORS.BG_COLOR} 100%)`,
 } as const;
 

@@ -95,6 +95,7 @@ export const ScrollableWrapper = ({
       <Content
         ref={contentRef}
         data-testid="scrollable-content"
+        className="scrollable-content"
         onScroll={updateFromScroll}
         $overflowY={showVertical ? 'auto' : 'hidden'}
         $overflowX={showHorizontal ? 'auto' : 'hidden'}
@@ -105,7 +106,7 @@ export const ScrollableWrapper = ({
       </Content>
 
       {showVertical && verticalState.thumbRatio < 1 && (
-        <VerticalSlot>
+        <VerticalSlot className="scrollable-track-vertical">
           <Scrollbar
             orientation="vertical"
             progress={verticalState.progress}
@@ -116,7 +117,7 @@ export const ScrollableWrapper = ({
       )}
 
       {showHorizontal && horizontalState.thumbRatio < 1 && (
-        <HorizontalSlot>
+        <HorizontalSlot className="scrollable-track-horizontal">
           <Scrollbar
             orientation="horizontal"
             progress={horizontalState.progress}

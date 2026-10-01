@@ -5,4 +5,4 @@ export { PlayersView } from './PlayersView';
 export { SettingsView } from './SettingsView';
 export { WorldEditorView } from './WorldEditorView';
 export { ComponentsView } from './ComponentsView';
-export { LoadGameView } from './LoadGameView';
+export { LoadGameView } from './LoadGameView/LoadGameView';

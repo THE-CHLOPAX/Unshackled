@@ -25,7 +25,9 @@ export function LoadingView({ progress, onComplete }: LoadingViewProps) {
 
   return (
     <Wrapper>
-      <Text size="xl">Loading...</Text>
+      <Text color={COLORS.FONT_COLOR_HIGHLIGHT} size="xl">
+        Loading...
+      </Text>
       <BarOrnament progress={progressDebounced} fillColor={COLORS.SOFT_FAWN} />
     </Wrapper>
   );

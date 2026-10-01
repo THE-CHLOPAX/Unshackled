@@ -4,7 +4,7 @@ import { useViewsStore, InternalFlex, ipc } from '@tgdf';
 
 import { GRADIENTS } from 'renderer/constants';
 import { VersionLayout } from 'UI/layouts/VersionLayout';
-import { Button, ButtonProps, UI_BACKGROUND_IMAGE_URLS } from 'UI';
+import { Button, ButtonProps, Ornament, UI_BACKGROUND_IMAGE_URLS } from 'UI';
 
 export function MenuView() {
   const { setView } = useViewsStore();
@@ -42,7 +42,7 @@ export function MenuView() {
       <Wrapper>
         <LogoWrapper>
           <Logo />
-          <LogoOrnament />
+          <Ornament />
         </LogoWrapper>
         <ButtonsWrapper direction="column" align="center" justify="center" gap={10}>
           {buttonsData.map(({ label, onClick }) => {
@@ -85,14 +85,4 @@ const LogoWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   position: relative;
-`;
-
-const LogoOrnament = styled.div`
-  height: 30px;
-  width: 462px;
-  background-image: url(${UI_BACKGROUND_IMAGE_URLS.ornament});
-  image-rendering: pixelated;
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
 `;

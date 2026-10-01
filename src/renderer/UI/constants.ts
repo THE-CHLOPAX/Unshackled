@@ -4,6 +4,7 @@ import logoShort from '../assets/svg/logo-short.svg?url';
 import scrollArrow from '../assets/svg/scroll-arrow.svg?url';
 import scrollThumb from '../assets/svg/scroll-thumb.svg?url';
 import barSimpleFrame from '../assets/svg/bar-simple.svg?url';
+import ornamentShort from '../assets/svg/ornament-short.svg?url';
 import barOrnamentFrame from '../assets/svg/bar-ornament.svg?url';
 import inputActiveBg from '../assets/svg/input-active-bg.svg?url';
 import buttonActiveBg from '../assets/svg/button-active-bg.svg?url';
@@ -54,6 +55,7 @@ export const UI_BACKGROUND_IMAGE_URLS = {
   smallPanelInactiveBg,
   logoShort,
   ornament,
+  ornamentShort,
 } as const;
 
 export const FONT_SIZES = {

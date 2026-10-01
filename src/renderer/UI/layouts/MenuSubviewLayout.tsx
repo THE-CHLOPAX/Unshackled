@@ -1,0 +1,49 @@
+import { InternalFlex } from '@tgdf';
+import styled from 'styled-components';
+
+import { COLORS, GRADIENTS } from 'renderer/constants';
+import { BackToViewLayout, Ornament, Text, VersionLayout } from 'UI';
+
+export const MenuSubviewLayout = ({
+  children,
+  title,
+}: {
+  children: React.ReactNode;
+  title: string;
+}) => {
+  return (
+    <VersionLayout>
+      <BackToViewLayout backToView="MenuView">
+        <Wrapper direction="column" justify="start" align="center">
+          <Header direction="column" justify="center" align="center" gap={20}>
+            <Text size="xxl" color={COLORS.FONT_COLOR_HIGHLIGHT}>
+              {title}
+            </Text>
+            <Ornament />
+          </Header>
+          <Content>{children}</Content>
+        </Wrapper>
+      </BackToViewLayout>
+    </VersionLayout>
+  );
+};
+
+const Header = styled(InternalFlex)`
+  margin-top: 57px;
+  margin-bottom: 49px;
+`;
+
+const Wrapper = styled(InternalFlex)`
+  width: 100vw;
+  height: 100vh;
+  background: ${GRADIENTS.BACKGROUND};
+`;
+
+const Content = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 22px;
+  flex: 1;
+  min-height: 0;
+`;

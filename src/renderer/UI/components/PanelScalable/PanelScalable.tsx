@@ -21,9 +21,10 @@ export type PanelScalableProps = {
   children: ReactNode;
   className?: string;
   style?: CSSProperties;
+  color?: string;
 };
 
-export const PanelScalable = ({ children, className, style }: PanelScalableProps) => {
+export const PanelScalable = ({ children, className, style, color }: PanelScalableProps) => {
   return (
     <Wrapper className={className} style={style}>
       <SegmentTopLeft />
@@ -34,7 +35,9 @@ export const PanelScalable = ({ children, className, style }: PanelScalableProps
       <SegmentBottomLeft />
       <SegmentBottom />
       <SegmentBottomRight />
-      <Content>{children}</Content>
+      <Content className="panel-scalable-content" $color={color}>
+        {children}
+      </Content>
     </Wrapper>
   );
 };
@@ -46,10 +49,10 @@ const Wrapper = styled.div`
   min-height: ${MIN_HEIGHT * SCALE}px;
 `;
 
-const Content = styled.div`
+const Content = styled.div<{ $color?: string }>`
   position: relative;
   box-sizing: border-box;
-  background: ${COLORS.BG_COLOR};
+  background: ${({ $color }) => $color ?? COLORS.BG_COLOR};
   padding: ${6 * SCALE}px;
   min-width: 100%;
   min-height: 100%;
