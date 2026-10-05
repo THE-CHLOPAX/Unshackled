@@ -202,8 +202,6 @@ export const TEXTURES: Record<string, TextureRecord> = {
   },
 };
 
-export const WORLD_LAYER_COUNT = 4;
-
 export const WORLD_CELL_SIZE = 3;
 
 export const MODEL_NATIVE_TILE_SIZE = 5;
@@ -211,6 +209,9 @@ export const MODEL_NATIVE_TILE_SIZE = 5;
 export const MODEL_TILE_SCALE = new THREE.Vector3().setScalar(
   WORLD_CELL_SIZE / MODEL_NATIVE_TILE_SIZE
 );
+
+export const GAME_GRAVITY = new THREE.Vector3(0, -9.81, 0);
+export const LEVEL_CHUNK_SIZE = 16;
 
 export const FLOOR_TILE_CODES = [WorldTileCodes.DungeonFloorFull, WorldTileCodes.DungeonFloorFlat];
 

@@ -100,8 +100,6 @@ export class Flame extends GameObject {
     this._mesh.renderOrder = FLAME_RENDER_ORDER;
     this.add(this._mesh);
 
-    this.toggleInput(false);
-
     if (options.scale !== undefined) {
       this.scale.setScalar(options.scale);
     }

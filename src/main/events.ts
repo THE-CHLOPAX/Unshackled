@@ -1,15 +1,33 @@
 import path from 'path';
 import { app, dialog, screen } from 'electron';
-import { readFile, mkdir, writeFile } from 'fs/promises';
 import { Resolution } from '@tgdf/internal-ui/types/graphics';
-import { NativeLoadFileRequest, NativeSaveFileRequest } from '@tgdf';
+import { readFile, readdir, mkdir, rm, writeFile } from 'fs/promises';
+import {
+  NativeFileLocation,
+  NativeListFilesRequest,
+  NativeLoadFileRequest,
+  NativeRemoveFileRequest,
+  NativeSaveFileRequest,
+} from '@tgdf';
 
 import { mainWindow, main } from './main';
 import { getZoomFactorForResolution } from './utils/getZoomFactorForResolution';
 
 const currentResolution: Resolution = { width: 1280, height: 720 };
 
-const WORLD_MAPS_DIR = 'src/renderer/assets/worldMaps';
+function resolveDirectory({ root, directory }: NativeFileLocation): string {
+  const rootPath = root === 'userData' ? app.getPath('userData') : app.getAppPath();
+  return path.join(rootPath, directory);
+}
+
+function resolveJsonFilePath(request: NativeFileLocation & { name: string }): string {
+  const slug =
+    request.name
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, '-') || 'untitled';
+  return path.join(resolveDirectory(request), `${slug}.json`);
+}
 
 export function bindUserEvents(): void {
   main.on('app-quit-request', onCloseAppRequest);
@@ -17,7 +35,9 @@ export function bindUserEvents(): void {
   main.on('set-fullscreen-request', onFullscreenRequest);
   main.on('get-fullscreen-state-request', onGetFullscreenStateRequest);
   main.on('save-file-request', onSaveFileRequest);
+  main.on('remove-file-request', onRemoveFileRequest);
   main.on('load-file-request', onLoadFileRequest);
+  main.on('list-files-request', onListFilesRequest);
 
   if (!mainWindow) {
     return;
@@ -92,16 +112,9 @@ export function onFullscreenRequest(request: {
 
 export async function onSaveFileRequest(request: NativeSaveFileRequest): Promise<void> {
   try {
-    const slug =
-      request.name
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9_-]+/g, '-') || 'untitled';
-    const directory = path.join(app.getAppPath(), WORLD_MAPS_DIR);
+    const filePath = resolveJsonFilePath(request);
 
-    await mkdir(directory, { recursive: true });
-
-    const filePath = path.join(directory, `${slug}.json`);
+    await mkdir(path.dirname(filePath), { recursive: true });
     await writeFile(filePath, request.json, 'utf-8');
 
     main.send('save-file-response', { ok: true, path: filePath });
@@ -110,10 +123,20 @@ export async function onSaveFileRequest(request: NativeSaveFileRequest): Promise
   }
 }
 
+export async function onRemoveFileRequest(request: NativeRemoveFileRequest): Promise<void> {
+  try {
+    await rm(resolveJsonFilePath(request), { force: true });
+
+    main.send('remove-file-response', { ok: true });
+  } catch (error) {
+    main.send('remove-file-response', { ok: false, error: String(error) });
+  }
+}
+
 export async function onLoadFileRequest(request: NativeLoadFileRequest): Promise<void> {
   try {
     let filePath: string;
-    const directory = path.join(app.getAppPath(), WORLD_MAPS_DIR);
+    const directory = resolveDirectory(request);
 
     if (request.path !== undefined) {
       filePath = path.join(directory, request.path);
@@ -134,6 +157,30 @@ export async function onLoadFileRequest(request: NativeLoadFileRequest): Promise
     main.send('load-file-response', { ok: true, path: filePath, contents });
   } catch (_error) {
     main.send('load-file-response', { ok: false, path: null, contents: null });
+  }
+}
+
+export async function onListFilesRequest(request: NativeListFilesRequest): Promise<void> {
+  try {
+    const directory = resolveDirectory(request);
+    await mkdir(directory, { recursive: true });
+
+    const entries = await readdir(directory, { withFileTypes: true });
+    const names = entries
+      .filter((entry) => entry.isFile())
+      .map((entry) => entry.name)
+      .filter((name) => !request.extension || name.endsWith(request.extension));
+
+    const files = await Promise.all(
+      names.map(async (name) => ({
+        name,
+        contents: await readFile(path.join(directory, name), 'utf8'),
+      }))
+    );
+
+    main.send('list-files-response', { ok: true, files });
+  } catch (error) {
+    main.send('list-files-response', { ok: false, files: [], error: String(error) });
   }
 }
 

@@ -32,9 +32,7 @@ export function MenuView() {
 
           const label = VIEW_LABELS[viewName as keyof typeof views] ?? viewName;
 
-          return (
-            <InternalButton key={viewName} label={label} onClick={() => setView(viewName)} />
-          );
+          return <InternalButton key={viewName} label={label} onClick={() => setView(viewName)} />;
         })}
 
         <InternalButton

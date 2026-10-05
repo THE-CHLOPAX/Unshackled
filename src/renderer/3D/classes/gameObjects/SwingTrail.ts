@@ -109,8 +109,6 @@ export class SwingTrail extends GameObject {
     this._mesh = new THREE.Mesh(geometry, resolveSharedMaterial());
     this._mesh.frustumCulled = false;
     this.add(this._mesh);
-
-    this.toggleInput(false);
   }
 
   protected override onUpdate(): void {

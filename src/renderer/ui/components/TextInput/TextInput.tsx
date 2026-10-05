@@ -62,8 +62,8 @@ const Input = styled.input<{ $fontSize: TextSize }>`
   background-size: 100% auto;
   image-rendering: pixelated;
   font-family: 'Alagard', monospace;
-  font-size: ${({ $fontSize }) => FONT_SIZES[$fontSize]}px;
-  line-height: 0.8;
+  font-size: ${({ $fontSize }) => FONT_SIZES[$fontSize].fontSize}px;
+  line-height: ${({ $fontSize }) => FONT_SIZES[$fontSize].lineHeight};
   color: ${COLORS.FONT_COLOR_PRIMARY};
 
   &::placeholder {

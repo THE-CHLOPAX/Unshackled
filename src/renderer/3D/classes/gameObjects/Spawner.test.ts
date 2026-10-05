@@ -91,9 +91,7 @@ describe('Spawner', () => {
   it('spawns the first entity once the telegraph duration elapses', async () => {
     const scene = await createReadyScene();
     stubNavMesh(scene);
-    vi.spyOn(gsap, 'delayedCall').mockImplementation(
-      () => ({}) as unknown as gsap.core.Tween
-    );
+    vi.spyOn(gsap, 'delayedCall').mockImplementation(() => ({}) as unknown as gsap.core.Tween);
     const { spawner, spawnedEntities } = createSpawner(scene);
 
     spawner.update(0);
@@ -107,9 +105,7 @@ describe('Spawner', () => {
   it('never spawns more than maxSpawnedEntities, even once entities die', async () => {
     const scene = await createReadyScene();
     stubNavMesh(scene);
-    vi.spyOn(gsap, 'delayedCall').mockImplementation(
-      () => ({}) as unknown as gsap.core.Tween
-    );
+    vi.spyOn(gsap, 'delayedCall').mockImplementation(() => ({}) as unknown as gsap.core.Tween);
     const { spawner, spawnedEntities } = createSpawner(scene, {
       maxSpawnedEntities: 2,
       maxAliveEntities: 5,
@@ -136,9 +132,7 @@ describe('Spawner', () => {
   it('does not begin a new spawn interval while at maxAliveEntities, and resumes once an entity dies', async () => {
     const scene = await createReadyScene();
     stubNavMesh(scene);
-    vi.spyOn(gsap, 'delayedCall').mockImplementation(
-      () => ({}) as unknown as gsap.core.Tween
-    );
+    vi.spyOn(gsap, 'delayedCall').mockImplementation(() => ({}) as unknown as gsap.core.Tween);
     const { spawner, spawnedEntities } = createSpawner(scene, {
       maxSpawnedEntities: 5,
       maxAliveEntities: 1,

@@ -1,31 +1,36 @@
 import * as THREE from 'three';
-import { assert, AssetRecord, Scene } from '@tgdf';
+import { assert, AssetRecord, isDev, Scene } from '@tgdf';
 
-import { LevelRecord } from '3D/types';
-import { GameEventsEmitter } from 'renderer/types';
-import { loadWorldMap } from '3D/utils/loadWorldMap';
-import { MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
+import { loadWorldMap } from 'renderer/utils/loadWorldMap';
+import { GameEventsEmitter, LevelIdentifier } from 'renderer/types';
 import { generateChunkedLevel } from '3D/utils/generateChunkedLevel';
+import { GAME_GRAVITY, LEVEL_CHUNK_SIZE, MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
 
 import { loadAssetRecord } from './loadAssetRecord';
+import { Player } from '../../gameObjects/players/Player';
 import { ShadersManager, WarmupFactory } from './ShadersManager/ShadersManager';
 import { getDefaultWarmupMaterialFactories } from './getDefaultWarmupMaterialFactories';
 import { OrtographicCamera, OrtographicCameraOptions } from '../../cameras/OrtographicCamera';
+import { ProgressTracker, ProgressTrackerObjective } from './ProgressTracker/ProgressTracker';
 
-const GAME_GRAVITY = new THREE.Vector3(0, 0, 0);
-const LEVEL_CHUNK_SIZE = 16;
+export type GameSceneOptions = {
+  emitter: GameEventsEmitter;
+  level?: LevelIdentifier;
+  objective?: ProgressTrackerObjective;
+};
 
 export abstract class GameScene extends Scene {
   public camera: OrtographicCamera;
 
-  public abstract readonly levelVariants: LevelRecord[];
   public abstract readonly preloadedAssets: AssetRecord[];
 
   protected additionalWarmupFactories: WarmupFactory[] = [];
 
   private _shadersManager = new ShadersManager();
+  private _progressTracker: ProgressTracker | null = null;
+  private _players: Player[] = [];
 
-  constructor(public readonly emitter?: GameEventsEmitter) {
+  constructor(public readonly options: GameSceneOptions) {
     super();
 
     const aspectRatio = window.innerWidth / window.innerHeight;
@@ -41,10 +46,25 @@ export abstract class GameScene extends Scene {
     });
 
     this.camera.setZoom(0.85);
+
+    if (options.objective) {
+      this._progressTracker = new ProgressTracker(this, options.emitter, {
+        players: this._players,
+        objective: options.objective,
+      });
+    }
   }
 
-  protected createCamera(options: OrtographicCameraOptions): OrtographicCamera {
-    return new OrtographicCamera(options);
+  public get progressTracker(): ProgressTracker | null {
+    return this._progressTracker;
+  }
+
+  public get players(): readonly Player[] {
+    return this._players;
+  }
+
+  public registerPlayer(player: Player): void {
+    this._players.push(player);
   }
 
   public async initializePhysics(): Promise<void> {
@@ -66,14 +86,13 @@ export abstract class GameScene extends Scene {
 
   public async generateLevel(): Promise<void> {
     try {
-      if (this.levelVariants.length === 0) {
-        throw new Error('No level variants available for this scene');
+      const { level } = this.options;
+
+      if (!level) {
+        throw new Error('No level provided for this scene');
       }
 
-      const randomizedIndex = Math.floor(Math.random() * this.levelVariants.length);
-      const randomizedLevelVariant = this.levelVariants[randomizedIndex];
-
-      const levelData = await loadWorldMap(randomizedLevelVariant.url);
+      const levelData = await loadWorldMap(level.mapUrl);
       const { floorGroup } = await generateChunkedLevel(this, levelData.map, LEVEL_CHUNK_SIZE);
       assert(floorGroup.isGroup, 'Floor group is not a THREE.Group instance');
       await this.initializeNavMeshManager(floorGroup);
@@ -98,9 +117,13 @@ export abstract class GameScene extends Scene {
 
   public override update(deltaTime: number, renderer: THREE.WebGLRenderer | null): void {
     super.update(deltaTime, renderer);
-    if (process.env.NODE_ENV === 'development') {
+    if (isDev) {
       this._shadersManager.checkForLateCompiles(this.renderer);
     }
+  }
+
+  protected createCamera(options: OrtographicCameraOptions): OrtographicCamera {
+    return new OrtographicCamera(options);
   }
 
   protected onInit(): void {}

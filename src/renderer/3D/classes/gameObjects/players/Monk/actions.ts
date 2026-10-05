@@ -11,8 +11,8 @@ import { ActionWithSound, ChainedAction, PlayerActionType } from '../../../../ty
 const PUNCH_CHAIN_WINDOW_DELAY_MS = 150;
 const PUNCH_CHAIN_WINDOW_DURATION_MS = 300;
 
-const KICK_IMPULSE_STRENGTH = 0.4;
-const PUNCH_IMPULSE_STRENGTH = 0.4;
+const KICK_IMPULSE_STRENGTH = 0.2;
+const PUNCH_IMPULSE_STRENGTH = 0.2;
 
 const KICK_CAMERA_SHAKE = 2;
 const PUNCH_CAMERA_SHAKE = 1;

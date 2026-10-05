@@ -1,6 +1,7 @@
 import { ipc, NativeSaveFileResponse } from '@tgdf';
 
-import { WorldOutputData } from '../types';
+import { WorldOutputData } from 'renderer/types';
+import { WORLD_MAPS_LOCATION } from 'renderer/constants';
 
 function replaceMapsWithEntries(_key: string, value: unknown): unknown {
   return value instanceof Map ? Array.from(value.entries()) : value;
@@ -16,6 +17,10 @@ export function saveWorldMap(
 ): Promise<NativeSaveFileResponse> {
   return new Promise((resolve) => {
     ipc.once('save-file-response', (data) => resolve(data));
-    ipc.send('save-file-request', { name, json: serializeWorldMap(output) });
+    ipc.send('save-file-request', {
+      ...WORLD_MAPS_LOCATION,
+      name,
+      json: serializeWorldMap(output),
+    });
   });
 }

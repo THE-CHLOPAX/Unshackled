@@ -1,3 +1,8 @@
+import { NativeFileLocation } from '@tgdf';
+
+import { CampaignIdentifier, LevelIdentifier } from './types';
+
+// COLOR PALETTE
 export const COLORS = {
   // Base
   GOLDEN: '#fffd88',
@@ -25,5 +30,46 @@ export const GRADIENTS = {
     `${COLORS.BG_COLOR} 100%)`,
 } as const;
 
-// DOM id of the billboard overlay container rendered by BillboardOverlay.
+// WORLD GENERATION
+export const WORLD_LAYER_COUNT = 4;
+
+export const WORLD_MAPS_LOCATION: NativeFileLocation = {
+  root: 'app',
+  directory: 'src/renderer/assets/worldMaps',
+};
+
+export const SAVE_FILES_LOCATION: NativeFileLocation = {
+  root: 'userData',
+  directory: 'saveFiles',
+};
+
+export const SAVE_FILES_LOCATION_DEV: NativeFileLocation = {
+  root: 'app',
+  directory: 'saveFilesDebug',
+};
+
+// BILLBOARD DOM
 export const BILLBOARD_OVERLAY_ELEMENT_ID = 'billboard-overlay';
+
+// GAMEPLAY
+export const PLAYER_CLASSES = ['monk'] as const;
+
+export const BIOMES = ['dungeon'] as const;
+
+export const INTRO_LEVEL_ID = 'intro';
+
+export const DUNGEON_LEVELS: LevelIdentifier[] = [
+  {
+    id: INTRO_LEVEL_ID,
+    mapUrl: 'test.json',
+  },
+] as const;
+
+export const CAMPAIGN: CampaignIdentifier = [
+  {
+    id: 'dungeon',
+    levelCount: 5,
+    levels: DUNGEON_LEVELS,
+    bossLevels: [],
+  },
+] as const;

@@ -1,7 +1,7 @@
 import { ipc, isElectron } from '@tgdf';
 
-import { WORLD_LAYER_COUNT } from '../constants';
-import { WorldCell, WorldOutputData } from '../types';
+import { WorldCell, WorldOutputData } from 'renderer/types';
+import { WORLD_MAPS_LOCATION, WORLD_LAYER_COUNT } from 'renderer/constants';
 
 type RawWorldData = {
   version?: number;
@@ -10,6 +10,43 @@ type RawWorldData = {
   data?: Map<number, WorldCell>;
   layers?: Map<number, WorldCell>[];
 };
+
+export function loadWorldMap(
+  fileName?: string
+): Promise<{ fileName: string; map: WorldOutputData }> {
+  return new Promise((resolve, reject) => {
+    if (isElectron) {
+      ipc.once('load-file-response', (data) => {
+        const { ok, contents, path } = data;
+        if (!ok || contents === null || path === null) {
+          reject('Failed to load world map data.');
+          return;
+        }
+        try {
+          const fileNameReturned = path.split(/[/\\]/).pop() ?? '';
+          resolve({ fileName: fileNameReturned, map: deserializeWorldMap(contents) });
+        } catch (error) {
+          reject(`Failed to load world map data: ${String(error)}`);
+        }
+      });
+
+      ipc.send('load-file-request', { ...WORLD_MAPS_LOCATION, path: fileName });
+    } else {
+      if (!fileName) {
+        reject('Failed to load world map data. No file name provided.');
+        return;
+      }
+
+      fetch(`./assets/worldMaps/${fileName}`)
+        .then((response) => {
+          if (!response.ok) throw new Error(String(response.status));
+          return response.text();
+        })
+        .then((contents) => resolve({ fileName, map: deserializeWorldMap(contents) }))
+        .catch(() => reject('Failed to load world map data.'));
+    }
+  });
+}
 
 function reviveWorldMap(key: string, value: unknown): unknown {
   if (key === 'data' && Array.isArray(value)) {
@@ -31,41 +68,4 @@ function migrateWorldMap(parsed: RawWorldData): WorldOutputData {
 
 export function deserializeWorldMap(input: string): WorldOutputData {
   return migrateWorldMap(JSON.parse(input, reviveWorldMap) as RawWorldData);
-}
-
-export function loadWorldMap(
-  fileName?: string
-): Promise<{ fileName: string; map: WorldOutputData }> {
-  return new Promise((resolve, reject) => {
-    if (isElectron) {
-      ipc.once('load-file-response', (data) => {
-        const { ok, contents, path } = data;
-        if (!ok || contents === null || path === null) {
-          reject('Failed to load world map data.');
-          return;
-        }
-        try {
-          const fileNameReturned = path.split(/[/\\]/).pop() ?? '';
-          resolve({ fileName: fileNameReturned, map: deserializeWorldMap(contents) });
-        } catch (error) {
-          reject(`Failed to load world map data: ${String(error)}`);
-        }
-      });
-
-      ipc.send('load-file-request', { path: fileName });
-    } else {
-      if (!fileName) {
-        reject('Failed to load world map data. No file name provided.');
-        return;
-      }
-
-      fetch(`./assets/worldMaps/${fileName}`)
-        .then((response) => {
-          if (!response.ok) throw new Error(String(response.status));
-          return response.text();
-        })
-        .then((contents) => resolve({ fileName, map: deserializeWorldMap(contents) }))
-        .catch(() => reject('Failed to load world map data.'));
-    }
-  });
 }

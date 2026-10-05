@@ -11,7 +11,7 @@ export class Player extends Entity {
 
   constructor(
     scene: GameScene,
-    public options: PlayerOptions
+    public readonly options: PlayerOptions
   ) {
     super(scene, {
       ...options,

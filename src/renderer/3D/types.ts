@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { InputState, Scene, SceneCamera } from '@tgdf';
 
+import { WorldCell } from 'renderer/types';
+
 import { State } from './classes/states';
 import { Entity } from './classes/gameObjects/Entity';
 
@@ -14,6 +16,7 @@ export enum AnimationClipNamesShared {
   FALL = 'fall',
   HIT = 'hit',
   STAND_UP = 'stand-up',
+  INTERACT = 'interact',
 }
 
 export enum PlayerActionType {
@@ -105,25 +108,9 @@ export type WorldObjectDefinition = InstancedWorldObjectDefinition | EntityWorld
 
 export type WorldVec2 = { x: number; z: number };
 
-export type WorldCell = {
-  code: number;
-  rotation: number;
-};
-
-export type WorldOutputData = {
-  version: 2;
-  width: number;
-  height: number;
-  layers: Map<number, WorldCell>[];
-};
-
 export type WorldChunkBoundary = {
   start: WorldVec2;
   end: WorldVec2;
-};
-
-export type LevelRecord = {
-  url: string;
 };
 
 export type LevelGeneratedData = {
@@ -138,6 +125,9 @@ type StateNodeFor<E extends Entity, S extends State> = {
 
 export type StateNode<S extends State = State> = StateNodeFor<S['entity'], S>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type EntityClass = abstract new (...args: any[]) => Entity;
+
 export type StateMachineContext = {
   entity: Entity;
   currentState: State | null;
@@ -149,4 +139,9 @@ export type StateMachine = {
     ctx: StateMachineContext & { currentHealth: number; damageAmount: number }
   ): StateNode | null;
   onDeath(ctx: StateMachineContext): StateNode | null;
+  onInteract?(ctx: StateMachineContext & { target: Interactable }): StateNode | null;
+};
+
+export type Interactable = {
+  interact(entity: Entity): void;
 };

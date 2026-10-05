@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { WorldTileCodes } from '3D/types';
+import { WorldCell } from 'renderer/types';
 import { vec2toIndex } from '3D/utils/vec2ToIndex';
-import { WorldCell, WorldTileCodes } from '3D/types';
 
 import { codeToCssHex } from './utils/codeToCssHex';
 

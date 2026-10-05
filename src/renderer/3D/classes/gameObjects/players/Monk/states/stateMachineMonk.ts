@@ -1,12 +1,13 @@
 import { FMOD_EVENTS } from 'renderer/FMOD';
 import { flashRed } from '3D/utils/flashRed';
 import { deadStateNode } from '3D/classes/states/utils/deadStateNode';
-import { ChainedAction, PlayerActionType, StateMachine, StateNode } from '3D/types';
 import { getInputBasedStateNode } from '3D/classes/states/utils/getInputBasedStateNode';
+import { ChainedAction, Interactable, PlayerActionType, StateMachine, StateNode } from '3D/types';
 import {
   AimingState,
   AttackState,
   IdleState,
+  InteractState,
   RunningState,
   SprintingState,
 } from '3D/classes/states';
@@ -15,6 +16,8 @@ import { Player } from '../../Player';
 import { punchRight } from '../actions';
 import { Rock } from '../childObjects/Rock';
 import { DashStateMonk } from './DashStateMonk';
+
+const INTERACT_TRIGGER_DELAY_S = 0.4;
 
 const aimingStateNode: StateNode<AimingState> = {
   state: (entity) =>
@@ -81,6 +84,18 @@ const idleStateNode: StateNode<IdleState> = {
   },
 };
 
+function getInteractStateNode(target: Interactable): StateNode<InteractState> {
+  return {
+    state: (entity) =>
+      new InteractState(entity, target, { triggerDelayS: INTERACT_TRIGGER_DELAY_S }),
+    onUpdate: ({ entity, currentState }) => {
+      if (!currentState.isComplete) return null;
+
+      return resolveLocomotionNode(entity);
+    },
+  };
+}
+
 function resolveLocomotionNode(entity: Player): StateNode {
   const newStateNode = getInputBasedStateNode(entity.inputSource.getControls(), [
     [PlayerActionType.SPRINT, () => sprintingStateNode],
@@ -125,5 +140,13 @@ export const stateMachineMonk: StateMachine = {
     entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_HIT);
     entity.scene.camera.addShake(3);
     return deadStateNode;
+  },
+  onInteract: ({ currentState, target }) => {
+    const canInteract =
+      currentState instanceof IdleState ||
+      currentState instanceof RunningState ||
+      currentState instanceof SprintingState;
+
+    return canInteract ? getInteractStateNode(target) : null;
   },
 };

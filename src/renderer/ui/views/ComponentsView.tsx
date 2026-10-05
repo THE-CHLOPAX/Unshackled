@@ -19,6 +19,7 @@ import {
 
 import { COLORS, GRADIENTS } from '../../constants';
 import { BackToViewLayout } from '../layouts/BackToViewLayout';
+import { HintBillboard } from '../components/HintBilboard/HintBillboard';
 
 const TEXT_SIZES = ['sm', 'md', 'lg', 'xl', 'xxl'] as const;
 const DROPDOWN_OPTIONS = [
@@ -175,6 +176,14 @@ export function ComponentsView() {
               <SmallPanel>
                 <Text size="sm">i</Text>
               </SmallPanel>
+              <SmallPanel scale={2}>{''}</SmallPanel>
+              <SmallPanel scale={2} active>
+                {''}
+              </SmallPanel>
+              <SmallPanel scale={4}>{''}</SmallPanel>
+              <SmallPanel scale={4} active>
+                {''}
+              </SmallPanel>
             </InternalFlex>
           </ComponentSection>
 
@@ -225,6 +234,10 @@ export function ComponentsView() {
                 </ScrollableWrapper>
               </div>
             </InternalFlex>
+          </ComponentSection>
+
+          <ComponentSection title="HintBillboard">
+            <HintBillboard icon="A" label="Open" />
           </ComponentSection>
 
           <ComponentSection title="Text">

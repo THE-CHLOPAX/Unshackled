@@ -172,6 +172,30 @@ describe('HealthPointsController', () => {
     });
   });
 
+  describe('onDestroyed', () => {
+    it('removes all event listeners when destroyed', () => {
+      const { controller } = createController(10);
+      const damageListener = vi.fn();
+      const healListener = vi.fn();
+      const deathListener = vi.fn();
+      controller.events.on('damagetaken', damageListener);
+      controller.events.on('heal', healListener);
+      controller.events.on('death', deathListener);
+
+      controller.destroy();
+
+      expect(controller.events.listeners).toHaveLength(0);
+
+      controller.inflictDamage(5);
+      controller.inflictDamage(5);
+      controller.healDamage(5);
+
+      expect(damageListener).not.toHaveBeenCalled();
+      expect(deathListener).not.toHaveBeenCalled();
+      expect(healListener).not.toHaveBeenCalled();
+    });
+  });
+
   describe('resetHealth', () => {
     it('restores health to initialHealthPoints and clears isDead', () => {
       const { controller } = createController(10);
@@ -184,5 +208,4 @@ describe('HealthPointsController', () => {
       expect(controller.isDead).toBe(false);
     });
   });
-
 });

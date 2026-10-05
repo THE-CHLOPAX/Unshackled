@@ -314,14 +314,38 @@ describe('GameObject', () => {
   });
 
   describe('Input registration', () => {
-    it('registers with Input on construction', () => {
+    it('does not register with any input source when none is provided', () => {
       const gameObject = new TestGameObject({ scene });
 
+      expect(gameObject.inputSource).toBeNull();
+      expect(Input.registerNotifiable).not.toHaveBeenCalled();
+    });
+
+    it('does not receive global input notifications when no input source is provided', () => {
+      const gameObject = new TestGameObject({ scene });
+      const inputSpy = vi.spyOn(gameObject, 'onInputNotify');
+
+      notifyAllInput();
+
+      expect(inputSpy).not.toHaveBeenCalled();
+    });
+
+    it('destroys cleanly when no input source is provided', () => {
+      const gameObject = new TestGameObject({ scene });
+
+      expect(() => gameObject.destroy()).not.toThrow();
+      expect(Input.unregisterNotifiable).not.toHaveBeenCalled();
+    });
+
+    it('registers with the provided input source on construction', () => {
+      const gameObject = new TestGameObject({ scene, inputSource: Input });
+
+      expect(gameObject.inputSource).toBe(Input);
       expect(Input.registerNotifiable).toHaveBeenCalledWith(gameObject);
     });
 
-    it('unregisters from Input when destroyed', () => {
-      const gameObject = new TestGameObject({ scene });
+    it('unregisters from the provided input source when destroyed', () => {
+      const gameObject = new TestGameObject({ scene, inputSource: Input });
 
       gameObject.destroy();
 
@@ -329,7 +353,7 @@ describe('GameObject', () => {
     });
 
     it('does not receive input notifications after being destroyed', () => {
-      const gameObject = new TestGameObject({ scene });
+      const gameObject = new TestGameObject({ scene, inputSource: Input });
       const inputSpy = vi.spyOn(gameObject, 'onInputNotify');
 
       gameObject.destroy();

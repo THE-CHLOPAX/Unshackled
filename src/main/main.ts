@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { NativeEventMainMap, NativeEventRendererMap } from '@tgdf/internal-ui/types/native';
 
 import { bindUserEvents } from './events';
+import { isDev } from '../lib/internal-utils/isDev';
 import { createWindow } from './utils/createWindow';
 
 export let mainWindow: BrowserWindow | null = null;
@@ -14,7 +15,7 @@ app.whenReady().then(() => {
   });
 
   // Open devtools on F12 if in development mode
-  if (process.env.NODE_ENV === 'development') {
+  if (isDev) {
     mainWindow?.webContents.on('before-input-event', (event, input) => {
       if (input.type === 'keyDown' && input.key === 'F12') {
         mainWindow?.webContents.toggleDevTools();

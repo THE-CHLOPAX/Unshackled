@@ -123,6 +123,29 @@ describe('Scene', () => {
       expect(ResourceTracker.trackObject).toHaveBeenCalledWith(mesh);
       expect(ResourceTracker.resourcesForObjects.has(mesh.uuid)).toBe(true);
     });
+
+    it('triggers objectAdded with the added object', () => {
+      const objectAddedHandler = vi.fn();
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
+      scene.events.on('object-added', objectAddedHandler);
+
+      scene.add(mesh);
+
+      expect(objectAddedHandler).toHaveBeenCalledWith({ object: mesh });
+    });
+
+    it('triggers objectAdded once per object when adding multiple objects', () => {
+      const objectAddedHandler = vi.fn();
+      const meshA = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
+      const meshB = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
+      scene.events.on('object-added', objectAddedHandler);
+
+      scene.add(meshA, meshB);
+
+      expect(objectAddedHandler).toHaveBeenCalledTimes(2);
+      expect(objectAddedHandler).toHaveBeenNthCalledWith(1, { object: meshA });
+      expect(objectAddedHandler).toHaveBeenNthCalledWith(2, { object: meshB });
+    });
   });
 
   describe('remove', () => {
@@ -141,6 +164,32 @@ describe('Scene', () => {
       expect(geometryDisposeSpy).toHaveBeenCalledOnce();
       expect(materialDisposeSpy).toHaveBeenCalledOnce();
       expect(ResourceTracker.resourcesForObjects.has(mesh.uuid)).toBe(false);
+    });
+
+    it('triggers objectRemoved with the removed object', () => {
+      const objectRemovedHandler = vi.fn();
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
+      scene.add(mesh);
+
+      scene.events.on('object-removed', objectRemovedHandler);
+
+      scene.remove(mesh);
+
+      expect(objectRemovedHandler).toHaveBeenCalledWith({ object: mesh });
+    });
+
+    it('triggers objectRemoved once per object when removing multiple objects', () => {
+      const objectRemovedHandler = vi.fn();
+      const meshA = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
+      const meshB = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial());
+      scene.add(meshA, meshB);
+      scene.events.on('object-removed', objectRemovedHandler);
+
+      scene.remove(meshA, meshB);
+
+      expect(objectRemovedHandler).toHaveBeenCalledTimes(2);
+      expect(objectRemovedHandler).toHaveBeenNthCalledWith(1, { object: meshA });
+      expect(objectRemovedHandler).toHaveBeenNthCalledWith(2, { object: meshB });
     });
 
     it('destroys GameObject instances when they are removed from the scene', () => {

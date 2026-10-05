@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { UI_BACKGROUND_IMAGE_URLS } from '../../constants';
 
-const SCALE = 3;
+const DEFAULT_SCALE = 3;
 
 const NATIVE_WIDTH = 14;
 const ACTIVE_HEIGHT = 16;
@@ -20,6 +20,7 @@ export type SmallPanelProps = {
   activateOnHover?: boolean;
   className?: string;
   style?: CSSProperties;
+  scale?: number;
 };
 
 // Generic small square/rectangular panel used standalone, or as the
@@ -36,9 +37,11 @@ export const SmallPanel = ({
   activateOnHover = false,
   className,
   style,
+  scale = DEFAULT_SCALE,
 }: SmallPanelProps) => {
   return (
     <Wrapper
+      $scale={scale}
       $active={active}
       $activateOnHover={activateOnHover}
       className={className}
@@ -49,15 +52,15 @@ export const SmallPanel = ({
   );
 };
 
-const Wrapper = styled.div<{ $active: boolean; $activateOnHover: boolean }>`
+const Wrapper = styled.div<{ $active: boolean; $activateOnHover: boolean; $scale: number }>`
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  min-width: ${NATIVE_WIDTH * SCALE}px;
-  height: ${ACTIVE_HEIGHT * SCALE}px;
-  padding-top: ${SPIKE_HEIGHT * SCALE}px;
+  min-width: ${({ $scale }) => NATIVE_WIDTH * $scale}px;
+  height: ${({ $scale }) => ACTIVE_HEIGHT * $scale}px;
+  padding-top: ${({ $scale }) => SPIKE_HEIGHT * $scale}px;
   background-image: url(${({ $active }) =>
     $active
       ? UI_BACKGROUND_IMAGE_URLS.smallPanelActiveBg

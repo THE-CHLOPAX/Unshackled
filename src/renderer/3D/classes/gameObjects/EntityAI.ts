@@ -1,14 +1,14 @@
 import { NavMeshAgent } from '@tgdf';
 import { NavMesh, Crowd } from '@recast-navigation/core';
 
-import { AIAttackOptions } from '../../types';
 import { Entity, EntityOptions } from './Entity';
 import { GameScene } from '../scenes/GameScene/GameScene';
+import { AIAttackOptions, EntityClass } from '../../types';
 
 export type EntityAIOptions = EntityOptions & {
   detectionRadius?: number;
   attack?: AIAttackOptions;
-  enemyTypes?: (typeof Entity)[];
+  enemyTypes?: EntityClass[];
 };
 
 const DESPAWN_TIMEOUT = 3000;
@@ -18,7 +18,7 @@ export class EntityAI extends Entity {
 
   public readonly isEntityAi = true;
 
-  private _enemyTypes: (typeof Entity)[] | null = null;
+  private _enemyTypes: EntityClass[] | null = null;
   private _detectionRadius: number | null = null;
   private _attack: AIAttackOptions | null = null;
   private _despawnTimeout: NodeJS.Timeout | null = null;
@@ -50,7 +50,7 @@ export class EntityAI extends Entity {
     return this._detectionRadius;
   }
 
-  public get enemyTypes(): (typeof Entity)[] | null {
+  public get enemyTypes(): EntityClass[] | null {
     return this._enemyTypes;
   }
 

@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { AssetRecord, PlayerInput, useAssetStore } from '@tgdf';
 
-import { LevelRecord } from 'renderer/3D/types';
 import { GameEventsEmitter } from 'renderer/types';
 import { getModelClone } from 'renderer/3D/utils/getModelClone';
 import { pixelateTexture } from 'renderer/3D/utils/pixelateTexture';
@@ -14,6 +13,7 @@ import {
 
 import { GameScene } from './GameScene/GameScene';
 import { Monk } from '../gameObjects/players/Monk/Monk';
+import { DungeonDoor } from '../gameObjects/props/DungeonDoor';
 import { RigidStaticObject } from '../gameObjects/RigidStaticObject';
 import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
 import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
@@ -22,13 +22,12 @@ const TEST_PLANE_SIZE = 30;
 const TEST_PLANE_CHECKERBOARD_REPEAT = 10;
 
 export class TestScene extends GameScene {
-  public readonly levelVariants: LevelRecord[] = [];
-
   public readonly preloadedAssets: AssetRecord[] = [
     MODELS.MONK,
     MODELS.SKELETON,
     TEXTURES.CHECKERBOARD,
     TEXTURES.AIMING_ARROW,
+    MODELS.DUNGEON_DOOR,
   ];
 
   protected override additionalWarmupFactories: WarmupFactory[] = [
@@ -37,8 +36,8 @@ export class TestScene extends GameScene {
     () => createSwingTrailWarmupMesh(),
   ];
 
-  constructor(public readonly emitter?: GameEventsEmitter) {
-    super(emitter);
+  constructor(public readonly emitter: GameEventsEmitter) {
+    super({ emitter });
 
     this.background = new THREE.Color(0x0a0a0a);
 
@@ -72,5 +71,7 @@ export class TestScene extends GameScene {
     const monk = new Monk(this, { inputSource: PlayerInput.keyboard() });
     this.add(monk);
     this.camera.follow(monk);
+
+    this.add(new DungeonDoor(this));
   }
 }

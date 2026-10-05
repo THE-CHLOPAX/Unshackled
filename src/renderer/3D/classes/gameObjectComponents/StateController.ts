@@ -2,7 +2,7 @@ import { GameObjectComponent, InputState } from '@tgdf';
 
 import { State } from '../../classes/states';
 import { Entity } from '../gameObjects/Entity';
-import { StateMachine, StateNode } from '../../types';
+import { Interactable, StateMachine, StateNode } from '../../types';
 import { HealthPointsController, HealthPointsControllerEvents } from './HealthPointsController';
 
 export class StateController extends GameObjectComponent {
@@ -47,6 +47,18 @@ export class StateController extends GameObjectComponent {
 
   public requestTransition(node: StateNode): void {
     this._pendingNode = node;
+  }
+
+  public requestInteraction(target: Interactable): boolean {
+    const node =
+      this._stateMachine.onInteract?.({
+        entity: this.gameObject,
+        currentState: this._currentState,
+        target,
+      }) ?? null;
+
+    this._requestTransitionIfAny(node);
+    return node !== null;
   }
 
   protected override onInput(inputState: InputState): void {

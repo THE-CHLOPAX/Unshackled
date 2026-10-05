@@ -107,7 +107,11 @@ describe('loadWorldMap', () => {
 
       await loadWorldMap('dungeon-1.json');
 
-      expect(mockIpc.send).toHaveBeenCalledWith('load-file-request', { path: 'dungeon-1.json' });
+      expect(mockIpc.send).toHaveBeenCalledWith('load-file-request', {
+        root: 'app',
+        directory: 'src/renderer/assets/worldMaps',
+        path: 'dungeon-1.json',
+      });
     });
 
     it('resolves with the parsed map and the file name from the returned path', async () => {

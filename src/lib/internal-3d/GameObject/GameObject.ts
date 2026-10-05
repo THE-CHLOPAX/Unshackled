@@ -4,7 +4,6 @@ import {
   GameObjectComponent,
   GameObjectConstructorOptions,
   GameObjectEventMap,
-  Input,
   InputState,
   logger,
 } from '@tgdf';
@@ -23,18 +22,18 @@ export class GameObject extends THREE.Object3D implements InputNotifiable {
   private _isAwake: boolean = false;
   private _isDestroyed: boolean = false;
   private _inputEnabled: boolean = true;
-  private _inputSource: RegisterableInputSource;
+  private _inputSource: RegisterableInputSource | null;
 
   constructor({ scene, skipUpdate = false, inputSource }: GameObjectConstructorOptions) {
     super();
     this._scene = scene;
     this.skipUpdate = skipUpdate;
     this._gameObjectComponents = new Map<string, GameObjectComponent>();
-    this._inputSource = inputSource ?? Input;
+    this._inputSource = inputSource ?? null;
 
     this.addEventListener('added', this._onAwakeHandler);
 
-    this._inputSource.registerNotifiable(this);
+    this._inputSource?.registerNotifiable(this);
   }
 
   public get scene(): Scene {
@@ -57,7 +56,7 @@ export class GameObject extends THREE.Object3D implements InputNotifiable {
     return this._inputEnabled;
   }
 
-  public get inputSource(): RegisterableInputSource {
+  public get inputSource(): RegisterableInputSource | null {
     return this._inputSource;
   }
 
@@ -120,7 +119,7 @@ export class GameObject extends THREE.Object3D implements InputNotifiable {
     if (this._isDestroyed) return;
     this._isDestroyed = true;
 
-    this._inputSource.unregisterNotifiable(this);
+    this._inputSource?.unregisterNotifiable(this);
 
     this._emitter.trigger('destroyed');
     this._gameObjectComponents.clear();
