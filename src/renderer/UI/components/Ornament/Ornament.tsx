@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { UI_IMAGE_URLS } from 'UI';
+import { UI_IMAGE_URLS } from '../../constants';
 
 export type OrnamentProps = {
   short?: boolean;

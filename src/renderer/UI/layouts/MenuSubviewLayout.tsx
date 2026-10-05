@@ -2,7 +2,11 @@ import { InternalFlex } from '@tgdf';
 import styled from 'styled-components';
 
 import { COLORS, GRADIENTS } from 'renderer/constants';
-import { BackToViewLayout, Ornament, Text, VersionLayout } from 'UI';
+
+import { Text } from '../components/Text/Text';
+import { VersionLayout } from '../layouts/VersionLayout';
+import { Ornament } from '../components/Ornament/Ornament';
+import { BackToViewLayout } from '../layouts/BackToViewLayout';
 
 export const MenuSubviewLayout = ({
   children,
