@@ -26,7 +26,8 @@ function createRun(progress: RunProgress): RunIdentifier {
 }
 
 function increment(biomeId: string, levelIndex: number): RunProgress {
-  return getIncrementedProgress(createRun({ biomeId, levelIndex } as RunProgress)).progress;
+  return getIncrementedProgress(createRun({ biomeId, levelIndex } as RunProgress), 'level')
+    .progress;
 }
 
 describe('getIncrementedProgress', () => {
@@ -48,5 +49,20 @@ describe('getIncrementedProgress', () => {
 
   it('keeps progress unchanged after the boss level of the last biome', () => {
     expect(increment('crypt', 1)).toEqual({ biomeId: 'crypt', levelIndex: 1 });
+  });
+
+  it('adds the completed level id to completedLevelIds', () => {
+    const run = createRun({ biomeId: 'dungeon', levelIndex: 0 } as RunProgress);
+
+    expect(getIncrementedProgress(run, 'intro').completedLevelIds).toEqual(['intro']);
+  });
+
+  it('does not duplicate an already completed level id', () => {
+    const run = {
+      ...createRun({ biomeId: 'dungeon', levelIndex: 0 } as RunProgress),
+      completedLevelIds: ['intro'],
+    };
+
+    expect(getIncrementedProgress(run, 'intro').completedLevelIds).toEqual(['intro']);
   });
 });

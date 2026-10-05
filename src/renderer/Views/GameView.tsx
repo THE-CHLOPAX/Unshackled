@@ -20,12 +20,12 @@ export function GameView() {
   const { currentRun, setCurrentRun } = useRunStore();
   const progress = currentRun?.progress;
 
-  const handleLevelComplete = () => {
+  const handleLevelComplete = (levelId: string) => {
     if (!currentRun) {
       return;
     }
 
-    const incrementedRun = getIncrementedProgress(currentRun);
+    const incrementedRun = getIncrementedProgress(currentRun, levelId);
 
     setCurrentRun(incrementedRun);
     writeSaveFile(incrementedRun).catch((error) => {
@@ -34,7 +34,7 @@ export function GameView() {
   };
 
   return (
-    <BackToViewLayout backToView="MenuView" noButton>
+    <BackToViewLayout backToView="MenuView">
       {progress && (
         <LevelSession
           key={`${progress.biomeId}:${progress.levelIndex}`}
@@ -48,17 +48,18 @@ export function GameView() {
 
 type LevelSessionProps = {
   progress: RunProgress;
-  onLevelComplete: () => void;
+  onLevelComplete: (levelId: string) => void;
 };
 
 function LevelSession({ progress, onLevelComplete }: LevelSessionProps) {
   const { resolution } = useGraphicsStore();
+  const [level] = useState(() => pickRandomLevel(progress));
   const { scene, loadingProgress, emitter } = useLoadScene(
-    (emitter) => new BIOME_SCENES[progress.biomeId](emitter, pickRandomLevel(progress))
+    (emitter) => new BIOME_SCENES[progress.biomeId](emitter, level)
   );
 
   const onLevelCompleteDebounced = useDebouncedCallback(
-    onLevelComplete,
+    () => onLevelComplete(level.id),
     LEVEL_COMPLETE_DEBOUNCE_TIME
   );
 

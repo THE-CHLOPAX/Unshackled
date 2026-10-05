@@ -171,11 +171,15 @@ export async function onListFilesRequest(request: NativeListFilesRequest): Promi
       .map((entry) => entry.name)
       .filter((name) => !request.extension || name.endsWith(request.extension));
 
-    const files = await Promise.all(
+    const results = await Promise.allSettled(
       names.map(async (name) => ({
         name,
         contents: await readFile(path.join(directory, name), 'utf8'),
       }))
+    );
+
+    const files = results.flatMap((result) =>
+      result.status === 'fulfilled' ? [result.value] : []
     );
 
     main.send('list-files-response', { ok: true, files });
