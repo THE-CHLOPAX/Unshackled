@@ -20,7 +20,9 @@ describe('mergeCollidersIntoTrimeshGeometry', () => {
 
     expect(merged).not.toBeNull();
     const positionAttribute = merged?.getAttribute('position');
-    expect(positionAttribute?.count).toBe(boxGeometry.toNonIndexed().getAttribute('position').count * 2);
+    expect(positionAttribute?.count).toBe(
+      boxGeometry.toNonIndexed().getAttribute('position').count * 2
+    );
 
     merged?.computeBoundingBox();
     const bbox = merged?.boundingBox;
