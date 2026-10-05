@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { assert, AssetRecord, Scene } from '@tgdf';
+import { assert, AssetRecord, isDev, Scene } from '@tgdf';
 
 import { loadWorldMap } from 'renderer/utils/loadWorldMap';
 import { GameEventsEmitter, LevelIdentifier } from 'renderer/types';
@@ -117,7 +117,7 @@ export abstract class GameScene extends Scene {
 
   public override update(deltaTime: number, renderer: THREE.WebGLRenderer | null): void {
     super.update(deltaTime, renderer);
-    if (process.env.NODE_ENV === 'development') {
+    if (isDev) {
       this._shadersManager.checkForLateCompiles(this.renderer);
     }
   }

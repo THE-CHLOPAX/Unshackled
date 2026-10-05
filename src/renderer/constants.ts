@@ -43,6 +43,11 @@ export const SAVE_FILES_LOCATION: NativeFileLocation = {
   directory: 'saveFiles',
 };
 
+export const SAVE_FILES_LOCATION_DEV: NativeFileLocation = {
+  root: 'app',
+  directory: 'saveFilesDebug',
+};
+
 // BILLBOARD DOM
 export const BILLBOARD_OVERLAY_ELEMENT_ID = 'billboard-overlay';
 

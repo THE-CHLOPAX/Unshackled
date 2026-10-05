@@ -1,11 +1,12 @@
 import path from 'path';
 import { app, dialog, screen } from 'electron';
 import { Resolution } from '@tgdf/internal-ui/types/graphics';
-import { readFile, readdir, mkdir, writeFile } from 'fs/promises';
+import { readFile, readdir, mkdir, rm, writeFile } from 'fs/promises';
 import {
   NativeFileLocation,
   NativeListFilesRequest,
   NativeLoadFileRequest,
+  NativeRemoveFileRequest,
   NativeSaveFileRequest,
 } from '@tgdf';
 
@@ -19,12 +20,22 @@ function resolveDirectory({ root, directory }: NativeFileLocation): string {
   return path.join(rootPath, directory);
 }
 
+function resolveJsonFilePath(request: NativeFileLocation & { name: string }): string {
+  const slug =
+    request.name
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, '-') || 'untitled';
+  return path.join(resolveDirectory(request), `${slug}.json`);
+}
+
 export function bindUserEvents(): void {
   main.on('app-quit-request', onCloseAppRequest);
   main.on('set-resolution-request', onResolutionRequest);
   main.on('set-fullscreen-request', onFullscreenRequest);
   main.on('get-fullscreen-state-request', onGetFullscreenStateRequest);
   main.on('save-file-request', onSaveFileRequest);
+  main.on('remove-file-request', onRemoveFileRequest);
   main.on('load-file-request', onLoadFileRequest);
   main.on('list-files-request', onListFilesRequest);
 
@@ -101,21 +112,24 @@ export function onFullscreenRequest(request: {
 
 export async function onSaveFileRequest(request: NativeSaveFileRequest): Promise<void> {
   try {
-    const slug =
-      request.name
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9_-]+/g, '-') || 'untitled';
-    const directory = resolveDirectory(request);
+    const filePath = resolveJsonFilePath(request);
 
-    await mkdir(directory, { recursive: true });
-
-    const filePath = path.join(directory, `${slug}.json`);
+    await mkdir(path.dirname(filePath), { recursive: true });
     await writeFile(filePath, request.json, 'utf-8');
 
     main.send('save-file-response', { ok: true, path: filePath });
   } catch (error) {
     main.send('save-file-response', { ok: false, error: String(error) });
+  }
+}
+
+export async function onRemoveFileRequest(request: NativeRemoveFileRequest): Promise<void> {
+  try {
+    await rm(resolveJsonFilePath(request), { force: true });
+
+    main.send('remove-file-response', { ok: true });
+  } catch (error) {
+    main.send('remove-file-response', { ok: false, error: String(error) });
   }
 }
 
