@@ -2,7 +2,7 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 import { assert, GameObject, getModelFromStore, isMesh, RigidBody, Scene } from '@tgdf';
 
-import { MODELS } from '3D/constants';
+import { MODELS, WORLD_CELL_SIZE } from '3D/constants';
 import { Interactable, PlayerActionType } from '3D/types';
 import { pixelateModelMaterial } from 'renderer/3D/utils/pixelateModelMaterial';
 
@@ -18,8 +18,14 @@ const INTERACTION_ZONE_SIZE = new THREE.Vector3(3, 2, 3);
 const OPEN_ANGLE = -Math.PI / 2;
 const OPEN_CLOSE_DURATION_S = 0.4;
 
-const HINT_PROPS_OPEN: HintBillboardRendererOptions = { hint: { icon: 'A', label: 'Open' } };
-const HINT_PROPS_CLOSE: HintBillboardRendererOptions = { hint: { icon: 'A', label: 'Close' } };
+const HINT_PROPS_OPEN: HintBillboardRendererOptions = {
+  hint: { icon: 'A', label: 'Open' },
+  offset: new THREE.Vector3(0, 2, 0),
+};
+const HINT_PROPS_CLOSE: HintBillboardRendererOptions = {
+  hint: { icon: 'A', label: 'Close' },
+  offset: new THREE.Vector3(0, 2, 0),
+};
 
 export class DungeonDoor extends GameObject implements Interactable {
   private _leaf: GameObject;
@@ -48,6 +54,7 @@ export class DungeonDoor extends GameObject implements Interactable {
     this._leaf = new GameObject({ scene });
     this._leaf.position.set(0, 0, -halfDepth);
     doorModel.position.z += halfDepth;
+    doorModel.position.y += WORLD_CELL_SIZE / 2;
     this._leaf.add(doorModel);
     this.add(this._leaf);
 

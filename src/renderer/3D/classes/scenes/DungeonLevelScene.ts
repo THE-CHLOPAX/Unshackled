@@ -48,7 +48,7 @@ export class DungeonLevelScene extends GameScene {
       objective: {
         type: OBJECTIVE_ENTITIES_KILLED,
         objectiveClasses: [Skeleton],
-        killedGoalAmount: 10,
+        killedGoalAmount: 1,
       },
     });
 
