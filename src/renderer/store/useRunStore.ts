@@ -14,6 +14,6 @@ export const useRunStore = create<RunState>()(
       currentRun: null,
       setCurrentRun: (run: RunIdentifier | null) => set({ currentRun: run }),
     }),
-    { name: 'world-editor-store' }
+    { name: 'run-store' }
   )
 );
