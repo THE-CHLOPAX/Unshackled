@@ -1,7 +1,12 @@
 import path from 'path';
 import { defineConfig } from 'vitest/config';
 
+import { version } from './package.json';
+
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+  },
   test: {
     environment: 'jsdom',
     globals: true,
@@ -17,7 +22,10 @@ export default defineConfig({
       '@tgdf': path.resolve(__dirname, './src/lib'),
       renderer: path.resolve(__dirname, './src/renderer'),
       '3D': path.resolve(__dirname, './src/renderer/3D'),
-      UI: path.resolve(__dirname, './src/renderer/ui'),
+      UI: path.resolve(__dirname, './src/renderer/UI'),
+      Views: path.resolve(__dirname, './src/renderer/Views'),
+      Store: path.resolve(__dirname, './src/renderer/Store'),
+      WorldEditor: path.resolve(__dirname, './src/renderer/WorldEditor'),
     },
   },
 });

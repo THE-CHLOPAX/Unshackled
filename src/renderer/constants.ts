@@ -2,6 +2,8 @@ import { NativeFileLocation } from '@tgdf';
 
 import { CampaignIdentifier, LevelIdentifier } from './types';
 
+export const APP_VERSION = __APP_VERSION__;
+
 // COLOR PALETTE
 export const COLORS = {
   // Base
@@ -14,6 +16,8 @@ export const COLORS = {
   RED_LIGHT: '#dc4545',
   ORANGE: '#ffaa33',
   GREEN: '#00AB06',
+  BROWN: '#5D3E2F',
+  BROWN_DARK: '#090804',
   // Semantic
   BG_COLOR: '#191611',
   BG_COLOR_HIGHLIGHTED_HALF: '#211a0e',
@@ -26,7 +30,7 @@ export const COLORS = {
 
 export const GRADIENTS = {
   BACKGROUND:
-    `radial-gradient(ellipse at center, ${COLORS.BG_COLOR_HIGHLIGHTED_HALF} 0%, ` +
+    `radial-gradient(ellipse at center, ${COLORS.BG_COLOR_HIGHLIGHTED} 0%, ` +
     `${COLORS.BG_COLOR} 100%)`,
 } as const;
 

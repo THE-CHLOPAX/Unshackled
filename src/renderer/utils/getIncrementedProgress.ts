@@ -1,22 +1,32 @@
 import { CAMPAIGN } from 'renderer/constants';
-import { RunIdentifier } from 'renderer/types';
+import { RunIdentifier, RunProgress } from 'renderer/types';
 
-export function getIncrementedProgress(run: RunIdentifier): RunIdentifier {
-  const { biomeId, levelIndex } = run.progress;
+function getNextProgress({ biomeId, levelIndex }: RunProgress): RunProgress {
   const biomeIndex = CAMPAIGN.findIndex((biome) => biome.id === biomeId);
   const { levelCount, bossLevels } = CAMPAIGN[biomeIndex];
   const lastLevelIndex = bossLevels.length > 0 ? levelCount : levelCount - 1;
   const nextLevelIndex = levelIndex + 1;
 
   if (nextLevelIndex <= lastLevelIndex) {
-    return { ...run, progress: { biomeId, levelIndex: nextLevelIndex } };
+    return { biomeId, levelIndex: nextLevelIndex };
   }
 
   const nextBiome = CAMPAIGN[biomeIndex + 1];
 
   if (!nextBiome) {
-    return run;
+    return { biomeId, levelIndex };
   }
 
-  return { ...run, progress: { biomeId: nextBiome.id, levelIndex: 0 } };
+  return { biomeId: nextBiome.id, levelIndex: 0 };
+}
+
+export function getIncrementedProgress(
+  run: RunIdentifier,
+  completedLevelId: string
+): RunIdentifier {
+  const completedLevelIds = run.completedLevelIds.includes(completedLevelId)
+    ? run.completedLevelIds
+    : [...run.completedLevelIds, completedLevelId];
+
+  return { ...run, progress: getNextProgress(run.progress), completedLevelIds };
 }

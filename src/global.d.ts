@@ -8,6 +8,8 @@ declare namespace NodeJS {
   }
 }
 
+declare const __APP_VERSION__: string;
+
 // Electron renderer process globals
 declare global {
   const process: NodeJS.Process;

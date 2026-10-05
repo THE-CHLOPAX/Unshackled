@@ -21,7 +21,12 @@
       "@tgdf/*": ["src/lib/*"],
       "renderer/*": ["src/renderer/*"],
       "3D/*": ["src/renderer/3D/*"],
-      "UI": ["src/renderer/ui/index.ts"]
+      "UI": ["src/renderer/UI/index.ts"],
+      "UI/*": ["src/renderer/UI/*"],
+      "Views": ["src/renderer/Views/index.ts"],
+      "Views/*": ["src/renderer/Views/*"],
+      "Store/*": ["src/renderer/Store/*"],
+      "WorldEditor/*": ["src/renderer/WorldEditor/*"]
     }
   },
   "include": ["src/**/*"],

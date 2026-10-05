@@ -7,7 +7,7 @@ import {
   useOverlayStore,
   overlayElementRefs,
   overlayContainerSize,
-} from 'renderer/store/useOverlayStore';
+} from 'Store/useOverlayStore';
 
 import { BillboardRenderer } from './BillboardRenderer';
 import { BILLBOARD_POSITION_UPDATE_INTERVAL_MS } from './constants';

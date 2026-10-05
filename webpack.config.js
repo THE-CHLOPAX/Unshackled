@@ -1,6 +1,9 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+const { version } = require('./package.json');
 
 module.exports = {
   mode: 'development',
@@ -63,6 +66,9 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.DefinePlugin({
+      __APP_VERSION__: JSON.stringify(version),
+    }),
     new HtmlWebpackPlugin({
       template: './src/renderer/index.html',
     }),
@@ -86,7 +92,10 @@ module.exports = {
       '@tgdf/*': path.resolve(__dirname, 'src/lib/*'),
       renderer: path.resolve(__dirname, 'src/renderer'),
       '3D': path.resolve(__dirname, 'src/renderer/3D'),
-      'UI': path.resolve(__dirname, 'src/renderer/ui')
+      'UI': path.resolve(__dirname, 'src/renderer/UI'),
+      'Store': path.resolve(__dirname, 'src/renderer/Store'),
+      'Views': path.resolve(__dirname, 'src/renderer/Views'),
+      'WorldEditor': path.resolve(__dirname, 'src/renderer/WorldEditor')
     },
   },
   devServer: {
