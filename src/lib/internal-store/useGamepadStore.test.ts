@@ -19,7 +19,10 @@ vi.mock('../internal-input/Gamepad/GamepadInstance', () => ({
 import { useGamepadStore } from './useGamepadStore';
 import { GamepadManager } from '../internal-input/Gamepad/GamepadManager';
 
-function dispatchGamepadEvent(type: 'gamepadconnected' | 'gamepaddisconnected', index: number): void {
+function dispatchGamepadEvent(
+  type: 'gamepadconnected' | 'gamepaddisconnected',
+  index: number
+): void {
   const gamepad = { index } as unknown as Gamepad;
   window.dispatchEvent(Object.assign(new Event(type), { gamepad }));
 }

@@ -208,5 +208,4 @@ describe('HealthPointsController', () => {
       expect(controller.isDead).toBe(false);
     });
   });
-
 });

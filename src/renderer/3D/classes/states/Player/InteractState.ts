@@ -29,8 +29,11 @@ export class InteractState extends State {
   }
 
   public override onEnter(): void {
-    const { animationName = AnimationClipNamesShared.INTERACT, playbackRate, triggerDelayS } =
-      this._options;
+    const {
+      animationName = AnimationClipNamesShared.INTERACT,
+      playbackRate,
+      triggerDelayS,
+    } = this._options;
 
     if (triggerDelayS !== undefined) {
       this._triggerTimer = gsap.delayedCall(triggerDelayS, () => this._trigger());

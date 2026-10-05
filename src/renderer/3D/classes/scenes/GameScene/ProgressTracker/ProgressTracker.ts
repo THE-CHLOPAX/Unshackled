@@ -29,6 +29,7 @@ export class ProgressTracker {
   private _timeElapsed = 0;
   private _objectiveEntitiesKilled = 0;
   private _objectiveResolved = false;
+  private _trackedObjectiveEntities = new WeakSet<Entity>();
 
   constructor(
     public readonly scene: Scene,
@@ -82,8 +83,9 @@ export class ProgressTracker {
       );
     };
 
-    if (isObjectiveClass(object)) {
-      object.healthPointsController.events.on('death', () => {
+    if (isObjectiveClass(object) && !this._trackedObjectiveEntities.has(object)) {
+      this._trackedObjectiveEntities.add(object);
+      object.healthPointsController.events.once('death', () => {
         if (this._objectiveResolved) return;
         this._objectiveEntitiesKilled++;
         assert(this.options.objective.type === OBJECTIVE_ENTITIES_KILLED);

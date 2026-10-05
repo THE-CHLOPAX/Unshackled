@@ -150,6 +150,28 @@ describe('ProgressTracker', () => {
       expect(completeListener).toHaveBeenCalledOnce();
     });
 
+    it('counts a kill only once for an entity added to the scene multiple times', () => {
+      const scene = createScene();
+      const tracker = createTracker(scene, entitiesKilledObjective(2), [createFakePlayer(false)]);
+      const entity = createObjectiveEntity(scene);
+      scene.add(entity);
+
+      killEntity(entity);
+
+      expect(tracker.objectiveEntitiesKilled).toBe(1);
+    });
+
+    it('counts a kill only once when the same entity dies multiple times', () => {
+      const scene = createScene();
+      const tracker = createTracker(scene, entitiesKilledObjective(2), [createFakePlayer(false)]);
+      const entity = createObjectiveEntity(scene);
+
+      killEntity(entity);
+      killEntity(entity);
+
+      expect(tracker.objectiveEntitiesKilled).toBe(1);
+    });
+
     it('still triggers objectiveFailed when all players die before the kill goal is reached', () => {
       const scene = createScene();
       createTracker(scene, entitiesKilledObjective(5), [createFakePlayer(true)]);
