@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, MouseEventHandler, ReactNode } from 'react';
 
 import styled from 'styled-components';
 
@@ -22,11 +22,18 @@ export type PanelScalableProps = {
   className?: string;
   style?: CSSProperties;
   color?: string;
+  onClick?: MouseEventHandler<HTMLDivElement>;
 };
 
-export const PanelScalable = ({ children, className, style, color }: PanelScalableProps) => {
+export const PanelScalable = ({
+  children,
+  className,
+  style,
+  color,
+  onClick,
+}: PanelScalableProps) => {
   return (
-    <Wrapper className={className} style={style}>
+    <Wrapper className={className} style={style} onClick={onClick}>
       <SegmentTopLeft />
       <SegmentTop />
       <SegmentTopRight />

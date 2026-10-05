@@ -1,21 +1,20 @@
 import { useMemo } from 'react';
 import styled from 'styled-components';
-import { useViewsStore, InternalFlex, ipc } from '@tgdf';
+import { useViewsStore, InternalFlex, ipc, isDev } from '@tgdf';
 
 import { GRADIENTS } from 'renderer/constants';
 import { VersionLayout } from 'UI/layouts/VersionLayout';
+import { useRunStore } from 'renderer/Store/useRunStore';
+import { useSaveFiles } from 'renderer/hooks/useSaveFiles';
 import { Button, ButtonProps, Ornament, UI_IMAGE_URLS } from 'UI';
-import { SidebarsLayout } from 'renderer/UI/layouts/SidebarsLayout';
 
 export function MenuView() {
   const { setView } = useViewsStore();
+  const { saveFiles, loading } = useSaveFiles();
+  const { setCurrentRun } = useRunStore();
 
-  const buttonsData: ButtonProps[] = useMemo(
-    () => [
-      {
-        label: 'Continue',
-        onClick: () => setView('GameView'),
-      },
+  const buttonsData: ButtonProps[] = useMemo(() => {
+    const buttons = [
       {
         label: 'New game',
         onClick: () => setView('NewGameView'),
@@ -23,36 +22,63 @@ export function MenuView() {
       {
         label: 'Load game',
         onClick: () => setView('LoadGameView'),
+        disabled: saveFiles.length === 0,
       },
       {
         label: 'Settings',
         onClick: () => setView('SettingsView'),
       },
+      ...(isDev
+        ? [
+            {
+              label: 'Components',
+              onClick: () => setView('ComponentsView'),
+            },
+            {
+              label: 'Test',
+              onClick: () => setView('TestView'),
+            },
+            {
+              label: 'World editor',
+              onClick: () => setView('WorldEditorView'),
+            },
+          ]
+        : []),
       {
         label: 'Quit',
         onClick: () => {
           ipc.send('app-quit-request', undefined);
         },
       },
-    ],
-    []
-  );
+    ];
+
+    if (saveFiles.length > 0) {
+      buttons.unshift({
+        label: 'Continue',
+        onClick: () => {
+          setCurrentRun(saveFiles[0]);
+          setView('GameView');
+        },
+      });
+    }
+
+    return buttons;
+  }, [saveFiles, setView, setCurrentRun]);
 
   return (
     <VersionLayout>
-      <SidebarsLayout>
-        <Wrapper>
-          <LogoWrapper>
-            <Logo />
-            <Ornament />
-          </LogoWrapper>
-          <ButtonsWrapper direction="column" align="center" justify="center" gap={10}>
-            {buttonsData.map(({ label, onClick }) => {
-              return <Button key={label} label={label} onClick={onClick} />;
+      <Wrapper>
+        <LogoWrapper>
+          <Logo />
+          <Ornament />
+        </LogoWrapper>
+        <ButtonsWrapper direction="column" align="center" justify="center" gap={10}>
+          {!loading &&
+            buttonsData.map(({ label, onClick, disabled }) => {
+              return <Button key={label} label={label} onClick={onClick} disabled={disabled} />;
             })}
-          </ButtonsWrapper>
-        </Wrapper>
-      </SidebarsLayout>
+        </ButtonsWrapper>
+      </Wrapper>
     </VersionLayout>
   );
 }

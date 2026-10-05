@@ -1,46 +1,50 @@
-import { InternalFlex } from '@tgdf';
 import styled from 'styled-components';
+import { InternalFlex, useViewsStore } from '@tgdf';
 
 import { PanelScalable, Text } from 'UI';
 import { COLORS } from 'renderer/constants';
-import { PlayerProfile } from 'renderer/types';
+import { RunIdentifier } from 'renderer/types';
+import { useRunStore } from 'Store/useRunStore';
+
+import { EditSaveButton } from './EditSaveButton';
+import { DeleteSaveButton } from './DeleteSaveButton';
 
 export type LoadGameItemProps = {
-  name: string;
-  updatedAt: number;
-  players: PlayerProfile[];
-  progress: {
-    biomeId: string;
-    levelIndex: number;
-  };
+  run: RunIdentifier;
+  onDeleted?: () => void;
 };
 
-export const LoadGameItem = ({ name, updatedAt, players, progress }: LoadGameItemProps) => {
+export const LoadGameItem = ({ run, onDeleted }: LoadGameItemProps) => {
+  const { id, name, updatedAt, progress } = run;
+  const { setView } = useViewsStore();
+  const { setCurrentRun } = useRunStore();
+
+  const handleClick = () => {
+    setCurrentRun(run);
+    setView('GameView');
+  };
+
   const updatedAtDate = new Date(updatedAt).toISOString();
   const updatedAtDay = updatedAtDate.split('T')[0];
   const updatedAtTime = updatedAtDate.split('T')[1].split('.')[0];
 
   return (
-    <Wrapper>
+    <Wrapper onClick={handleClick}>
       <RowsWrapper direction="column" justify="between">
-        <Row>
+        <Row direction="row" align="start" justify="between">
           <Text size="lg" color={COLORS.FONT_COLOR_HIGHLIGHT}>
             {name}
           </Text>
           <ProgressWrapper>
             <BiomeText>{progress.biomeId}</BiomeText>
-            <Text color={COLORS.FONT_COLOR_DIMMED}>lvl.{progress.levelIndex}</Text>
+            <Text color={COLORS.FONT_COLOR_DIMMED}>lvl.{progress.levelIndex + 1}</Text>
           </ProgressWrapper>
         </Row>
-        <Row>
-          <PlayersWrapper>
-            {players.map((player) => (
-              <PlayerItem key={player.id}>
-                <PlayerClassText>{player.class}</PlayerClassText>
-                <Text color={COLORS.FONT_COLOR_DIMMED}>lvl. 4</Text>
-              </PlayerItem>
-            ))}
-          </PlayersWrapper>
+        <Row direction="row" align="end" justify="between">
+          <ActionButtonsWrapper onClick={(event) => event.stopPropagation()}>
+            <DeleteSaveButton runId={id} onDeleted={onDeleted} />
+            <EditSaveButton />
+          </ActionButtonsWrapper>
           <DateWrapper>
             <Text>{updatedAtDay}</Text>
             <Text color={COLORS.FONT_COLOR_DIMMED}>{updatedAtTime}</Text>
@@ -74,19 +78,8 @@ const Wrapper = styled(PanelScalable)`
   }
 `;
 
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
+const Row = styled(InternalFlex)`
   width: 100%;
-`;
-
-const PlayersWrapper = styled.div`
-  margin-top: auto;
-  display: flex;
-  flex-direction: row;
-  gap: 12px;
 `;
 
 const ProgressWrapper = styled.div`
@@ -101,16 +94,6 @@ const BiomeText = styled(Text)`
   text-transform: capitalize;
 `;
 
-const PlayerItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-`;
-
-const PlayerClassText = styled(Text)`
-  text-transform: capitalize;
-`;
-
 const RowsWrapper = styled(InternalFlex)`
   height: 100%;
   width: 100%;
@@ -121,4 +104,9 @@ const DateWrapper = styled.div`
   flex-direction: column;
   align-items: flex-end;
   gap: 1px;
+`;
+
+const ActionButtonsWrapper = styled.div`
+  display: flex;
+  gap: 8px;
 `;

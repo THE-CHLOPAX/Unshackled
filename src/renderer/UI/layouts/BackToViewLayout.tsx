@@ -51,7 +51,7 @@ export function BackToViewLayout({
 
 const StyledButtonIcon = styled(ButtonIcon)`
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 15px;
+  left: 22px;
   z-index: 1;
 `;

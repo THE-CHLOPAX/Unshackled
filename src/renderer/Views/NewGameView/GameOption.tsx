@@ -11,16 +11,16 @@ export type GameOptionProps = {
 
 export const GameOption = ({ label, checked, onChange }: GameOptionProps) => {
   return (
-    <Wrapper>
+    <Wrapper onClick={() => onChange(!checked)}>
       <Label>{label}</Label>
-      <Checkbox checked={checked} onChange={onChange} />
+      <Checkbox checked={checked} />
     </Wrapper>
   );
 };
 
 const Label = styled(Text)``;
 
-const Wrapper = styled.label`
+const Wrapper = styled.div`
   display: flex;
   align-items: center;
   width: 100%;

@@ -4,8 +4,6 @@ import styled from 'styled-components';
 import { COLORS, GRADIENTS } from 'renderer/constants';
 import { BackToViewLayout, Ornament, Text, VersionLayout } from 'UI';
 
-import { SidebarsLayout } from './SidebarsLayout';
-
 export const MenuSubviewLayout = ({
   children,
   title,
@@ -15,19 +13,17 @@ export const MenuSubviewLayout = ({
 }) => {
   return (
     <VersionLayout>
-      <SidebarsLayout>
-        <BackToViewLayout backToView="MenuView">
-          <Wrapper direction="column" justify="center" align="center">
-            <Header direction="column" justify="center" align="center" gap={20}>
-              <Text size="xxl" color={COLORS.FONT_COLOR_HIGHLIGHT}>
-                {title}
-              </Text>
-              <Ornament />
-            </Header>
-            <Content>{children}</Content>
-          </Wrapper>
-        </BackToViewLayout>
-      </SidebarsLayout>
+      <BackToViewLayout backToView="MenuView">
+        <Wrapper direction="column" justify="center" align="center">
+          <Header direction="column" justify="center" align="center" gap={20}>
+            <Text size="xxl" color={COLORS.FONT_COLOR_HIGHLIGHT}>
+              {title}
+            </Text>
+            <Ornament />
+          </Header>
+          <Content>{children}</Content>
+        </Wrapper>
+      </BackToViewLayout>
     </VersionLayout>
   );
 };

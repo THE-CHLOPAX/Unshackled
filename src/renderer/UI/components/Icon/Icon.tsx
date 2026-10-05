@@ -2,7 +2,9 @@ import type { CSSProperties, FC, SVGProps } from 'react';
 
 import styled from 'styled-components';
 
+import Quill from '../../../assets/svg/quill.svg';
 import ArrowUp from '../../../assets/svg/arrow-up.svg';
+import TrashCan from '../../../assets/svg/trash-can.svg';
 import ArrowDown from '../../../assets/svg/arrow-down.svg';
 import ArrowLeft from '../../../assets/svg/arrow-left.svg';
 import ArrowRight from '../../../assets/svg/arrow-right.svg';
@@ -20,6 +22,8 @@ export const ICONS = {
   arrowDown: { component: ArrowDown, width: 7, height: 10 },
   arrowLeft: { component: ArrowLeft, width: 10, height: 7 },
   arrowRight: { component: ArrowRight, width: 10, height: 7 },
+  trashCan: { component: TrashCan, width: 7, height: 8 },
+  quill: { component: Quill, width: 7, height: 8 },
 } as const satisfies Record<string, IconDefinition>;
 
 export type IconName = keyof typeof ICONS;
@@ -37,7 +41,7 @@ export const Icon = ({ icon, color, scale = DEFAULT_SCALE, className, style }: I
 
   return (
     <Wrapper className={className} style={style} $color={color}>
-      <Svg width={width * scale} height={height * scale} viewBox={`0 0 ${width} ${height}`} />
+      <Svg width={width * scale} height={height * scale} />
     </Wrapper>
   );
 };

@@ -2,192 +2,21 @@ import { InternalFlex } from '@tgdf';
 import styled from 'styled-components';
 
 import { COLORS } from 'renderer/constants';
-import { RunIdentifier } from 'renderer/types';
+import { useSaveFiles } from 'renderer/hooks/useSaveFiles';
 import { MenuSubviewLayout, PanelScalable, ScrollableWrapper } from 'UI';
 
 import { LoadGameItem } from './LoadGameItem';
 
-const MOCK_LOAD_GAME_ITEMS: RunIdentifier[] = [
-  {
-    version: 1,
-    name: 'New game',
-    id: 'mock-id',
-    completedLevelIds: [],
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    players: [
-      {
-        name: 'Player 1',
-        id: 'mock-player-id',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id2',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id3',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id5',
-        class: 'monk',
-      },
-    ],
-    progress: {
-      biomeId: 'dungeon',
-      levelIndex: 0,
-    },
-  },
-  {
-    version: 1,
-    name: 'New game',
-    id: 'mock-id',
-    completedLevelIds: [],
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    players: [
-      {
-        name: 'Player 1',
-        id: 'mock-player-id',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id2',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id3',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id5',
-        class: 'monk',
-      },
-    ],
-    progress: {
-      biomeId: 'dungeon',
-      levelIndex: 0,
-    },
-  },
-  {
-    version: 1,
-    name: 'New game',
-    id: 'mock-id',
-    completedLevelIds: [],
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    players: [
-      {
-        name: 'Player 1',
-        id: 'mock-player-id',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id2',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id3',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id5',
-        class: 'monk',
-      },
-    ],
-    progress: {
-      biomeId: 'dungeon',
-      levelIndex: 0,
-    },
-  },
-  {
-    version: 1,
-    name: 'New game',
-    id: 'mock-id',
-    completedLevelIds: [],
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    players: [
-      {
-        name: 'Player 1',
-        id: 'mock-player-id',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id2',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id3',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id5',
-        class: 'monk',
-      },
-    ],
-    progress: {
-      biomeId: 'dungeon',
-      levelIndex: 0,
-    },
-  },
-  {
-    version: 1,
-    name: 'New game',
-    id: 'mock-id',
-    completedLevelIds: [],
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    players: [
-      {
-        name: 'Player 1',
-        id: 'mock-player-id',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id2',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id3',
-        class: 'monk',
-      },
-      {
-        name: 'Player 1',
-        id: 'mock-player-id5',
-        class: 'monk',
-      },
-    ],
-    progress: {
-      biomeId: 'dungeon',
-      levelIndex: 0,
-    },
-  },
-];
-
 export const LoadGameView = () => {
+  const { saveFiles, reload } = useSaveFiles();
+
   return (
     <MenuSubviewLayout title="Load game">
       <Wrapper color={COLORS.BG_COLOR_HIGHLIGHTED}>
         <ScrollableWrapper>
           <ItemsWrapper direction="column" gap={15}>
-            {MOCK_LOAD_GAME_ITEMS.map((item) => (
-              <LoadGameItem {...item} key={item.id} />
+            {saveFiles.map((item) => (
+              <LoadGameItem key={item.id} run={item} onDeleted={reload} />
             ))}
           </ItemsWrapper>
         </ScrollableWrapper>

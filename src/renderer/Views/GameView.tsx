@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useGraphicsStore } from '@tgdf';
+import { useEffect, useState } from 'react';
+import { logger, useDebouncedCallback, useGraphicsStore } from '@tgdf';
 
 import { GameUIOverlay } from 'UI';
 import { RunProgress } from 'renderer/types';
@@ -7,18 +7,40 @@ import { useRunStore } from 'Store/useRunStore';
 import { useLoadScene } from 'renderer/hooks/useLoadScene';
 import { pickRandomLevel } from '3D/utils/pickRandomLevel';
 import { BIOME_SCENES } from '3D/classes/scenes/biomeScenes';
+import { writeSaveFile } from 'renderer/utils/writeSaveFile';
 import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
 import { ThreeDViewerPixelated } from 'UI/components/ThreeDViewerPixelated';
+import { getIncrementedProgress } from 'renderer/utils/getIncrementedProgress';
 
 import { LoadingView } from './LoadingView';
 
+const LEVEL_COMPLETE_DEBOUNCE_TIME = 3000;
+
 export function GameView() {
-  const progress = useRunStore((state) => state.currentRun?.progress);
+  const { currentRun, setCurrentRun } = useRunStore();
+  const progress = currentRun?.progress;
+
+  const handleLevelComplete = () => {
+    if (!currentRun) {
+      return;
+    }
+
+    const incrementedRun = getIncrementedProgress(currentRun);
+
+    setCurrentRun(incrementedRun);
+    writeSaveFile(incrementedRun).catch((error) => {
+      logger({ message: 'Failed to save run progress: ' + error.message, type: 'error' });
+    });
+  };
 
   return (
     <BackToViewLayout backToView="MenuView" noButton>
       {progress && (
-        <LevelSession key={`${progress.biomeId}:${progress.levelIndex}`} progress={progress} />
+        <LevelSession
+          key={`${progress.biomeId}:${progress.levelIndex}`}
+          progress={progress}
+          onLevelComplete={handleLevelComplete}
+        />
       )}
     </BackToViewLayout>
   );
@@ -26,15 +48,32 @@ export function GameView() {
 
 type LevelSessionProps = {
   progress: RunProgress;
+  onLevelComplete: () => void;
 };
 
-function LevelSession({ progress }: LevelSessionProps) {
+function LevelSession({ progress, onLevelComplete }: LevelSessionProps) {
   const { resolution } = useGraphicsStore();
   const { scene, loadingProgress, emitter } = useLoadScene(
     (emitter) => new BIOME_SCENES[progress.biomeId](emitter, pickRandomLevel(progress))
   );
 
+  const onLevelCompleteDebounced = useDebouncedCallback(
+    onLevelComplete,
+    LEVEL_COMPLETE_DEBOUNCE_TIME
+  );
+
   const [loadingFinished, setLoadingFinished] = useState(false);
+
+  useEffect(() => {
+    const handleLevelComplete = () => {
+      onLevelCompleteDebounced();
+    };
+
+    emitter.on('level-complete', handleLevelComplete);
+    return () => {
+      emitter.off('level-complete', handleLevelComplete);
+    };
+  }, [emitter, onLevelCompleteDebounced]);
 
   return !loadingFinished || scene === null ? (
     <LoadingView progress={loadingProgress} onComplete={() => setLoadingFinished(true)} />
