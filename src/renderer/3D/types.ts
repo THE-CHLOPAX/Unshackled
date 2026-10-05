@@ -1,3 +1,5 @@
+import type { FMODEventDefinition } from 'renderer/FMOD';
+
 import * as THREE from 'three';
 import { InputState, Scene, SceneCamera } from '@tgdf';
 
@@ -36,7 +38,7 @@ export type AsyncAction = (entity: Entity) => Promise<void>;
 
 export type ActionWithSound = {
   action: AsyncAction;
-  soundPath?: string;
+  sound?: FMODEventDefinition;
   freezeDurationMs?: number;
 };
 

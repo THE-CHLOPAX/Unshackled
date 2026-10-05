@@ -1,3 +1,5 @@
+import type { FMODEventDefinition } from 'renderer/FMOD';
+
 import { InputState, throttleWithLastValue } from '@tgdf';
 
 import { State } from '..';
@@ -11,7 +13,7 @@ const UPDATE_THROTTLE_INTERVAL_MS = 250;
 const FOOTSTEP_INTERVAL_MS = 370;
 
 export type AIChasingOptions = {
-  footstepEventPath: string;
+  footstepEvent: FMODEventDefinition;
 };
 
 export class AIChasingState extends State {
@@ -36,7 +38,7 @@ export class AIChasingState extends State {
   public onEnter(): void {
     this.entity.fmodSoundController.startFootsteps({
       intervalMs: FOOTSTEP_INTERVAL_MS,
-      eventPath: this.options?.footstepEventPath,
+      event: this.options?.footstepEvent,
     });
     this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, {
       loop: true,

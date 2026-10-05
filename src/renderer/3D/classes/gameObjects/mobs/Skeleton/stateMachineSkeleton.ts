@@ -33,8 +33,7 @@ const aiAttackStateNode: StateNode<AIAttackState> = {
 };
 
 const aiChasingStateNode: StateNode<AIChasingState> = {
-  state: (entity) =>
-    new AIChasingState(entity, { footstepEventPath: FMOD_EVENTS.SKELETON_FOOTSTEP }),
+  state: (entity) => new AIChasingState(entity, { footstepEvent: FMOD_EVENTS.SKELETON_FOOTSTEP }),
   onUpdate: ({ entity, currentState }) => {
     if (!currentState.bestAttack) return aiIdleStateNode;
     if (shouldAttack(entity, currentState.bestAttack)) return aiAttackStateNode;
@@ -48,7 +47,7 @@ const aiRoamingStateNode: StateNode<AIRoamingState> = {
   state: (entity) =>
     new AIRoamingState(entity, {
       ...ROAMING_OPTIONS,
-      footstepEventPath: FMOD_EVENTS.SKELETON_FOOTSTEP,
+      footstepEvent: FMOD_EVENTS.SKELETON_FOOTSTEP,
     }),
   onUpdate: ({ entity, currentState }) => {
     if (currentState.bestAttack) {

@@ -1,18 +1,25 @@
-import * as THREE from 'three';
-import { GameObjectComponent, MAIN_SOUND_CHANNEL } from '@tgdf';
+import type { GameCamera } from '3D/types';
 
+import * as THREE from 'three';
+import { GameObject, GameObjectComponent, MAIN_SOUND_CHANNEL, SceneCamera } from '@tgdf';
+
+import { clampEventParameters } from 'renderer/FMOD/utils/clampEventParameters';
 import {
   FMOD_EVENTS,
   FMOD3DAttributes,
   FMODAudio,
+  FMODEventDefinition,
   FMODEventInstance,
+  FMODEventParameters,
   FMODPlayEventOptions,
 } from 'renderer/FMOD';
 
-import { Entity } from '../gameObjects/Entity';
-
-export type FMODSoundControllerPlayOptions = Omit<FMODPlayEventOptions, 'attributes3D'> & {
+export type FMODSoundControllerPlayOptions<E extends FMODEventDefinition> = Omit<
+  FMODPlayEventOptions,
+  'attributes3D' | 'parameters'
+> & {
   channelId?: string;
+  parameters?: FMODEventParameters<E>;
 };
 
 export type FMODFootstepOptions = {
@@ -22,10 +29,10 @@ export type FMODFootstepOptions = {
 
 export type FMODFootstepLoopOptions = FMODFootstepOptions & {
   intervalMs: number;
-  eventPath?: string;
+  event?: FMODEventDefinition;
 };
 
-const FOOTSTEP_SURFACE_PARAMETER = 'surface';
+const FOOTSTEP_SURFACE_PARAMETER = 'Surface';
 const DEFAULT_FOOTSTEP_SURFACE = 1;
 const DEFAULT_FOOTSTEP_VOLUME = 0.15;
 
@@ -39,24 +46,32 @@ export class FMODSoundController extends GameObjectComponent {
   private _footstepLoop: FMODFootstepLoopOptions | null = null;
   private _footstepElapsedMs = 0;
 
-  constructor(gameObject: Entity) {
+  constructor(gameObject: GameObject) {
     super(gameObject);
   }
 
-  public override get gameObject(): Entity {
-    return super.gameObject as Entity;
+  public override get gameObject(): GameObject {
+    return super.gameObject as GameObject;
   }
 
-  public playSound(
-    eventPath: string,
-    { channelId = MAIN_SOUND_CHANNEL, ...options }: FMODSoundControllerPlayOptions = {}
+  public playSound<E extends FMODEventDefinition>(
+    event: E,
+    {
+      channelId = MAIN_SOUND_CHANNEL,
+      parameters,
+      ...options
+    }: FMODSoundControllerPlayOptions<E> = {}
   ): FMODEventInstance | null {
     this._updateListener();
 
     const instance = FMODAudio.playEventInSoundChannel({
-      eventPath,
+      eventPath: event.path,
       channelId,
-      options: { ...options, attributes3D: this._getEntityAttributes() },
+      options: {
+        ...options,
+        parameters: parameters && clampEventParameters(event, parameters),
+        attributes3D: this._getEntityAttributes(),
+      },
       onStopped: () => {
         if (instance) this._activeInstances.delete(instance);
       },
@@ -71,15 +86,17 @@ export class FMODSoundController extends GameObjectComponent {
   }
 
   public playFootstep(
-    eventPath: string = FMOD_EVENTS.GENERIC_FOOTSTEP,
+    event: FMODEventDefinition = FMOD_EVENTS.GENERIC_FOOTSTEP,
     {
       surface = DEFAULT_FOOTSTEP_SURFACE,
       volume = DEFAULT_FOOTSTEP_VOLUME,
     }: FMODFootstepOptions = {}
   ): FMODEventInstance | null {
-    return this.playSound(eventPath, {
+    const hasSurfaceParameter = FOOTSTEP_SURFACE_PARAMETER in event.parameters;
+
+    return this.playSound(event, {
       volume,
-      parameters: { [FOOTSTEP_SURFACE_PARAMETER]: surface },
+      parameters: hasSurfaceParameter ? { [FOOTSTEP_SURFACE_PARAMETER]: surface } : undefined,
     });
   }
 
@@ -119,8 +136,8 @@ export class FMODSoundController extends GameObjectComponent {
     this._playLoopedFootstep(footstepLoop);
   }
 
-  private _playLoopedFootstep({ eventPath, surface, volume }: FMODFootstepLoopOptions): void {
-    this.playFootstep(eventPath, { surface, volume });
+  private _playLoopedFootstep({ event, surface, volume }: FMODFootstepLoopOptions): void {
+    this.playFootstep(event, { surface, volume });
   }
 
   private _updateActiveInstances(): void {
@@ -151,12 +168,20 @@ export class FMODSoundController extends GameObjectComponent {
 
     const { position, forward, up } = this._listenerAttributes;
 
-    position.copy(camera.pivotPoint);
+    if (isGameCamera(camera)) {
+      position.copy(camera.pivotPoint);
+    } else {
+      camera.getWorldPosition(position);
+    }
     camera.getWorldDirection(forward);
     up.copy(WORLD_UP).applyQuaternion(camera.getWorldQuaternion(this._worldQuaternion));
 
     FMODAudio.setListenerAttributes(this._listenerAttributes);
   }
+}
+
+function isGameCamera(camera: SceneCamera): camera is GameCamera {
+  return 'pivotPoint' in camera;
 }
 
 function createAttributes() {

@@ -1,5 +1,6 @@
 import { UI_IMAGE_URLS } from './constants';
 import { Text } from './components/Text/Text';
+import { withUIClick } from './utils/withUIClick';
 import { Banner } from './components/Banner/Banner';
 import { VersionLayout } from './layouts/VersionLayout';
 import { Checkbox } from './components/Checkbox/Checkbox';
@@ -49,4 +50,5 @@ export {
   type HealthBarProps,
   type HintBillboardProps,
   UI_IMAGE_URLS,
+  withUIClick,
 };

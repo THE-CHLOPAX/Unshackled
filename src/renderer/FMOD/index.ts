@@ -12,6 +12,13 @@ export type {
   FMODVector,
 } from './fmodstudio';
 export type { FMODPlayEventOptions } from './FMODAudio';
+export type {
+  FMODEventDefinition,
+  FMODEventParameters,
+  FMODParameterDefinition,
+  FMODParameterValue,
+  FMODSettableParameterName,
+} from './types';
 
 const fmodAudio = FMODAudio.getInstance();
 

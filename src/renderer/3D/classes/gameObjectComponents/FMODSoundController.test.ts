@@ -13,7 +13,9 @@ vi.mock('electron', () => ({
 }));
 
 vi.mock('renderer/FMOD', () => ({
-  FMOD_EVENTS: { GENERIC_FOOTSTEP: 'event:/Footstep' },
+  FMOD_EVENTS: {
+    GENERIC_FOOTSTEP: { path: 'event:/Footstep', parameters: { Surface: { min: 0, max: 10 } } },
+  },
   FMODAudio: {
     playEventInSoundChannel: vi.fn(),
     stopEvent: vi.fn(),
@@ -23,6 +25,21 @@ vi.mock('renderer/FMOD', () => ({
 }));
 
 type PlayArgs = Parameters<typeof FMODAudio.playEventInSoundChannel>[0];
+
+const HIT_EVENT = { path: 'event:/Hit', parameters: {} } as const;
+const LOOP_EVENT = { path: 'event:/Loop', parameters: {} } as const;
+const SKELETON_FOOTSTEP_EVENT = {
+  path: 'event:/Skeleton/Footstep',
+  parameters: { Surface: { min: 0, max: 10 } },
+} as const;
+const NO_SURFACE_FOOTSTEP_EVENT = {
+  path: 'event:/Ghost/Footstep',
+  parameters: { Distance: { min: 0, max: 20, automatic: true } },
+} as const;
+const PITCHED_EVENT = {
+  path: 'event:/Pitched',
+  parameters: { Pitch: { min: -1, max: 1 } },
+} as const;
 
 function makeEntity(camera?: OrtographicCamera) {
   const events = new Emitter<GameObjectEventMap>();
@@ -55,7 +72,7 @@ describe('FMODSoundController', () => {
     entity.position.set(1, 2, 3);
     const controller = new FMODSoundController(entity);
 
-    const result = controller.playSound('event:/Hit', { volume: 0.5 });
+    const result = controller.playSound(HIT_EVENT, { volume: 0.5 });
 
     const args = lastPlayArgs();
     expect(result).toBe(instance);
@@ -69,7 +86,7 @@ describe('FMODSoundController', () => {
     const { entity } = makeEntity(camera);
     const controller = new FMODSoundController(entity);
 
-    controller.playSound('event:/Hit');
+    controller.playSound(HIT_EVENT);
 
     const [attributes] = vi.mocked(FMODAudio.setListenerAttributes).mock.calls[0];
     const forward = camera.getWorldDirection(new THREE.Vector3());
@@ -84,13 +101,13 @@ describe('FMODSoundController', () => {
     const { entity } = makeEntity();
     const controller = new FMODSoundController(entity);
 
-    controller.playSound('event:/Hit');
+    controller.playSound(HIT_EVENT);
 
     expect(FMODAudio.setListenerAttributes).not.toHaveBeenCalled();
     expect(FMODAudio.playEventInSoundChannel).toHaveBeenCalledTimes(1);
   });
 
-  it('plays a footstep with default event path, surface and volume', () => {
+  it('plays a footstep with default event, surface and volume', () => {
     const { entity } = makeEntity(camera);
     const controller = new FMODSoundController(entity);
 
@@ -99,23 +116,41 @@ describe('FMODSoundController', () => {
     const args = lastPlayArgs();
     expect(args.eventPath).toBe('event:/Footstep');
     expect(args.options?.volume).toBe(0.15);
-    expect(args.options?.parameters).toEqual({ surface: 1 });
+    expect(args.options?.parameters).toEqual({ Surface: 1 });
   });
 
-  it('plays a footstep with a custom event path', () => {
+  it('plays a footstep with a custom event', () => {
     const { entity } = makeEntity(camera);
     const controller = new FMODSoundController(entity);
 
-    controller.playFootstep('event:/Skeleton/Footstep');
+    controller.playFootstep(SKELETON_FOOTSTEP_EVENT);
 
     expect(lastPlayArgs().eventPath).toBe('event:/Skeleton/Footstep');
+  });
+
+  it('does not set the surface parameter on footstep events without it', () => {
+    const { entity } = makeEntity(camera);
+    const controller = new FMODSoundController(entity);
+
+    controller.playFootstep(NO_SURFACE_FOOTSTEP_EVENT);
+
+    expect(lastPlayArgs().options?.parameters).toBeUndefined();
+  });
+
+  it('clamps parameters to the event parameter range', () => {
+    const { entity } = makeEntity(camera);
+    const controller = new FMODSoundController(entity);
+
+    controller.playSound(PITCHED_EVENT, { parameters: { Pitch: 5 } });
+
+    expect(lastPlayArgs().options?.parameters).toEqual({ Pitch: 1 });
   });
 
   it('follows the entity while the sound plays and stops once it has stopped', () => {
     const { entity, events } = makeEntity(camera);
     const controller = new FMODSoundController(entity);
 
-    controller.playSound('event:/Hit');
+    controller.playSound(HIT_EVENT);
     entity.position.set(5, 0, 0);
     events.trigger('update', { deltaTime: 0.016 });
 
@@ -135,7 +170,7 @@ describe('FMODSoundController', () => {
     const { entity, events } = makeEntity(camera);
     const controller = new FMODSoundController(entity);
 
-    controller.playSound('event:/Hit');
+    controller.playSound(HIT_EVENT);
     events.trigger('update', { deltaTime: 0.016 });
 
     expect(FMODAudio.set3DAttributes).not.toHaveBeenCalled();
@@ -181,13 +216,13 @@ describe('FMODSoundController', () => {
       expect(footstepCount()).toBe(2);
     });
 
-    it('uses the provided event path, surface and volume', () => {
+    it('uses the provided event, surface and volume', () => {
       const { entity, events } = makeEntity(camera);
       const controller = new FMODSoundController(entity);
 
       controller.startFootsteps({
         intervalMs: 400,
-        eventPath: 'event:/Skeleton/Footstep',
+        event: SKELETON_FOOTSTEP_EVENT,
         surface: 2,
         volume: 0.5,
       });
@@ -195,7 +230,7 @@ describe('FMODSoundController', () => {
 
       const args = lastPlayArgs();
       expect(args.eventPath).toBe('event:/Skeleton/Footstep');
-      expect(args.options?.parameters).toEqual({ surface: 2 });
+      expect(args.options?.parameters).toEqual({ Surface: 2 });
       expect(args.options?.volume).toBe(0.5);
     });
 
@@ -227,7 +262,7 @@ describe('FMODSoundController', () => {
     const { entity, events } = makeEntity(camera);
     const controller = new FMODSoundController(entity);
 
-    controller.playSound('event:/Loop');
+    controller.playSound(LOOP_EVENT);
     controller.destroy();
     events.trigger('update', { deltaTime: 0.016 });
 
@@ -239,7 +274,7 @@ describe('FMODSoundController', () => {
     const { entity } = makeEntity(camera);
     const controller = new FMODSoundController(entity);
 
-    controller.playSound('event:/Hit');
+    controller.playSound(HIT_EVENT);
     lastPlayArgs().onStopped?.();
     controller.destroy();
 

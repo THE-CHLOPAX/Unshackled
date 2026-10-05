@@ -5,6 +5,7 @@ import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUti
 
 import { COLORS } from 'renderer/constants';
 import { MATERIALS } from 'renderer/3D/constants';
+import { FMOD_EVENTS } from 'renderer/FMOD/constants';
 import { DashOptions, DashState } from 'renderer/3D/classes/states';
 
 import { Player } from '../../Player';
@@ -49,6 +50,8 @@ export class DashStateMonk extends DashState {
 
   public override onEnter(): void {
     super.onEnter();
+
+    this.entity.fmodSoundController.playSound(FMOD_EVENTS.MONK_ATTACK_3);
 
     this.entity.animationController.playAnimation(MONK_DASH_ANIMATION_CLIP_NAME, {
       clampWhenFinished: true,

@@ -1,3 +1,5 @@
+import type { FMODEventDefinition } from 'renderer/FMOD';
+
 import * as THREE from 'three';
 import { InputState, logger } from '@tgdf';
 
@@ -10,7 +12,7 @@ import { getRandomNavMeshPointInRadius } from '../../../utils/getRandomNavMeshPo
 
 export type AIRoamingOptions = {
   radius: number;
-  footstepEventPath?: string;
+  footstepEvent?: FMODEventDefinition;
   interval: {
     min: number;
     max: number;
@@ -48,7 +50,7 @@ export class AIRoamingState extends State {
     });
     this.entity.fmodSoundController.startFootsteps({
       intervalMs: FOOTSTEP_INTERVAL_MS,
-      eventPath: this._roamingOptions.footstepEventPath,
+      event: this._roamingOptions.footstepEvent,
     });
     this._roamToRandomPoint()
       .catch((error) => {

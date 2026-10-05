@@ -11,6 +11,7 @@ import * as views from 'Views';
 import { COLORS } from 'renderer/constants';
 
 import { Icon } from '../components/Icon/Icon';
+import { withUIClick } from '../utils/withUIClick';
 import { ButtonIcon } from '../components/ButtonIcon/ButtonIcon';
 
 export type BackToViewLayoutProps = {
@@ -41,7 +42,7 @@ export function BackToViewLayout({
       {noButton === false && (
         <StyledButtonIcon
           icon={<Icon icon="arrowLeft" scale={2} color={COLORS.FONT_COLOR_DIMMED} />}
-          onClick={() => setView(backToView)}
+          onClick={withUIClick(() => setView(backToView))}
         />
       )}
       {children}
