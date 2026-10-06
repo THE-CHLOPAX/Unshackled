@@ -6,7 +6,7 @@ import { GRADIENTS } from 'renderer/constants';
 import { VersionLayout } from 'UI/layouts/VersionLayout';
 import { useRunStore } from 'renderer/Store/useRunStore';
 import { useSaveFiles } from 'renderer/hooks/useSaveFiles';
-import { Button, ButtonProps, Ornament, UI_IMAGE_URLS } from 'UI';
+import { Button, ButtonProps, Ornament, UI_IMAGE_URLS, withUIClick } from 'UI';
 
 export function MenuView() {
   const { setView } = useViewsStore();
@@ -75,7 +75,14 @@ export function MenuView() {
         <ButtonsWrapper direction="column" align="center" justify="center" gap={10}>
           {!loading &&
             buttonsData.map(({ label, onClick, disabled }) => {
-              return <Button key={label} label={label} onClick={onClick} disabled={disabled} />;
+              return (
+                <Button
+                  key={label}
+                  label={label}
+                  onClick={onClick && withUIClick(onClick)}
+                  disabled={disabled}
+                />
+              );
             })}
         </ButtonsWrapper>
       </Wrapper>

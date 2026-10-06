@@ -1,6 +1,6 @@
 {
   "name": "unshackled",
-  "version": "0.2.93",
+  "version": "0.2.96",
   "description": "A roguelike game where you have to fight your way through a hostile world to defeat the final boss.",
   "main": "main.js",
   "homepage": "./",
@@ -14,6 +14,7 @@
     "serve-web": "npx http-server release/web -p 8080 -o",
     "build-app": "sh scripts/build.sh",
     "build-icons": "node scripts/build-icons.js",
+    "fmod:sync-events": "node scripts/sync-fmod-events.js",
     "build-electron": "npm run build-app && electron-builder",
     "copy-assets-web": "rm -rf release/web/assets && node -e \"require('fs').cpSync('src/renderer/assets', 'release/web/assets', {recursive: true})\"",
     "copy-assets": "node -e \"const fs=require('fs');fs.rmSync('release/dist/assets',{recursive:true,force:true});fs.cpSync('src/renderer/assets','release/dist/assets',{recursive:true})\"",

@@ -36,8 +36,8 @@ export class AttackState extends State {
   }
 
   public override onEnter(): void {
-    if (this._attackAction.soundPath !== undefined) {
-      this._eventInstance = this.entity.fmodSoundController.playSound(this._attackAction.soundPath);
+    if (this._attackAction.sound !== undefined) {
+      this._eventInstance = this.entity.fmodSoundController.playSound(this._attackAction.sound);
     }
 
     this._attackInProgress = true;

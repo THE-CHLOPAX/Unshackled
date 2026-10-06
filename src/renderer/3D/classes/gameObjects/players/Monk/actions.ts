@@ -27,7 +27,7 @@ function applyForwardImpulse(entity: Entity, strength: number): void {
 }
 
 export const kick: ActionWithSound = {
-  soundPath: FMOD_EVENTS.MONK_ATTACK_3,
+  sound: FMOD_EVENTS.MONK_ATTACK_3,
   action: (entity: Entity) =>
     new Promise<void>((resolve) => {
       const HITBOX_DELAY = 0.2; // Delay in seconds before the hitbox is attached
@@ -75,7 +75,7 @@ export const kick: ActionWithSound = {
 };
 
 export const punchLeft: ChainedAction = {
-  soundPath: FMOD_EVENTS.GENERIC_SWOOSH,
+  sound: FMOD_EVENTS.GENERIC_SWOOSH,
   action: (entity: Entity) =>
     new Promise<void>((resolve) => {
       const HITBOX_DELAY = 0.1;
@@ -128,7 +128,7 @@ export const punchLeft: ChainedAction = {
 };
 
 export const punchRight: ChainedAction = {
-  soundPath: FMOD_EVENTS.GENERIC_SWOOSH,
+  sound: FMOD_EVENTS.GENERIC_SWOOSH,
   action: (entity: Entity) =>
     new Promise<void>((resolve) => {
       const HITBOX_DELAY = 0.15;

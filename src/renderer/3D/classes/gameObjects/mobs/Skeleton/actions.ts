@@ -14,7 +14,7 @@ export enum SkeletonAttackAnimations {
 export const attackActions: AIAttackAction[] = [
   {
     action: punch,
-    soundPath: FMOD_EVENTS.SKELETON_ATTACK,
+    sound: FMOD_EVENTS.SKELETON_ATTACK,
     minRange: 0,
     maxRange: 1,
   },
@@ -28,13 +28,15 @@ function punch(entity: Entity) {
     entity.damageHitboxController.hitboxTimeline = gsap
       .timeline()
       .call(
-        () =>
+        () => {
+          entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_SWOOSH);
           entity.damageHitboxController.attachDamageHitbox(
             new THREE.Vector3(0.5, 0.5, 0.5),
             10,
             'mixamorigRightHand',
             (other) => isEntityAi(other)
-          ),
+          );
+        },
         [],
         HITBOX_DELAY
       )

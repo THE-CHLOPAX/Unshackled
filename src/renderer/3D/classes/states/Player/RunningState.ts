@@ -1,25 +1,33 @@
 import * as THREE from 'three';
 import { InputState, logger } from '@tgdf';
 
+import { FMOD_EVENTS } from 'renderer/FMOD';
+
 import { State } from '..';
 import { AnimationClipNamesShared } from '../../../types';
 import { Player } from '../../gameObjects/players/Player';
+import { FMODLoopedSound } from '../../gameObjectComponents/FMODSoundController';
 
 const FOOTSTEP_INTERVAL_MS = 400;
 
 export class RunningState extends State {
+  private _footsteps: FMODLoopedSound | null = null;
+
   constructor(public entity: Player) {
     super(entity);
   }
 
   public override onEnter(): void {
-    this.entity.fmodSoundController.startFootsteps({ intervalMs: FOOTSTEP_INTERVAL_MS });
+    this.startFootsteps(FOOTSTEP_INTERVAL_MS);
 
     this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, { loop: true });
   }
 
   public override onExit(): void {
-    this.entity.fmodSoundController.stopFootsteps();
+    if (this._footsteps) {
+      this.entity.fmodSoundController.stopLoopedSound(this._footsteps);
+      this._footsteps = null;
+    }
   }
 
   public override onInput(_inputState: InputState): void {}
@@ -31,6 +39,13 @@ export class RunningState extends State {
     if (!movementState) return;
 
     this._moveEntity(movementState.direction);
+  }
+
+  protected startFootsteps(intervalMs: number): void {
+    this._footsteps = this.entity.fmodSoundController.playLoopedSound(
+      FMOD_EVENTS.GENERIC_FOOTSTEP,
+      { intervalMs }
+    );
   }
 
   private _moveEntity(direction: THREE.Vector3): void {

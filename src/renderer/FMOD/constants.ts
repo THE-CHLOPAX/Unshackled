@@ -1,14 +1,45 @@
+import type { FMODEventDefinition } from './types';
+
 export const FMOD_EVENTS = {
-  MONK_ATTACK_3: 'event:/SFX/Player/Attack no. 3',
-  GENERIC_HIT: 'event:/SFX/Player/Hit',
-  GENERIC_FOOTSTEP: 'event:/SFX/Player/Footstep',
-  GENERIC_DASH: 'event:/SFX/Player/Dash',
-  GENERIC_SWOOSH: 'event:/SFX/Player/Attack',
-  SKELETON_FOOTSTEP: 'event:/SFX/Enemies/Skeleton/Footstep',
-  SKELETON_ATTACK: 'event:/SFX/Enemies/Skeleton/Attack',
-  SKELETON_DEATH: 'event:/SFX/Enemies/Skeleton/Death',
-  SKELETON_SPAWN: 'event:/SFX/Enemies/Skeleton/Spawn',
-};
+  MONK_ATTACK_3: { path: 'event:/SFX/Player/Attack no. 3', volume: 1, parameters: {} },
+  GENERIC_HIT: {
+    path: 'event:/SFX/Player/Hit',
+    volume: 1,
+    parameters: { Distance: { min: 0, max: 20, defaultValue: 0, automatic: true, readOnly: true } },
+  },
+  GENERIC_FOOTSTEP: {
+    path: 'event:/SFX/Player/Footstep',
+    volume: 0.1,
+    parameters: { Surface: { min: 0, max: 10, defaultValue: 1 } },
+  },
+  GENERIC_DASH: { path: 'event:/SFX/Player/Dash', volume: 1, parameters: {} },
+  GENERIC_SWOOSH: { path: 'event:/SFX/Player/Attack', volume: 1, parameters: {} },
+  AMBIENT_TORCH_LOOP: {
+    path: 'event:/SFX/Ambient/Ambient_Torch_Loop',
+    volume: 1,
+    parameters: { Distance: { min: 0, max: 20, defaultValue: 0, automatic: true, readOnly: true } },
+  },
+  GENERAL_ENEMY_FOOTSTEP: {
+    path: 'event:/SFX/Enemies/General Enemy/Enemy_Footstep',
+    volume: 1,
+    parameters: {
+      Distance: { min: 0, max: 20, defaultValue: 0, automatic: true, readOnly: true },
+      Surface: { min: 0, max: 10, defaultValue: 0 },
+    },
+  },
+  SKELETON_ATTACK: {
+    path: 'event:/SFX/Enemies/Skeleton/Attack',
+    volume: 1,
+    parameters: { Distance: { min: 0, max: 20, defaultValue: 0, automatic: true, readOnly: true } },
+  },
+  SKELETON_FOOTSTEP: {
+    path: 'event:/SFX/Enemies/Skeleton/Footstep',
+    volume: 0.75,
+    parameters: { Distance: { min: 0, max: 20, defaultValue: 0, automatic: true, readOnly: true } },
+  },
+  SKELETON_SPAWN: { path: 'event:/SFX/Enemies/Skeleton/Spawn', volume: 1, parameters: {} },
+  UI_CLICK: { path: 'event:/SFX/UI/UI_Click', volume: 1, parameters: {} },
+} as const satisfies Record<string, FMODEventDefinition>;
 
 export const MESSAGES = {
   SYSTEM_SETUP_FAILED: '[FMOD] System setup failed',

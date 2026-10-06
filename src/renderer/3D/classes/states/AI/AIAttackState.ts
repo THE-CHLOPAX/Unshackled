@@ -57,8 +57,8 @@ export class AIAttackState extends State {
   public onInput(_inputState: InputState): void {}
 
   private _performAttack(bestAttack: AIAttackAction): void {
-    if (bestAttack.soundPath !== undefined) {
-      this._eventInstance = this.entity.fmodSoundController.playSound(bestAttack.soundPath);
+    if (bestAttack.sound !== undefined) {
+      this._eventInstance = this.entity.fmodSoundController.playSound(bestAttack.sound);
     }
     this._isAttacking = true;
     bestAttack.action(this.entity).then(() => {
