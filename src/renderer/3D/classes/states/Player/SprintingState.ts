@@ -9,7 +9,7 @@ export class SprintingState extends RunningState {
   }
 
   public override onEnter(): void {
-    this.entity.fmodSoundController.startFootsteps({ intervalMs: FOOTSTEP_INTERVAL_MS });
+    this.startFootsteps(FOOTSTEP_INTERVAL_MS);
     this.entity.animationController.playAnimation(AnimationClipNamesShared.SPRINT, { loop: true });
     this.entity.movementController.toggleSprint(true);
   }

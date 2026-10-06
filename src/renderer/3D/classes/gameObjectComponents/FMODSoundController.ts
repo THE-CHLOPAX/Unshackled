@@ -1,9 +1,10 @@
-import * as THREE from 'three';
-import { GameObject, GameObjectComponent, MAIN_SOUND_CHANNEL } from '@tgdf';
+import type { GameCamera } from '3D/types';
 
-import { clampEventParameters } from 'renderer/FMOD/utils/clampEventParameters';
+import * as THREE from 'three';
+import { GameObject, GameObjectComponent, MAIN_SOUND_CHANNEL, SceneCamera } from '@tgdf';
+
+import { resolveEventParameters } from 'renderer/FMOD/utils/resolveEventParameters';
 import {
-  FMOD_EVENTS,
   FMOD3DAttributes,
   FMODAudio,
   FMODEventDefinition,
@@ -20,28 +21,29 @@ export type FMODSoundControllerPlayOptions<E extends FMODEventDefinition> = Omit
   parameters?: FMODEventParameters<E>;
 };
 
-export type FMODFootstepOptions = {
-  surface?: number;
-  volume?: number;
+export type FMODLoopedSoundOptions<E extends FMODEventDefinition> =
+  FMODSoundControllerPlayOptions<E> & {
+    intervalMs: number;
+  };
+
+export type FMODLoopedSound = {
+  readonly event: FMODEventDefinition;
+  readonly intervalMs: number;
 };
 
-export type FMODFootstepLoopOptions = FMODFootstepOptions & {
-  intervalMs: number;
-  event?: FMODEventDefinition;
+type LoopedSoundState = {
+  play: () => void;
+  elapsedMs: number;
 };
-
-const FOOTSTEP_SURFACE_PARAMETER = 'Surface';
-const DEFAULT_FOOTSTEP_SURFACE = 1;
 
 const WORLD_UP = new THREE.Vector3(0, 1, 0);
 
 export class FMODSoundController extends GameObjectComponent {
   private _activeInstances = new Set<FMODEventInstance>();
+  private _loopedSounds = new Map<FMODLoopedSound, LoopedSoundState>();
   private _worldQuaternion = new THREE.Quaternion();
   private _entityAttributes = createAttributes();
   private _listenerAttributes = createAttributes();
-  private _footstepLoop: FMODFootstepLoopOptions | null = null;
-  private _footstepElapsedMs = 0;
 
   constructor(gameObject: GameObject) {
     super(gameObject);
@@ -68,7 +70,7 @@ export class FMODSoundController extends GameObjectComponent {
       options: {
         ...options,
         volume,
-        parameters: parameters && clampEventParameters(event, parameters),
+        parameters: resolveEventParameters(event, parameters),
         attributes3D: this._getEntityAttributes(),
       },
       onStopped: () => {
@@ -84,55 +86,47 @@ export class FMODSoundController extends GameObjectComponent {
     FMODAudio.stopEvent(instance, allowFadeout);
   }
 
-  public playFootstep(
-    event: FMODEventDefinition = FMOD_EVENTS.GENERIC_FOOTSTEP,
-    { surface = DEFAULT_FOOTSTEP_SURFACE }: FMODFootstepOptions = {}
-  ): FMODEventInstance | null {
-    const hasSurfaceParameter = FOOTSTEP_SURFACE_PARAMETER in event.parameters;
+  public playLoopedSound<E extends FMODEventDefinition>(
+    event: E,
+    { intervalMs, ...options }: FMODLoopedSoundOptions<E>
+  ): FMODLoopedSound {
+    const loopedSound: FMODLoopedSound = { event, intervalMs };
+    const play = () => {
+      this.playSound(event, options);
+    };
 
-    return this.playSound(event, {
-      parameters: hasSurfaceParameter ? { [FOOTSTEP_SURFACE_PARAMETER]: surface } : undefined,
-    });
+    this._loopedSounds.set(loopedSound, { play, elapsedMs: 0 });
+    play();
+
+    return loopedSound;
   }
 
-  public startFootsteps(options: FMODFootstepLoopOptions): void {
-    this._footstepLoop = options;
-    this._footstepElapsedMs = 0;
-    this._playLoopedFootstep(options);
-  }
-
-  public stopFootsteps(): void {
-    this._footstepLoop = null;
-    this._footstepElapsedMs = 0;
+  public stopLoopedSound(loopedSound: FMODLoopedSound): void {
+    this._loopedSounds.delete(loopedSound);
   }
 
   protected override onUpdate(deltaTime: number): void {
-    this._updateFootsteps(deltaTime);
+    this._updateLoopedSounds(deltaTime);
     this._updateActiveInstances();
   }
 
   protected override onDestroyed(): void {
     super.onDestroyed();
-    this.stopFootsteps();
+    this._loopedSounds.clear();
     for (const instance of this._activeInstances) {
       this.stopSound(instance, true);
     }
     this._activeInstances.clear();
   }
 
-  private _updateFootsteps(deltaTime: number): void {
-    const footstepLoop = this._footstepLoop;
-    if (!footstepLoop) return;
+  private _updateLoopedSounds(deltaTime: number): void {
+    for (const [{ intervalMs }, state] of this._loopedSounds) {
+      state.elapsedMs += deltaTime * 1000;
+      if (state.elapsedMs < intervalMs) continue;
 
-    this._footstepElapsedMs += deltaTime * 1000;
-    if (this._footstepElapsedMs < footstepLoop.intervalMs) return;
-
-    this._footstepElapsedMs %= footstepLoop.intervalMs;
-    this._playLoopedFootstep(footstepLoop);
-  }
-
-  private _playLoopedFootstep({ event, surface, volume }: FMODFootstepLoopOptions): void {
-    this.playFootstep(event, { surface, volume });
+      state.elapsedMs %= intervalMs;
+      state.play();
+    }
   }
 
   private _updateActiveInstances(): void {
@@ -167,8 +161,13 @@ export class FMODSoundController extends GameObjectComponent {
     camera.getWorldDirection(forward);
     up.copy(WORLD_UP).applyQuaternion(camera.getWorldQuaternion(this._worldQuaternion));
 
-    FMODAudio.setListenerAttributes(this._listenerAttributes);
+    const attenuationPosition = isGameCamera(camera) ? camera.pivotPoint : null;
+    FMODAudio.setListenerAttributes(this._listenerAttributes, attenuationPosition);
   }
+}
+
+function isGameCamera(camera: SceneCamera): camera is GameCamera {
+  return 'pivotPoint' in camera;
 }
 
 function createAttributes() {

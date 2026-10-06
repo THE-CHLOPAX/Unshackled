@@ -1,6 +1,6 @@
-import type { FMODEventDefinition } from 'renderer/FMOD';
-
 import { InputState, throttleWithLastValue } from '@tgdf';
+
+import { FMOD_EVENTS, type FMODEventDefinition } from 'renderer/FMOD';
 
 import { State } from '..';
 import { shouldAttack } from '../utils/shouldAttack';
@@ -8,6 +8,7 @@ import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from '../utils/getBestAttack';
 import { getTargetEnemy } from '../utils/getTargetEnemy';
 import { AIAttackAction, AnimationClipNamesShared } from '../../../types';
+import { FMODLoopedSound } from '../../gameObjectComponents/FMODSoundController';
 
 const UPDATE_THROTTLE_INTERVAL_MS = 250;
 const FOOTSTEP_INTERVAL_MS = 370;
@@ -19,6 +20,7 @@ export type AIChasingOptions = {
 export class AIChasingState extends State {
   private _bestAttack: AIAttackAction | null = null;
   private _pathfindingFailed = false;
+  private _footsteps: FMODLoopedSound | null = null;
 
   constructor(
     public entity: EntityAI,
@@ -36,17 +38,20 @@ export class AIChasingState extends State {
   }
 
   public onEnter(): void {
-    this.entity.fmodSoundController.startFootsteps({
-      intervalMs: FOOTSTEP_INTERVAL_MS,
-      event: this.options?.footstepEvent,
-    });
+    this._footsteps = this.entity.fmodSoundController.playLoopedSound(
+      this.options?.footstepEvent ?? FMOD_EVENTS.GENERIC_FOOTSTEP,
+      { intervalMs: FOOTSTEP_INTERVAL_MS }
+    );
     this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, {
       loop: true,
     });
   }
 
   public onExit(): void {
-    this.entity.fmodSoundController.stopFootsteps();
+    if (this._footsteps) {
+      this.entity.fmodSoundController.stopLoopedSound(this._footsteps);
+      this._footsteps = null;
+    }
     this.entity.movementController.resetMoveTo();
   }
 

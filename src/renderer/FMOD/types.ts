@@ -1,6 +1,7 @@
 export type FMODParameterDefinition = {
   min: number;
   max: number;
+  defaultValue: number;
   discrete?: boolean;
   automatic?: boolean;
   readOnly?: boolean;

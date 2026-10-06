@@ -1,13 +1,14 @@
-import type { FMODEventDefinition } from 'renderer/FMOD';
-
 import * as THREE from 'three';
 import { InputState, logger } from '@tgdf';
+
+import { FMOD_EVENTS, type FMODEventDefinition } from 'renderer/FMOD';
 
 import { State } from '..';
 import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from '../utils/getBestAttack';
 import { getTargetEnemy } from '../utils/getTargetEnemy';
 import { AIAttackAction, AnimationClipNamesShared } from '../../../types';
+import { FMODLoopedSound } from '../../gameObjectComponents/FMODSoundController';
 import { getRandomNavMeshPointInRadius } from '../../../utils/getRandomNavMeshPointInRadius';
 
 export type AIRoamingOptions = {
@@ -28,6 +29,7 @@ export class AIRoamingState extends State {
   private _stuckCheckElapsedSeconds = 0;
   private _lastCheckedPosition: THREE.Vector3 | null = null;
   private _bestAttack: AIAttackAction | null = null;
+  private _footsteps: FMODLoopedSound | null = null;
 
   constructor(
     public entity: EntityAI,
@@ -48,10 +50,10 @@ export class AIRoamingState extends State {
     this.entity.animationController.playAnimation(AnimationClipNamesShared.WALK, {
       loop: true,
     });
-    this.entity.fmodSoundController.startFootsteps({
-      intervalMs: FOOTSTEP_INTERVAL_MS,
-      event: this._roamingOptions.footstepEvent,
-    });
+    this._footsteps = this.entity.fmodSoundController.playLoopedSound(
+      this._roamingOptions.footstepEvent ?? FMOD_EVENTS.GENERIC_FOOTSTEP,
+      { intervalMs: FOOTSTEP_INTERVAL_MS }
+    );
     this._roamToRandomPoint()
       .catch((error) => {
         logger({ message: error.message, type: 'error' });
@@ -62,7 +64,10 @@ export class AIRoamingState extends State {
       });
   }
   public override onExit(): void {
-    this.entity.fmodSoundController.stopFootsteps();
+    if (this._footsteps) {
+      this.entity.fmodSoundController.stopLoopedSound(this._footsteps);
+      this._footsteps = null;
+    }
     this.entity.movementController.resetMoveTo();
   }
 

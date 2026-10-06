@@ -7,7 +7,7 @@ import { FMOD_EVENTS } from './constants';
 const _DISCRETE_EVENT = {
   path: 'event:/Discrete',
   volume: 1,
-  parameters: { Material: { min: 1, max: 3, discrete: true } },
+  parameters: { Material: { min: 1, max: 3, defaultValue: 1, discrete: true } },
 } as const;
 
 describe('FMOD event types', () => {

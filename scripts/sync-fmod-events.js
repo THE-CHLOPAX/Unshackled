@@ -67,8 +67,12 @@ function getBankFileNames() {
 }
 
 function toParameterDefinition(description) {
-  const { minimum, maximum, flags } = description;
-  const definition = { min: roundValue(minimum), max: roundValue(maximum) };
+  const { minimum, maximum, defaultvalue, flags } = description;
+  const definition = {
+    min: roundValue(minimum),
+    max: roundValue(maximum),
+    defaultValue: roundValue(defaultvalue),
+  };
 
   if (flags & (PARAMETER_FLAGS.DISCRETE | PARAMETER_FLAGS.LABELED)) definition.discrete = true;
   if (flags & PARAMETER_FLAGS.AUTOMATIC) definition.automatic = true;
@@ -183,6 +187,27 @@ function findObjectProperty(objectLiteral, name, sourceFile) {
   );
 }
 
+function readParameterDefaults(eventObject, sourceFile) {
+  const defaults = new Map();
+  const parametersProperty = findObjectProperty(eventObject, 'parameters', sourceFile);
+  const parametersObject = parametersProperty && unwrapExpression(parametersProperty.initializer);
+  if (!parametersObject || !ts.isObjectLiteralExpression(parametersObject)) return defaults;
+
+  for (const parameter of parametersObject.properties.filter(ts.isPropertyAssignment)) {
+    const defaultProperty = findObjectProperty(
+      unwrapExpression(parameter.initializer),
+      'defaultValue',
+      sourceFile
+    );
+    const defaultValue = defaultProperty && Number(defaultProperty.initializer.getText(sourceFile));
+    if (Number.isFinite(defaultValue)) {
+      defaults.set(getPropertyName(parameter, sourceFile), defaultValue);
+    }
+  }
+
+  return defaults;
+}
+
 function readExistingEntries(sourceFile, eventsObject) {
   return eventsObject.properties.filter(ts.isPropertyAssignment).map((property) => {
     const value = unwrapExpression(property.initializer);
@@ -197,6 +222,7 @@ function readExistingEntries(sourceFile, eventsObject) {
       key: getPropertyName(property, sourceFile),
       path: pathValue,
       volumeText: volumeProperty ? volumeProperty.initializer.getText(sourceFile) : null,
+      parameterDefaults: readParameterDefaults(value, sourceFile),
       text: property.getText(sourceFile),
     };
   });
@@ -243,6 +269,19 @@ function serializeEvent(key, event, volumeText = String(DEFAULT_EVENT_VOLUME)) {
   return `${toPropertyKey(key)}: { path: ${JSON.stringify(event.path)}, volume: ${volumeText}, parameters: ${serializeObject(event.parameters)} }`;
 }
 
+function withParameterDefaults(event, parameterDefaults) {
+  const parameters = Object.fromEntries(
+    Object.entries(event.parameters).map(([name, definition]) => [
+      name,
+      parameterDefaults.has(name)
+        ? { ...definition, defaultValue: parameterDefaults.get(name) }
+        : definition,
+    ])
+  );
+
+  return { ...event, parameters };
+}
+
 function mergeEntries(existingEntries, bankEvents) {
   const takenKeys = new Set(existingEntries.map((entry) => entry.key));
   const knownPaths = new Set();
@@ -257,7 +296,11 @@ function mergeEntries(existingEntries, bankEvents) {
 
     knownPaths.add(entry.path);
     report.updated.push(entry.key);
-    return serializeEvent(entry.key, event, entry.volumeText ?? undefined);
+    return serializeEvent(
+      entry.key,
+      withParameterDefaults(event, entry.parameterDefaults),
+      entry.volumeText ?? undefined
+    );
   });
 
   const newEvents = [...bankEvents.values()]
