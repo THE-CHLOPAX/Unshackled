@@ -9,6 +9,7 @@ export type FMODParameterDefinition = {
 
 export type FMODEventDefinition = {
   path: string;
+  volume: number;
   parameters: Readonly<Record<string, FMODParameterDefinition>>;
 };
 

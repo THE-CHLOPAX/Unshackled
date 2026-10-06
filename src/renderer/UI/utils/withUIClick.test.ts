@@ -10,7 +10,7 @@ vi.mock('@tgdf', () => ({
 }));
 
 vi.mock('renderer/FMOD', () => ({
-  FMOD_EVENTS: { UI_CLICK: { path: 'event:/UI/Click', parameters: {} } },
+  FMOD_EVENTS: { UI_CLICK: { path: 'event:/UI/Click', volume: 0.4, parameters: {} } },
   FMODAudio: { playEventInSoundChannel: vi.fn() },
 }));
 
@@ -31,6 +31,7 @@ describe('withUIClick', () => {
     expect(FMODAudio.playEventInSoundChannel).toHaveBeenCalledWith({
       eventPath: 'event:/UI/Click',
       channelId: 'main',
+      options: { volume: 0.4 },
     });
     expect(callOrder).toEqual(['click', 'callback']);
   });

@@ -9,6 +9,7 @@ const BANKS_DIR = path.join(ROOT, 'src/renderer/assets/sounds/banks');
 const CONSTANTS_PATH = path.join(FMOD_DIR, 'constants.ts');
 const EVENTS_CONSTANT_NAME = 'FMOD_EVENTS';
 const EVENT_PREFIX = 'event:/';
+const DEFAULT_EVENT_VOLUME = 1;
 
 const PARAMETER_FLAGS = {
   READ_ONLY: 0x01,
@@ -174,14 +175,19 @@ function getPropertyName(property, sourceFile) {
   return ts.isStringLiteral(property.name) ? property.name.text : property.name.getText(sourceFile);
 }
 
+function findObjectProperty(objectLiteral, name, sourceFile) {
+  if (!ts.isObjectLiteralExpression(objectLiteral)) return undefined;
+
+  return objectLiteral.properties.find(
+    (entry) => ts.isPropertyAssignment(entry) && getPropertyName(entry, sourceFile) === name
+  );
+}
+
 function readExistingEntries(sourceFile, eventsObject) {
   return eventsObject.properties.filter(ts.isPropertyAssignment).map((property) => {
     const value = unwrapExpression(property.initializer);
-    const pathProperty = ts.isObjectLiteralExpression(value)
-      ? value.properties.find(
-          (entry) => ts.isPropertyAssignment(entry) && getPropertyName(entry, sourceFile) === 'path'
-        )
-      : undefined;
+    const pathProperty = findObjectProperty(value, 'path', sourceFile);
+    const volumeProperty = findObjectProperty(value, 'volume', sourceFile);
     const pathValue =
       pathProperty && ts.isStringLiteralLike(pathProperty.initializer)
         ? pathProperty.initializer.text
@@ -190,6 +196,7 @@ function readExistingEntries(sourceFile, eventsObject) {
     return {
       key: getPropertyName(property, sourceFile),
       path: pathValue,
+      volumeText: volumeProperty ? volumeProperty.initializer.getText(sourceFile) : null,
       text: property.getText(sourceFile),
     };
   });
@@ -232,8 +239,8 @@ function serializeObject(object) {
   return `{ ${entries.join(', ')} }`;
 }
 
-function serializeEvent(key, event) {
-  return `${toPropertyKey(key)}: { path: ${JSON.stringify(event.path)}, parameters: ${serializeObject(event.parameters)} }`;
+function serializeEvent(key, event, volumeText = String(DEFAULT_EVENT_VOLUME)) {
+  return `${toPropertyKey(key)}: { path: ${JSON.stringify(event.path)}, volume: ${volumeText}, parameters: ${serializeObject(event.parameters)} }`;
 }
 
 function mergeEntries(existingEntries, bankEvents) {
@@ -250,7 +257,7 @@ function mergeEntries(existingEntries, bankEvents) {
 
     knownPaths.add(entry.path);
     report.updated.push(entry.key);
-    return serializeEvent(entry.key, event);
+    return serializeEvent(entry.key, event, entry.volumeText ?? undefined);
   });
 
   const newEvents = [...bankEvents.values()]

@@ -6,6 +6,7 @@ import { FMOD_EVENTS } from './constants';
 
 const _DISCRETE_EVENT = {
   path: 'event:/Discrete',
+  volume: 1,
   parameters: { Material: { min: 1, max: 3, discrete: true } },
 } as const;
 

@@ -7,6 +7,7 @@ function playUIClick(): void {
     FMODAudio.playEventInSoundChannel({
       eventPath: FMOD_EVENTS.UI_CLICK.path,
       channelId: MAIN_SOUND_CHANNEL,
+      options: { volume: FMOD_EVENTS.UI_CLICK.volume },
     });
   } catch (error) {
     logger({ message: `Failed to play UI click: ${(error as Error).message}`, type: 'warn' });

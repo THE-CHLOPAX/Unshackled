@@ -14,7 +14,11 @@ vi.mock('electron', () => ({
 
 vi.mock('renderer/FMOD', () => ({
   FMOD_EVENTS: {
-    GENERIC_FOOTSTEP: { path: 'event:/Footstep', parameters: { Surface: { min: 0, max: 10 } } },
+    GENERIC_FOOTSTEP: {
+      path: 'event:/Footstep',
+      volume: 1,
+      parameters: { Surface: { min: 0, max: 10 } },
+    },
   },
   FMODAudio: {
     playEventInSoundChannel: vi.fn(),
@@ -26,18 +30,21 @@ vi.mock('renderer/FMOD', () => ({
 
 type PlayArgs = Parameters<typeof FMODAudio.playEventInSoundChannel>[0];
 
-const HIT_EVENT = { path: 'event:/Hit', parameters: {} } as const;
-const LOOP_EVENT = { path: 'event:/Loop', parameters: {} } as const;
+const HIT_EVENT = { path: 'event:/Hit', volume: 1, parameters: {} } as const;
+const LOOP_EVENT = { path: 'event:/Loop', volume: 1, parameters: {} } as const;
 const SKELETON_FOOTSTEP_EVENT = {
   path: 'event:/Skeleton/Footstep',
+  volume: 1,
   parameters: { Surface: { min: 0, max: 10 } },
 } as const;
 const NO_SURFACE_FOOTSTEP_EVENT = {
   path: 'event:/Ghost/Footstep',
+  volume: 1,
   parameters: { Distance: { min: 0, max: 20, automatic: true } },
 } as const;
 const PITCHED_EVENT = {
   path: 'event:/Pitched',
+  volume: 1,
   parameters: { Pitch: { min: -1, max: 1 } },
 } as const;
 
@@ -82,15 +89,26 @@ describe('FMODSoundController', () => {
     expect(args.options?.attributes3D?.position).toMatchObject({ x: 1, y: 2, z: 3 });
   });
 
-  it('places the listener at the camera pivot with the camera orientation', () => {
+  it('uses the event default volume when no volume is provided', () => {
+    const { entity } = makeEntity(camera);
+    const controller = new FMODSoundController(entity);
+
+    controller.playSound({ ...HIT_EVENT, volume: 0.3 });
+
+    expect(lastPlayArgs().options?.volume).toBe(0.3);
+  });
+
+  it('places the listener at the camera world position with the camera orientation', () => {
     const { entity } = makeEntity(camera);
     const controller = new FMODSoundController(entity);
 
     controller.playSound(HIT_EVENT);
 
     const [attributes] = vi.mocked(FMODAudio.setListenerAttributes).mock.calls[0];
+    const position = camera.getWorldPosition(new THREE.Vector3());
     const forward = camera.getWorldDirection(new THREE.Vector3());
-    expect(attributes.position).toMatchObject({ x: 4, y: 0, z: 2 });
+    expect(position).not.toMatchObject({ x: 4, y: 0, z: 2 });
+    expect(attributes.position).toMatchObject({ x: position.x, y: position.y, z: position.z });
     expect(attributes.forward).toMatchObject({ x: forward.x, y: forward.y, z: forward.z });
     expect(
       new THREE.Vector3().copy(attributes.forward).dot(attributes.up as THREE.Vector3)

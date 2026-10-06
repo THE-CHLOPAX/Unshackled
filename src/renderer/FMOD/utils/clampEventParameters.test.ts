@@ -4,6 +4,7 @@ import { clampEventParameters } from './clampEventParameters';
 
 const EVENT = {
   path: 'event:/Test',
+  volume: 1,
   parameters: {
     Surface: { min: 0, max: 10 },
     Pitch: { min: -1, max: 1 },
