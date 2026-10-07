@@ -236,7 +236,13 @@ export function ComponentsView() {
           </ComponentSection>
 
           <ComponentSection title="HintBillboard">
-            <HintBillboard icon="A" label="Open" />
+            <HintBillboard
+              title="Dungeon door"
+              hints={[
+                { icon: 'A', label: 'Open' },
+                { icon: 'X', label: 'Lock' },
+              ]}
+            />
           </ComponentSection>
 
           <ComponentSection title="Text">

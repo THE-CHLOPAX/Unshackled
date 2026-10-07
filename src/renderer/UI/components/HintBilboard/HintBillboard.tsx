@@ -8,32 +8,46 @@ import { hexStringToRgbaString } from 'UI/utils/hexStringToRgbaString';
 import { Text } from '../Text/Text';
 import { SmallPanel } from '../SmallPanel/SmallPanel';
 
-export type HintBillboardProps = {
+export type HintBillboardHint = {
   icon: ReactNode;
   label: string;
 };
 
-export const HintBillboard = ({ icon, label }: HintBillboardProps) => {
+export type HintBillboardProps = {
+  title?: string;
+  hints: HintBillboardHint[];
+};
+
+export const HintBillboard = ({ title, hints }: HintBillboardProps) => {
   return (
     <Wrapper>
-      <HintSmallPanel scale={2}>
-        {typeof icon === 'string' || typeof icon === 'number' ? (
-          <Text color={COLORS.FONT_COLOR_HIGHLIGHT}>{icon}</Text>
-        ) : (
-          icon
-        )}
-      </HintSmallPanel>
-      <Text size="md">{label}</Text>
+      {title !== undefined && (
+        <Text size="md" color={COLORS.FONT_COLOR_HIGHLIGHT}>
+          - {title} -
+        </Text>
+      )}
+      {hints.map(({ icon, label }) => (
+        <HintRow key={label}>
+          <HintSmallPanel scale={2}>
+            {typeof icon === 'string' || typeof icon === 'number' ? (
+              <Text color={COLORS.FONT_COLOR_HIGHLIGHT}>{icon}</Text>
+            ) : (
+              icon
+            )}
+          </HintSmallPanel>
+          <Text size="md">{label}</Text>
+        </HintRow>
+      ))}
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-end;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: radial-gradient(
     ellipse closest-side,
     ${hexStringToRgbaString(COLORS.BG_COLOR, 0.5)} 50%,
@@ -41,6 +55,14 @@ const Wrapper = styled.div`
     ${hexStringToRgbaString(COLORS.BG_COLOR, 0)} 100%
   );
   padding: 15px 30px;
+`;
+
+const HintRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
 `;
 
 const HintSmallPanel = styled(SmallPanel)`

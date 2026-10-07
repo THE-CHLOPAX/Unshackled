@@ -21,7 +21,11 @@ import { GameUIOverlay } from './components/GameUIOverlay/GameUIOverlay';
 import { HealthBar, HealthBarProps } from './components/HealthBar/HealthBar';
 import { ScrollableWrapper } from './components/ScrollableWrapper/ScrollableWrapper';
 import { createEventLoggerSource } from './components/EventLogger/createEventLoggerSource';
-import { HintBillboard, HintBillboardProps } from './components/HintBilboard/HintBillboard';
+import {
+  HintBillboard,
+  HintBillboardHint,
+  HintBillboardProps,
+} from './components/HintBilboard/HintBillboard';
 import {
   EventLogger,
   EventLoggerEntry,
@@ -57,6 +61,7 @@ export {
   type IconName,
   type IconProps,
   type HealthBarProps,
+  type HintBillboardHint,
   type HintBillboardProps,
   type EventLoggerEntry,
   type EventLoggerProps,
