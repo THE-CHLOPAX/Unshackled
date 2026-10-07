@@ -20,7 +20,11 @@ import { PanelScalable } from './components/PanelScalable/PanelScalable';
 import { GameUIOverlay } from './components/GameUIOverlay/GameUIOverlay';
 import { HealthBar, HealthBarProps } from './components/HealthBar/HealthBar';
 import { ScrollableWrapper } from './components/ScrollableWrapper/ScrollableWrapper';
-import { HintBillboard, HintBillboardProps } from './components/HintBilboard/HintBillboard';
+import {
+  HintBillboard,
+  HintBillboardHint,
+  HintBillboardProps,
+} from './components/HintBilboard/HintBillboard';
 
 export {
   Button,
@@ -48,6 +52,7 @@ export {
   type IconName,
   type IconProps,
   type HealthBarProps,
+  type HintBillboardHint,
   type HintBillboardProps,
   UI_IMAGE_URLS,
   withUIClick,
