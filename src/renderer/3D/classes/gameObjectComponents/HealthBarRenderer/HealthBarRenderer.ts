@@ -14,6 +14,7 @@ import {
 } from './constants';
 
 export type HealthBarRendererOptions = {
+  name?: string;
   offset: THREE.Vector3;
 };
 
@@ -74,6 +75,7 @@ export class HealthBarRenderer extends BillboardRenderer {
 
       this.updateElement(this._healthBarId, {
         entity: this.entity,
+        name: this.options.name,
         progress,
         fadeOutEnabled: false,
         progressDelta,
@@ -86,6 +88,7 @@ export class HealthBarRenderer extends BillboardRenderer {
         HealthBar,
         {
           entity: this.entity,
+          name: this.options.name,
           progress,
           fadeOutEnabled: false,
           progressDelta,
