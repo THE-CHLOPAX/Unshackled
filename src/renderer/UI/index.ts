@@ -20,7 +20,14 @@ import { PanelScalable } from './components/PanelScalable/PanelScalable';
 import { GameUIOverlay } from './components/GameUIOverlay/GameUIOverlay';
 import { HealthBar, HealthBarProps } from './components/HealthBar/HealthBar';
 import { ScrollableWrapper } from './components/ScrollableWrapper/ScrollableWrapper';
+import { createEventLoggerSource } from './components/EventLogger/createEventLoggerSource';
 import { HintBillboard, HintBillboardProps } from './components/HintBilboard/HintBillboard';
+import {
+  EventLogger,
+  EventLoggerEntry,
+  EventLoggerProps,
+  EventLoggerSource,
+} from './components/EventLogger/EventLogger';
 
 export {
   Button,
@@ -39,6 +46,8 @@ export {
   HealthBar,
   HintBillboard,
   PanelScalable,
+  EventLogger,
+  createEventLoggerSource,
   GameUIOverlay,
   MenuSubviewLayout,
   BackToViewLayout,
@@ -49,6 +58,9 @@ export {
   type IconProps,
   type HealthBarProps,
   type HintBillboardProps,
+  type EventLoggerEntry,
+  type EventLoggerProps,
+  type EventLoggerSource,
   UI_IMAGE_URLS,
   withUIClick,
 };
