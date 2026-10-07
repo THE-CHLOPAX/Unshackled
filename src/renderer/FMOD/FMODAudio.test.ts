@@ -24,9 +24,12 @@ import { getInstancePointer } from './utils/getInstancePointer';
 vi.mock('./fmodstudio', () => ({ default: vi.fn() }));
 vi.mock('./utils/fetchBankBinary', () => ({ fetchBankBinary: vi.fn() }));
 vi.mock('./utils/getInstancePointer', () => ({ getInstancePointer: vi.fn() }));
-vi.mock('@tgdf', () => ({
+vi.mock('@tgdf', async () => ({
   logger: vi.fn(),
   assert,
+  Emitter: (await vi.importActual<typeof import('@tgdf/internal-3d/Emitter')>(
+    '@tgdf/internal-3d/Emitter'
+  )).Emitter,
   useSoundsStore: {
     getState: vi.fn(),
     subscribe: vi.fn(() => vi.fn()),
