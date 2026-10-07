@@ -13,6 +13,7 @@ export type {
 } from './fmodstudio';
 export type { FMODPlayEventOptions } from './FMODAudio';
 export type {
+  FMODAudioEventMap,
   FMODEventDefinition,
   FMODEventParameters,
   FMODParameterDefinition,

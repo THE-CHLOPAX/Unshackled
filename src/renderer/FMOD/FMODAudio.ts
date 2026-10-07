@@ -11,10 +11,11 @@ import type {
   FMODVector,
 } from './fmodstudio';
 
-import { assert, logger, useSoundsStore } from '@tgdf';
+import { assert, Emitter, logger, useSoundsStore } from '@tgdf';
 
 import { MESSAGES } from './constants';
 import { fmodOut } from './utils/fmodOut';
+import { FMODAudioEventMap } from './types';
 import FMODModuleFactory from './fmodstudio';
 import { fetchBankBinary } from './utils/fetchBankBinary';
 import { fmodCheckOrThrow } from './utils/fmodCheckOrThrow';
@@ -43,6 +44,8 @@ export class FMODAudio {
 
   private static _instance: FMODAudio | null = null;
 
+  public events: Emitter<FMODAudioEventMap> = new Emitter();
+
   private _fmod: FMODObject;
   private _system: FMODStudioSystem | null = null;
   private _banks = new Map<string, FMODBank>();
@@ -52,6 +55,7 @@ export class FMODAudio {
   private _updateInterval: ReturnType<typeof setInterval> | null = null;
   private _channelSubscriptions = new Map<number, () => void>();
   private _stopListeners = new Map<number, () => void>();
+  private _eventPaths = new Map<number, string>();
   private _warnedMissingParameters = new Set<string>();
 
   constructor(dependencies: FMODDependencies = { fmod: {} as FMODObject, system: null }) {
@@ -78,10 +82,12 @@ export class FMODAudio {
           this._initialized = true;
           this._updateInterval = setInterval(() => this._system?.update(), 20);
           this._initPromise = null;
+          this.events.trigger('initialized');
           resolve(true);
         } catch (_e) {
           logger({ message: MESSAGES.SYSTEM_SETUP_FAILED, type: 'error' });
           this._initPromise = null;
+          this.events.trigger('init-failed');
           resolve(false);
         }
       };
@@ -91,6 +97,7 @@ export class FMODAudio {
       } catch (_e) {
         logger({ message: MESSAGES.MODULE_FACTORY_FAILED, type: 'error' });
         this._initPromise = null;
+        this.events.trigger('init-failed');
         resolve(false);
       }
     });
@@ -160,6 +167,8 @@ export class FMODAudio {
     }
 
     fmodCheckOrThrow(this._fmod, instanceOut.val.start());
+    this._eventPaths.set(getInstancePointer(instanceOut.val), eventPath);
+    this.events.trigger('event-started', { eventPath });
 
     if (onStopped) {
       this._stopListeners.set(getInstancePointer(instanceOut.val), onStopped);
@@ -350,8 +359,10 @@ export class FMODAudio {
       logger({ message: MESSAGES.LOADED_BANK(bankName), type: 'info' });
 
       this._banks.set(bankName, bankOut.val);
+      this.events.trigger('bank-loaded', { bankName });
     } catch (error) {
       logger({ message: MESSAGES.BANK_LOAD_FAILED(url, error), type: 'error' });
+      this.events.trigger('bank-load-failed', { bankName, error });
     }
   }
 
@@ -417,6 +428,12 @@ export class FMODAudio {
   }
 
   private _onEventStopped(instance: FMODEventInstance): void {
+    const eventPath = this._eventPaths.get(getInstancePointer(instance));
+    if (eventPath !== undefined) {
+      this._eventPaths.delete(getInstancePointer(instance));
+      this.events.trigger('event-stopped', { eventPath });
+    }
+
     const onStopped = this._stopListeners.get(getInstancePointer(instance));
     if (onStopped) {
       this._stopListeners.delete(getInstancePointer(instance));

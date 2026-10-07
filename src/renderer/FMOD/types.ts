@@ -44,3 +44,12 @@ export type FMODEventParameters<E extends FMODEventDefinition> = [
 ] extends [never]
   ? Record<string, never>
   : { [K in FMODSettableParameterName<E>]?: FMODParameterValue<E['parameters'][K]> };
+
+export type FMODAudioEventMap = {
+  initialized: undefined;
+  'init-failed': undefined;
+  'bank-loaded': { bankName: string };
+  'bank-load-failed': { bankName: string; error: unknown };
+  'event-started': { eventPath: string };
+  'event-stopped': { eventPath: string };
+};
