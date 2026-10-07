@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import styled from 'styled-components';
 import { useGraphicsStore } from '@tgdf';
+import { useMemo, useState } from 'react';
 
-import { GameUIOverlay } from 'UI';
+import { FMODAudio } from 'renderer/FMOD';
 import { TestScene } from '3D/classes/scenes/TestScene';
 import { useLoadScene } from 'renderer/hooks/useLoadScene';
 import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
+import { createEventLoggerSource, EventLogger, GameUIOverlay } from 'UI';
 import { ThreeDViewerPixelated } from 'UI/components/ThreeDViewerPixelated';
 
 import { LoadingView } from './LoadingView';
@@ -14,6 +16,19 @@ export function TestView() {
   const { scene, loadingProgress, emitter } = useLoadScene((emitter) => new TestScene(emitter));
 
   const [loadingFinished, setLoadingFinished] = useState(false);
+
+  const eventLoggerSources = useMemo(() => {
+    return [
+      createEventLoggerSource(FMODAudio.events, ['event-started', 'event-stopped'], (entry) => {
+        switch (entry.event) {
+          case 'event-started':
+            return `Started: ${entry.payload.eventPath}`;
+          case 'event-stopped':
+            return `Stopped: ${entry.payload.eventPath}`;
+        }
+      }),
+    ];
+  }, []);
 
   return (
     <BackToViewLayout backToView="MenuView">
@@ -28,8 +43,17 @@ export function TestView() {
             debug
           />
           <GameUIOverlay emitter={emitter} />
+          <EventLoggerStyled sources={eventLoggerSources} />
         </>
       )}
     </BackToViewLayout>
   );
 }
+
+const EventLoggerStyled = styled(EventLogger)`
+  position: absolute;
+  bottom: 22px;
+  left: 22px;
+  height: 200px;
+  width: 500px;
+`;
