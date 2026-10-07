@@ -19,6 +19,7 @@ export const config: EntityAIOptions = {
   },
   rigidBodyOptions: {
     ...DEFAULT_RIGID_BODY_OPTIONS,
+    mass: 10,
   },
   animationControllerOptions: {
     playbackRates: {
