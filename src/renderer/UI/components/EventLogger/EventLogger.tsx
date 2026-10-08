@@ -20,7 +20,9 @@ export type EventLoggerEntry<T, K extends keyof T> = {
   [E in K]: { event: E; payload: T[E] };
 }[K];
 
-export type EventLoggerFormatter<T, K extends keyof T> = (entry: EventLoggerEntry<T, K>) => string;
+export type EventLoggerFormatter<T, K extends keyof T> = (
+  entry: EventLoggerEntry<T, K>
+) => string | null;
 
 export type EventLoggerSource = {
   subscribe: (log: (text: string) => void) => () => void;
