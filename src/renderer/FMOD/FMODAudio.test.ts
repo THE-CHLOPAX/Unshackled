@@ -291,6 +291,41 @@ describe('FMODAudio', () => {
       m.verify((x) => x.setParameterByName('intensity', 2, false), Times.Once());
       m.verify((x) => x.setParameterByName('wetness', 0.3, false), Times.Once());
     });
+
+    it('returns null, logs an error and emits event-failed instead of throwing when the event is missing', () => {
+      const m = buildInstanceMock();
+      const { audio, system } = wireAudio(m);
+      system.getEvent.mockImplementation(() => OK + 1);
+      const onFailed = vi.fn();
+      audio.events.on('event-failed', onFailed);
+
+      const result = audio.playEvent({ eventPath: 'event:/Missing' });
+
+      expect(result).toBeNull();
+      expect(onFailed).toHaveBeenCalledWith({ eventPath: 'event:/Missing', error: expect.any(Error) });
+      expect(vi.mocked(logger)).toHaveBeenCalledWith({
+        message: expect.stringContaining('event:/Missing'),
+        type: 'error',
+      });
+      m.verify((x) => x.start(), Times.Never());
+    });
+
+    it('releases the created instance and does not emit event-started when starting fails', () => {
+      const m = buildInstanceMock();
+      m.setup((x) => x.start()).returns(OK + 1);
+      const { audio } = wireAudio(m);
+      const onStarted = vi.fn();
+      const onFailed = vi.fn();
+      audio.events.on('event-started', onStarted);
+      audio.events.on('event-failed', onFailed);
+
+      const result = audio.playEvent({ eventPath: 'event:/Sfx/Hit' });
+
+      expect(result).toBeNull();
+      m.verify((x) => x.release(), Times.Once());
+      expect(onStarted).not.toHaveBeenCalled();
+      expect(onFailed).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('3D attributes', () => {

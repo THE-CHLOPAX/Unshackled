@@ -52,4 +52,5 @@ export type FMODAudioEventMap = {
   'bank-load-failed': { bankName: string; error: unknown };
   'event-started': { eventPath: string };
   'event-stopped': { eventPath: string };
+  'event-failed': { eventPath: string; error: unknown };
 };
