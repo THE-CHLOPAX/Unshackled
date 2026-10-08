@@ -222,4 +222,64 @@ describe('Spawner', () => {
 
     expect(destroySpy).toHaveBeenCalled();
   });
+
+  it('does not spawn on its own when autoSpawn is disabled', async () => {
+    const scene = await createReadyScene();
+    stubNavMesh(scene);
+    vi.spyOn(gsap, 'delayedCall').mockImplementation(() => ({}) as unknown as gsap.core.Tween);
+    const { spawner, spawnedEntities } = createSpawner(scene, {
+      autoSpawn: false,
+      spawnIntervalSeconds: 1,
+    });
+
+    spawner.update(0);
+    spawner.update(3);
+    spawner.update(100);
+
+    expect(spawnedEntities).toHaveLength(0);
+  });
+
+  it('spawns after the telegraph when requestSpawn is called with autoSpawn disabled', async () => {
+    const scene = await createReadyScene();
+    stubNavMesh(scene);
+    vi.spyOn(gsap, 'delayedCall').mockImplementation(() => ({}) as unknown as gsap.core.Tween);
+    const { spawner, spawnedEntities } = createSpawner(scene, {
+      autoSpawn: false,
+      maxSpawnedEntities: Infinity,
+      maxAliveEntities: Infinity,
+    });
+
+    spawner.update(0);
+    spawner.requestSpawn();
+    spawner.update(0);
+    expect(spawnedEntities).toHaveLength(0);
+
+    spawner.update(3);
+    expect(spawnedEntities).toHaveLength(1);
+
+    spawner.requestSpawn();
+    spawner.update(0);
+    spawner.update(3);
+    expect(spawnedEntities).toHaveLength(2);
+  });
+
+  it('ignores requestSpawn while a telegraph is already pending', async () => {
+    const scene = await createReadyScene();
+    stubNavMesh(scene);
+    vi.spyOn(gsap, 'delayedCall').mockImplementation(() => ({}) as unknown as gsap.core.Tween);
+    const { spawner, spawnedEntities } = createSpawner(scene, {
+      autoSpawn: false,
+      maxSpawnedEntities: Infinity,
+      maxAliveEntities: Infinity,
+    });
+
+    spawner.requestSpawn();
+    spawner.update(0);
+    spawner.requestSpawn();
+    spawner.update(3);
+    spawner.update(0);
+    spawner.update(3);
+
+    expect(spawnedEntities).toHaveLength(1);
+  });
 });

@@ -9,10 +9,13 @@ import { WorldObjectArgs } from '3D/types';
 import { COLORS } from 'renderer/constants';
 import { MAIN_CROWD_ID } from '3D/constants';
 import { isEntityAi } from '3D/utils/isEntityAi';
+import { FMOD_EVENTS } from 'renderer/FMOD/constants';
 import { Entity } from '3D/classes/gameObjects/Entity';
 import { flashEmissive } from '3D/utils/flashMaterial';
 import { ArcaneCircle } from '3D/classes/gameObjects/ArcaneCircle';
 import { DamageHitbox } from '3D/classes/gameObjects/DamageHitbox';
+
+import { FMODSoundController } from '../gameObjectComponents/FMODSoundController';
 
 const SPAWN_TELEGRAPH_FADE_SECONDS = 0.5;
 const DEFAULT_SPAWN_JITTER = 0.75;
@@ -34,6 +37,7 @@ export type SpawnerOptions = {
   spawnHitbox: SpawnerHitboxOptions;
   telegraphColor?: THREE.ColorRepresentation;
   spawnJitter?: number;
+  autoSpawn?: boolean;
 };
 
 type PendingSpawnTelegraph = {
@@ -50,6 +54,7 @@ export class Spawner extends GameObject {
   private _pendingTelegraph: PendingSpawnTelegraph | null = null;
   private _spawnedEntities = 0;
   private _livingEntities = new Set<Entity>();
+  private _fmodSoundController: FMODSoundController;
 
   constructor(
     scene: Scene,
@@ -60,10 +65,20 @@ export class Spawner extends GameObject {
 
     this.name = 'Spawner';
     this.visible = false;
+
+    this._fmodSoundController = this.addComponent(
+      'FMODSoundController',
+      new FMODSoundController(this)
+    );
   }
 
   protected override onAwake(): void {
     super.onAwake();
+    this._pendingImmediateSpawn = this._autoSpawn;
+  }
+
+  public requestSpawn(): void {
+    if (this._pendingTelegraph) return;
     this._pendingImmediateSpawn = true;
   }
 
@@ -89,6 +104,8 @@ export class Spawner extends GameObject {
       return;
     }
 
+    if (!this._autoSpawn) return;
+
     this._syncSpawnIntervalState();
     if (!this._spawnIntervalRunning) return;
 
@@ -107,6 +124,10 @@ export class Spawner extends GameObject {
       this._pendingTelegraph.circle.destroy();
       this._pendingTelegraph = null;
     }
+  }
+
+  private get _autoSpawn(): boolean {
+    return this.options.autoSpawn ?? true;
   }
 
   private _hasReachedSpawnCap(): boolean {
@@ -184,6 +205,8 @@ export class Spawner extends GameObject {
     this._spawnedEntities++;
     this._trackEntity(entity);
     scene.add(entity);
+
+    this._fmodSoundController.playSound(FMOD_EVENTS.GENERIC_SPAWN);
 
     this._spawnEntryHitbox(scene, entity.position);
   }
