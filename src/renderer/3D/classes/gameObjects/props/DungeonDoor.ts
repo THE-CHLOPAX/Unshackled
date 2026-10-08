@@ -3,9 +3,11 @@ import * as THREE from 'three';
 import { assert, GameObject, getModelFromStore, isMesh, RigidBody, Scene } from '@tgdf';
 
 import { PlayerActionType } from '3D/types';
+import { FMOD_EVENTS } from 'renderer/FMOD/constants';
 import { MODELS, WORLD_CELL_SIZE } from '3D/constants';
 import { pixelateModelMaterial } from 'renderer/3D/utils/pixelateModelMaterial';
 
+import { FMODSoundController } from '../../gameObjectComponents/FMODSoundController';
 import { HintBillboardRenderer } from '../../gameObjectComponents/HintBillboardRenderer/HintBillboardRenderer';
 import { InteractionController } from '../../gameObjectComponents/InteractionController/InteractionController';
 
@@ -24,6 +26,7 @@ export class DungeonDoor extends GameObject {
   private _interactionController: InteractionController;
   private _isOpen = false;
   private _rotationTween: gsap.core.Tween | null = null;
+  private _fmodSoundController: FMODSoundController;
 
   constructor(scene: Scene) {
     super({ scene });
@@ -56,6 +59,11 @@ export class DungeonDoor extends GameObject {
       })
     );
 
+    this._fmodSoundController = this.addComponent(
+      'FMODSoundController',
+      new FMODSoundController(this)
+    );
+
     const hintRenderer = this.addComponent(
       'HintBillboardRenderer',
       new HintBillboardRenderer(this, { offset: HINT_OFFSET })
@@ -84,6 +92,7 @@ export class DungeonDoor extends GameObject {
   }
 
   public toggle(): void {
+    this._fmodSoundController.playSound(FMOD_EVENTS.DOOR_SCREECH);
     if (this._isOpen) {
       this.close();
     } else {

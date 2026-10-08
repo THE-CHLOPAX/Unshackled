@@ -13,18 +13,23 @@ import {
 
 import { GameScene } from './GameScene/GameScene';
 import { Monk } from '../gameObjects/players/Monk/Monk';
+import { TestSpawner } from '../gameObjects/TestSpawner';
+import { DungeonDoor } from '../gameObjects/props/DungeonDoor';
 import { RigidStaticObject } from '../gameObjects/RigidStaticObject';
 import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
 import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
 
 const TEST_PLANE_SIZE = 30;
 const TEST_PLANE_CHECKERBOARD_REPEAT = 10;
+const TEST_SPAWNER_POSITION = new THREE.Vector3(-4, 0, -4);
+const TEST_DUNGEON_DOOR_POSITION = new THREE.Vector3(4, 0, -4);
 
 export class TestScene extends GameScene {
   public readonly preloadedAssets: AssetRecord[] = [
     MODELS.MONK,
     MODELS.SKELETON,
     TEXTURES.CHECKERBOARD,
+    TEXTURES.ARCANE_CIRCLE,
     TEXTURES.AIMING_ARROW,
     MODELS.DUNGEON_DOOR,
   ];
@@ -70,5 +75,13 @@ export class TestScene extends GameScene {
     const monk = new Monk(this, { inputSource: PlayerInput.keyboard() });
     this.add(monk);
     this.camera.follow(monk);
+
+    const spawner = new TestSpawner(this);
+    spawner.position.copy(TEST_SPAWNER_POSITION);
+    this.add(spawner);
+
+    const dungeonDoor = new DungeonDoor(this);
+    dungeonDoor.position.copy(TEST_DUNGEON_DOOR_POSITION);
+    this.add(dungeonDoor);
   }
 }

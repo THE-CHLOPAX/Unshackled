@@ -14,6 +14,16 @@ export const FMOD_EVENTS = {
   },
   GENERIC_DASH: { path: 'event:/SFX/Player/Dash', volume: 1, parameters: {} },
   GENERIC_SWOOSH: { path: 'event:/SFX/Player/Attack', volume: 1, parameters: {} },
+  GENERIC_SPAWN: {
+    path: 'event:/SFX/General/Spawn',
+    volume: 1,
+    parameters: { Distance: { min: 0, max: 20, defaultValue: 0, automatic: true, readOnly: true } },
+  },
+  DOOR_SCREECH: {
+    path: 'event:/SFX/General/Door_Screech',
+    volume: 1,
+    parameters: { Distance: { min: 0, max: 20, defaultValue: 0, automatic: true, readOnly: true } },
+  },
   AMBIENT_TORCH_LOOP: {
     path: 'event:/SFX/Ambient/Ambient_Torch_Loop',
     volume: 1,
@@ -37,7 +47,6 @@ export const FMOD_EVENTS = {
     volume: 0.75,
     parameters: { Distance: { min: 0, max: 20, defaultValue: 0, automatic: true, readOnly: true } },
   },
-  SKELETON_SPAWN: { path: 'event:/SFX/Enemies/Skeleton/Spawn', volume: 1, parameters: {} },
   UI_CLICK: { path: 'event:/SFX/UI/UI_Click', volume: 1, parameters: {} },
 } as const satisfies Record<string, FMODEventDefinition>;
 
@@ -51,6 +60,8 @@ export const MESSAGES = {
   DRIVER_NOT_FOUND: '[FMOD] Driver not found',
   EVENT_NOT_FOUND: '[FMOD] Event not found',
   EVENT_INSTANCE_NOT_CREATED: '[FMOD] Event instance not created',
+  EVENT_PLAY_FAILED: (eventPath: string, error: unknown) =>
+    `[FMOD] Failed to play event "${eventPath}": ${error}`,
   EVENT_SOUND_CHANNEL_SUBSCRIPTION_CLEARED: '[FMOD] Event sound channel subscription cleared',
   EVENT_COUNT_NOT_FOUND: '[FMOD] Event count not found',
   EVENT_LIST_NOT_FOUND: '[FMOD] Event list not found',
