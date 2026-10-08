@@ -5,12 +5,10 @@ import { useViewsStore, InternalFlex, ipc } from '@tgdf';
 import { GRADIENTS } from 'renderer/constants';
 import { VersionLayout } from 'UI/layouts/VersionLayout';
 import { useRunStore } from 'renderer/Store/useRunStore';
-import { useSaveFiles } from 'renderer/hooks/useSaveFiles';
 import { Button, ButtonProps, Ornament, UI_IMAGE_URLS, withUIClick } from 'UI';
 
 export function MenuView() {
   const { setView } = useViewsStore();
-  const { saveFiles, loading } = useSaveFiles();
   const { setCurrentRun } = useRunStore();
 
   const buttonsData: ButtonProps[] = useMemo(() => {
@@ -28,7 +26,7 @@ export function MenuView() {
     ];
 
     return buttons;
-  }, [saveFiles, setView, setCurrentRun]);
+  }, [setView, setCurrentRun]);
 
   return (
     <VersionLayout>
@@ -38,17 +36,16 @@ export function MenuView() {
           <Ornament />
         </LogoWrapper>
         <ButtonsWrapper direction="column" align="center" justify="center" gap={10}>
-          {!loading &&
-            buttonsData.map(({ label, onClick, disabled }) => {
-              return (
-                <Button
-                  key={label}
-                  label={label}
-                  onClick={onClick && withUIClick(onClick)}
-                  disabled={disabled}
-                />
-              );
-            })}
+          {buttonsData.map(({ label, onClick, disabled }) => {
+            return (
+              <Button
+                key={label}
+                label={label}
+                onClick={onClick && withUIClick(onClick)}
+                disabled={disabled}
+              />
+            );
+          })}
         </ButtonsWrapper>
       </Wrapper>
     </VersionLayout>
