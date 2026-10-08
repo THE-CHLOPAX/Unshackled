@@ -14,6 +14,11 @@ export const FMOD_EVENTS = {
   },
   GENERIC_DASH: { path: 'event:/SFX/Player/Dash', volume: 1, parameters: {} },
   GENERIC_SWOOSH: { path: 'event:/SFX/Player/Attack', volume: 1, parameters: {} },
+  GENERIC_PRE_SPAWN: {
+    path: 'event:/SFX/General/Pre_Spawn',
+    volume: 1,
+    parameters: { Distance: { min: 0, max: 20, defaultValue: 0, automatic: true, readOnly: true } },
+  },
   GENERIC_SPAWN: {
     path: 'event:/SFX/General/Spawn',
     volume: 1,

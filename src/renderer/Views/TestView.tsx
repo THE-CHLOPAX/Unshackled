@@ -25,7 +25,8 @@ export function TestView() {
         (entry) => {
           if (
             entry.payload.eventPath !== FMOD_EVENTS.GENERIC_SPAWN.path &&
-            entry.payload.eventPath !== FMOD_EVENTS.DOOR_SCREECH.path
+            entry.payload.eventPath !== FMOD_EVENTS.DOOR_SCREECH.path &&
+            entry.payload.eventPath !== FMOD_EVENTS.GENERIC_PRE_SPAWN.path
           ) {
             return null;
           }

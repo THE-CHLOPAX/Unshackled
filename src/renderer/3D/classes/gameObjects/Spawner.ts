@@ -9,6 +9,7 @@ import { WorldObjectArgs } from '3D/types';
 import { COLORS } from 'renderer/constants';
 import { MAIN_CROWD_ID } from '3D/constants';
 import { isEntityAi } from '3D/utils/isEntityAi';
+import { FMODEventInstance } from 'renderer/FMOD';
 import { FMOD_EVENTS } from 'renderer/FMOD/constants';
 import { Entity } from '3D/classes/gameObjects/Entity';
 import { flashEmissive } from '3D/utils/flashMaterial';
@@ -55,6 +56,7 @@ export class Spawner extends GameObject {
   private _spawnedEntities = 0;
   private _livingEntities = new Set<Entity>();
   private _fmodSoundController: FMODSoundController;
+  private _preSpawnSoundInstance: FMODEventInstance | null = null;
 
   constructor(
     scene: Scene,
@@ -161,6 +163,10 @@ export class Spawner extends GameObject {
     circle.position.setZ(z);
     scene.add(circle);
 
+    this._preSpawnSoundInstance = this._fmodSoundController.playSound(
+      FMOD_EVENTS.GENERIC_PRE_SPAWN
+    );
+
     this._pendingTelegraph = { circle, origin, elapsedSeconds: 0 };
   }
 
@@ -206,6 +212,10 @@ export class Spawner extends GameObject {
     this._trackEntity(entity);
     scene.add(entity);
 
+    if (this._preSpawnSoundInstance) {
+      this._fmodSoundController.stopSound(this._preSpawnSoundInstance);
+      this._preSpawnSoundInstance = null;
+    }
     this._fmodSoundController.playSound(FMOD_EVENTS.GENERIC_SPAWN);
 
     this._spawnEntryHitbox(scene, entity.position);
