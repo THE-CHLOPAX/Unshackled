@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { BarSimple, Text } from 'UI';
 import { COLORS } from 'renderer/constants';
 import { Entity } from '3D/classes/gameObjects/Entity';
+import { formatNameBillboard } from 'renderer/UI/utils/formatNameBillboard';
 
 const FLOATING_NUMBER_DURATION_MS = 1000;
 const MINIMAL_PROGRESS = 0.01;
@@ -17,6 +18,7 @@ export type HealthBarProps = {
   progress: number;
   progressDelta: number;
   progressDeltaAccumulated: number;
+  name?: string;
   fadeOutEnabled?: boolean;
 };
 
@@ -35,10 +37,16 @@ export const HealthBar = ({
   progress,
   progressDelta,
   progressDeltaAccumulated,
+  name,
   fadeOutEnabled = false,
 }: HealthBarProps) => {
   const [floatingNumbers, setFloatingNumbers] = useState<FloatingNumber[]>([]);
   const activeTimeouts = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+
+  const displayedName = useMemo(() => {
+    if (!name && !entity.name) return '';
+    return formatNameBillboard(name ?? entity.name);
+  }, [name, entity.name]);
 
   useEffect(() => {
     return () => {
@@ -77,7 +85,7 @@ export const HealthBar = ({
 
   return (
     <Wrapper>
-      <Text>{entity.name}</Text>
+      <Text>{displayedName}</Text>
       <StyledBarSimple
         fillColor={COLORS.RED}
         progress={getClampedProgress(progress)}

@@ -2,36 +2,26 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 import { assert, GameObject, getModelFromStore, isMesh, RigidBody, Scene } from '@tgdf';
 
+import { PlayerActionType } from '3D/types';
 import { MODELS, WORLD_CELL_SIZE } from '3D/constants';
-import { Interactable, PlayerActionType } from '3D/types';
 import { pixelateModelMaterial } from 'renderer/3D/utils/pixelateModelMaterial';
 
-import { PlayerDetectionZone } from '../PlayerDetectionZone';
-import {
-  HintBillboardRenderer,
-  HintBillboardRendererOptions,
-} from '../../gameObjectComponents/HintBillboardRenderer/HintBillboardRenderer';
+import { HintBillboardRenderer } from '../../gameObjectComponents/HintBillboardRenderer/HintBillboardRenderer';
+import { InteractionController } from '../../gameObjectComponents/InteractionController/InteractionController';
 
-// Placeholder footprint for the interact sensor; tune to match the door model's actual size.
-const INTERACTION_ZONE_SIZE = new THREE.Vector3(3, 2, 3);
+const INTERACTION_RADIUS = 1;
+const NAME_DISPLAY_RADIUS = INTERACTION_RADIUS * 2;
+const HINT_OFFSET = new THREE.Vector3(0, 3, 0);
+const TOGGLE_ACTION = PlayerActionType.ACTION_DOWN;
 
 const OPEN_ANGLE = -Math.PI / 2;
 const OPEN_CLOSE_DURATION_S = 0.4;
 
-const HINT_PROPS_OPEN: HintBillboardRendererOptions = {
-  hint: { icon: 'A', label: 'Open' },
-  offset: new THREE.Vector3(0, 2, 0),
-};
-const HINT_PROPS_CLOSE: HintBillboardRendererOptions = {
-  hint: { icon: 'A', label: 'Close' },
-  offset: new THREE.Vector3(0, 2, 0),
-};
-
-export class DungeonDoor extends GameObject implements Interactable {
+export class DungeonDoor extends GameObject {
   private _leaf: GameObject;
   private _rigidBody: RigidBody;
   private _size = new THREE.Vector3();
-  private _hintBillboardRenderer: HintBillboardRenderer;
+  private _interactionController: InteractionController;
   private _isOpen = false;
   private _rotationTween: gsap.core.Tween | null = null;
 
@@ -66,9 +56,26 @@ export class DungeonDoor extends GameObject implements Interactable {
       })
     );
 
-    this._hintBillboardRenderer = this.addComponent(
+    const hintRenderer = this.addComponent(
       'HintBillboardRenderer',
-      new HintBillboardRenderer(this, this._isOpen ? HINT_PROPS_CLOSE : HINT_PROPS_OPEN)
+      new HintBillboardRenderer(this, { offset: HINT_OFFSET })
+    );
+
+    this._interactionController = this.addComponent(
+      'InteractionController',
+      new InteractionController(this, hintRenderer, {
+        interactionRadius: INTERACTION_RADIUS,
+        name: {
+          label: 'Dungeon Door',
+          radius: NAME_DISPLAY_RADIUS,
+        },
+        interactions: {
+          [TOGGLE_ACTION]: {
+            hint: { icon: 'A', label: 'Open' },
+            onInteract: () => this.toggle(),
+          },
+        },
+      })
     );
   }
 
@@ -76,7 +83,7 @@ export class DungeonDoor extends GameObject implements Interactable {
     return this._isOpen;
   }
 
-  public interact(): void {
+  public toggle(): void {
     if (this._isOpen) {
       this.close();
     } else {
@@ -87,14 +94,14 @@ export class DungeonDoor extends GameObject implements Interactable {
   public open(): void {
     if (this._isOpen) return;
     this._isOpen = true;
-    this._hintBillboardRenderer.updateHint({ label: 'Close' });
+    this._interactionController.setHint(TOGGLE_ACTION, { label: 'Close' });
     this._rotateLeafTo(OPEN_ANGLE);
   }
 
   public close(): void {
     if (!this._isOpen) return;
     this._isOpen = false;
-    this._hintBillboardRenderer.updateHint({ label: 'Open' });
+    this._interactionController.setHint(TOGGLE_ACTION, { label: 'Open' });
     this._rotateLeafTo(0);
   }
 
@@ -114,29 +121,5 @@ export class DungeonDoor extends GameObject implements Interactable {
         this._rotationTween = null;
       },
     });
-  }
-
-  protected override onAwake(): void {
-    const interactionZone = new PlayerDetectionZone(this.scene, {
-      size: INTERACTION_ZONE_SIZE,
-      shape: 'sphere',
-    });
-
-    const updateHintVisibility = () => {
-      if (interactionZone.players.length > 0) {
-        this._hintBillboardRenderer.show();
-      } else {
-        this._hintBillboardRenderer.hide();
-      }
-    };
-
-    interactionZone.playerEvents.on('player-entered', updateHintVisibility);
-    interactionZone.playerEvents.on('player-left', updateHintVisibility);
-    interactionZone.playerEvents.on('player-action', ({ player, action }) => {
-      if (action.type === PlayerActionType.ACTION_DOWN) {
-        player.stateController.requestInteraction(this);
-      }
-    });
-    this.add(interactionZone);
   }
 }
