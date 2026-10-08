@@ -1,49 +1,22 @@
 import { useMemo } from 'react';
 import styled from 'styled-components';
-import { useViewsStore, InternalFlex, ipc, isDev } from '@tgdf';
+import { useViewsStore, InternalFlex, ipc } from '@tgdf';
 
 import { GRADIENTS } from 'renderer/constants';
 import { VersionLayout } from 'UI/layouts/VersionLayout';
 import { useRunStore } from 'renderer/Store/useRunStore';
-import { useSaveFiles } from 'renderer/hooks/useSaveFiles';
 import { Button, ButtonProps, Ornament, UI_IMAGE_URLS, withUIClick } from 'UI';
 
 export function MenuView() {
   const { setView } = useViewsStore();
-  const { saveFiles, loading } = useSaveFiles();
   const { setCurrentRun } = useRunStore();
 
   const buttonsData: ButtonProps[] = useMemo(() => {
     const buttons = [
       {
-        label: 'New game',
-        onClick: () => setView('NewGameView'),
+        label: 'Test',
+        onClick: () => setView('TestView'),
       },
-      {
-        label: 'Load game',
-        onClick: () => setView('LoadGameView'),
-        disabled: saveFiles.length === 0,
-      },
-      {
-        label: 'Settings',
-        onClick: () => setView('SettingsView'),
-      },
-      ...(isDev
-        ? [
-            {
-              label: 'Components',
-              onClick: () => setView('ComponentsView'),
-            },
-            {
-              label: 'Test',
-              onClick: () => setView('TestView'),
-            },
-            {
-              label: 'World editor',
-              onClick: () => setView('WorldEditorView'),
-            },
-          ]
-        : []),
       {
         label: 'Quit',
         onClick: () => {
@@ -52,18 +25,8 @@ export function MenuView() {
       },
     ];
 
-    if (saveFiles.length > 0) {
-      buttons.unshift({
-        label: 'Continue',
-        onClick: () => {
-          setCurrentRun(saveFiles[0]);
-          setView('GameView');
-        },
-      });
-    }
-
     return buttons;
-  }, [saveFiles, setView, setCurrentRun]);
+  }, [setView, setCurrentRun]);
 
   return (
     <VersionLayout>
@@ -73,17 +36,16 @@ export function MenuView() {
           <Ornament />
         </LogoWrapper>
         <ButtonsWrapper direction="column" align="center" justify="center" gap={10}>
-          {!loading &&
-            buttonsData.map(({ label, onClick, disabled }) => {
-              return (
-                <Button
-                  key={label}
-                  label={label}
-                  onClick={onClick && withUIClick(onClick)}
-                  disabled={disabled}
-                />
-              );
-            })}
+          {buttonsData.map(({ label, onClick, disabled }) => {
+            return (
+              <Button
+                key={label}
+                label={label}
+                onClick={onClick && withUIClick(onClick)}
+                disabled={disabled}
+              />
+            );
+          })}
         </ButtonsWrapper>
       </Wrapper>
     </VersionLayout>
