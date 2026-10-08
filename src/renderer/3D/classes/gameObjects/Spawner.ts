@@ -126,6 +126,11 @@ export class Spawner extends GameObject {
       this._pendingTelegraph.circle.destroy();
       this._pendingTelegraph = null;
     }
+
+    if (this._preSpawnSoundInstance) {
+      this._fmodSoundController.stopSound(this._preSpawnSoundInstance);
+      this._preSpawnSoundInstance = null;
+    }
   }
 
   private get _autoSpawn(): boolean {
