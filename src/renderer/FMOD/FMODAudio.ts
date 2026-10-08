@@ -154,49 +154,59 @@ export class FMODAudio {
       return null;
     }
 
-    const descOut = fmodOut<FMODEventDescription>();
-    fmodCheckOrThrow(this._fmod, this._system.getEvent(eventPath, descOut));
-    assert(descOut.val !== undefined, MESSAGES.EVENT_NOT_FOUND);
+    let instance: FMODEventInstance | undefined;
 
-    const instanceOut = fmodOut<FMODEventInstance>();
-    fmodCheckOrThrow(this._fmod, descOut.val.createInstance(instanceOut));
-    assert(instanceOut.val !== undefined, MESSAGES.EVENT_INSTANCE_NOT_CREATED);
+    try {
+      const descOut = fmodOut<FMODEventDescription>();
+      fmodCheckOrThrow(this._fmod, this._system.getEvent(eventPath, descOut));
+      assert(descOut.val !== undefined, MESSAGES.EVENT_NOT_FOUND);
 
-    if (options?.attributes3D) {
-      this.set3DAttributes(instanceOut.val, options.attributes3D);
-    }
+      const instanceOut = fmodOut<FMODEventInstance>();
+      fmodCheckOrThrow(this._fmod, descOut.val.createInstance(instanceOut));
+      assert(instanceOut.val !== undefined, MESSAGES.EVENT_INSTANCE_NOT_CREATED);
+      instance = instanceOut.val;
 
-    fmodCheckOrThrow(this._fmod, instanceOut.val.start());
-    this._eventPaths.set(getInstancePointer(instanceOut.val), eventPath);
-    this.events.trigger('event-started', { eventPath });
+      // On event stopped, release the instance and clear the subscription (if any).
+      instance.setCallback((type, stoppedInstance) => {
+        if (type === this._fmod.STUDIO_EVENT_CALLBACK_STOPPED) {
+          this._onEventStopped(stoppedInstance);
+        }
+        return this._fmod.OK;
+      }, this._fmod.STUDIO_EVENT_CALLBACK_STOPPED);
 
-    if (onStopped) {
-      this._stopListeners.set(getInstancePointer(instanceOut.val), onStopped);
-    }
-
-    // On event stopped, release the instance and clear the subscription (if any).
-    instanceOut.val.setCallback((type, instance) => {
-      if (type === this._fmod.STUDIO_EVENT_CALLBACK_STOPPED) {
-        this._onEventStopped(instance);
+      if (options?.attributes3D) {
+        this.set3DAttributes(instance, options.attributes3D);
       }
-      return this._fmod.OK;
-    }, this._fmod.STUDIO_EVENT_CALLBACK_STOPPED);
-
-    if (options?.playbackRate) {
-      fmodCheckOrThrow(this._fmod, instanceOut.val.setPitch(options.playbackRate));
-    }
-    if (options?.volume !== undefined) {
-      fmodCheckOrThrow(this._fmod, instanceOut.val.setVolume(options.volume));
-    }
-    if (options?.parameters) {
-      for (const [name, value] of Object.entries(options.parameters)) {
-        const result = instanceOut.val.setParameterByName(name, value, false);
-        if (result !== this._fmod.OK) {
-          this._warnParameterNotSet(eventPath, name, result);
+      if (options?.playbackRate) {
+        fmodCheckOrThrow(this._fmod, instance.setPitch(options.playbackRate));
+      }
+      if (options?.volume !== undefined) {
+        fmodCheckOrThrow(this._fmod, instance.setVolume(options.volume));
+      }
+      if (options?.parameters) {
+        for (const [name, value] of Object.entries(options.parameters)) {
+          const result = instance.setParameterByName(name, value, false);
+          if (result !== this._fmod.OK) {
+            this._warnParameterNotSet(eventPath, name, result);
+          }
         }
       }
+
+      fmodCheckOrThrow(this._fmod, instance.start());
+    } catch (error) {
+      instance?.release();
+      logger({ message: MESSAGES.EVENT_PLAY_FAILED(eventPath, error), type: 'error' });
+      this.events.trigger('event-failed', { eventPath, error });
+      return null;
     }
-    return instanceOut.val;
+
+    this._eventPaths.set(getInstancePointer(instance), eventPath);
+    if (onStopped) {
+      this._stopListeners.set(getInstancePointer(instance), onStopped);
+    }
+    this.events.trigger('event-started', { eventPath });
+
+    return instance;
   }
 
   /**
@@ -217,10 +227,7 @@ export class FMODAudio {
   }): FMODEventInstance | null {
     const instance = this.playEvent({ eventPath, options, onStopped });
 
-    if (instance === null) {
-      logger({ message: MESSAGES.EVENT_NOT_FOUND, type: 'error' });
-      return null;
-    }
+    if (instance === null) return null;
 
     const eventVolume = options?.volume ?? 1;
 

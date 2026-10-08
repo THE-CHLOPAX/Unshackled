@@ -9,8 +9,10 @@ export const createEventLoggerSource = <T, K extends keyof T>(
 ): EventLoggerSource => ({
   subscribe: (log) => {
     const subscriptions = events.map((event) => {
-      const cb = (payload: T[K]) =>
-        log(formatMessage({ event, payload } as EventLoggerEntry<T, K>));
+      const cb = (payload: T[K]) => {
+        const text = formatMessage({ event, payload } as EventLoggerEntry<T, K>);
+        if (text !== null) log(text);
+      };
       emitter.on(event, cb);
       return { event, cb };
     });
