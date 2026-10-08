@@ -51,6 +51,8 @@ export const MESSAGES = {
   DRIVER_NOT_FOUND: '[FMOD] Driver not found',
   EVENT_NOT_FOUND: '[FMOD] Event not found',
   EVENT_INSTANCE_NOT_CREATED: '[FMOD] Event instance not created',
+  EVENT_PLAY_FAILED: (eventPath: string, error: unknown) =>
+    `[FMOD] Failed to play event "${eventPath}": ${error}`,
   EVENT_SOUND_CHANNEL_SUBSCRIPTION_CLEARED: '[FMOD] Event sound channel subscription cleared',
   EVENT_COUNT_NOT_FOUND: '[FMOD] Event count not found',
   EVENT_LIST_NOT_FOUND: '[FMOD] Event list not found',
