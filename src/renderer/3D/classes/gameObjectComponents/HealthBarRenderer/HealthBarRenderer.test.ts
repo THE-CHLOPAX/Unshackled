@@ -19,11 +19,10 @@ class TestScene extends Scene {
   camera = new MockCamera();
 }
 
-function createHealthBarRenderer(initialHealthPoints = 100) {
+function createHealthBarRenderer(initialHealthPoints = 100, startingHealthPoints?: number) {
   const scene = new TestScene();
 
   const gameObject = new GameObject({ scene }) as unknown as Entity;
-  scene.add(gameObject);
 
   const healthPointsController = new HealthPointsController(gameObject, { initialHealthPoints });
   const healthBarRenderer = new HealthBarRenderer(gameObject, healthPointsController);
@@ -31,6 +30,11 @@ function createHealthBarRenderer(initialHealthPoints = 100) {
   gameObject.addComponent('HealthPointsController', healthPointsController);
   gameObject.addComponent('HealthBarRenderer', healthBarRenderer);
 
+  if (startingHealthPoints !== undefined) {
+    healthPointsController.setHealthPoints(startingHealthPoints);
+  }
+
+  scene.add(gameObject);
   gameObject.update(0);
 
   const barId = `health-bar-${gameObject.uuid}`;
@@ -66,6 +70,19 @@ describe('HealthBarRenderer', () => {
       fadeOutEnabled: false,
       progressDelta: expect.closeTo(0.3),
       progressDeltaAccumulated: expect.closeTo(0.3),
+    });
+  });
+
+  it('measures the first damage from health set before awake, not from full health', () => {
+    const { healthPointsController, barId } = createHealthBarRenderer(100, 40);
+
+    healthPointsController.inflictDamage(10);
+
+    const entry = useOverlayStore.getState().entries.get(barId);
+    expect(entry?.props).toMatchObject({
+      progress: expect.closeTo(0.3),
+      progressDelta: expect.closeTo(0.1),
+      progressDeltaAccumulated: expect.closeTo(0.1),
     });
   });
 

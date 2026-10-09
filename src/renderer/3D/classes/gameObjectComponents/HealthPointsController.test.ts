@@ -33,6 +33,57 @@ describe('HealthPointsController', () => {
     vi.restoreAllMocks();
   });
 
+  describe('setHealthPoints', () => {
+    it('sets health without changing initialHealthPoints', () => {
+      const { controller } = createController(100);
+
+      controller.setHealthPoints(40);
+
+      expect(controller.healthPoints).toBe(40);
+      expect(controller.initialHealthPoints).toBe(100);
+      expect(controller.isDead).toBe(false);
+    });
+
+    it('clamps to the 0..initialHealthPoints range', () => {
+      const { controller } = createController(100);
+
+      controller.setHealthPoints(150);
+      expect(controller.healthPoints).toBe(100);
+
+      controller.setHealthPoints(-10);
+      expect(controller.healthPoints).toBe(0);
+    });
+
+    it('marks the entity as dead when set to zero', () => {
+      const { controller } = createController(100);
+
+      controller.setHealthPoints(0);
+
+      expect(controller.isDead).toBe(true);
+    });
+
+    it('heals up to initialHealthPoints afterwards', () => {
+      const { controller } = createController(100);
+
+      controller.setHealthPoints(40);
+      controller.healDamage(100);
+
+      expect(controller.healthPoints).toBe(100);
+    });
+
+    it('does not trigger any events', () => {
+      const { controller } = createController(100);
+      const listener = vi.fn();
+      controller.events.on('damagetaken', listener);
+      controller.events.on('heal', listener);
+      controller.events.on('death', listener);
+
+      controller.setHealthPoints(0);
+
+      expect(listener).not.toHaveBeenCalled();
+    });
+  });
+
   describe('constructor', () => {
     it('throws when initialHealthPoints is zero', () => {
       const { entityMock } = createEntityMock();

@@ -9,6 +9,9 @@ import { pickRandomLevel } from '3D/utils/pickRandomLevel';
 import { BIOME_SCENES } from '3D/classes/scenes/biomeScenes';
 import { writeSaveFile } from 'renderer/utils/writeSaveFile';
 import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
+import { usePlayerStats } from 'renderer/3D/hooks/usePlayerStats';
+import { useActivePlayersStore } from 'Store/useActivePlayersStore';
+import { assignPlayerProfiles } from 'renderer/utils/assignPlayerProfiles';
 import { ThreeDViewerPixelated } from 'UI/components/ThreeDViewerPixelated';
 import { getIncrementedProgress } from 'renderer/utils/getIncrementedProgress';
 
@@ -54,9 +57,17 @@ type LevelSessionProps = {
 function LevelSession({ progress, onLevelComplete }: LevelSessionProps) {
   const { resolution } = useGraphicsStore();
   const [level] = useState(() => pickRandomLevel(progress));
-  const { scene, loadingProgress, emitter } = useLoadScene(
-    (emitter) => new BIOME_SCENES[progress.biomeId](emitter, level)
-  );
+  const { scene, loadingProgress, emitter } = useLoadScene((emitter) => {
+    const players = assignPlayerProfiles(
+      Array.from(useActivePlayersStore.getState().getActivePlayers()),
+      useRunStore.getState().currentRun?.players ?? []
+    );
+    return new BIOME_SCENES[progress.biomeId](emitter, level, players);
+  });
+
+  const playerStats = usePlayerStats({
+    healthPointsController: scene?.players[0]?.healthPointsController ?? null,
+  });
 
   const onLevelCompleteDebounced = useDebouncedCallback(
     () => onLevelComplete(level.id),
@@ -79,9 +90,11 @@ function LevelSession({ progress, onLevelComplete }: LevelSessionProps) {
   return !loadingFinished || scene === null ? (
     <LoadingView progress={loadingProgress} onComplete={() => setLoadingFinished(true)} />
   ) : (
+    // TODO: in coop update we need to have multiple ThreedViewer + UIOverlay pairs per each active player
+    // Then pass the corresponding player to each UIOverlay instead of hardcoded 0 index player.
     <>
       <ThreeDViewerPixelated scene={scene} resX={resolution.width} resY={resolution.height} debug />
-      <GameUIOverlay emitter={emitter} />
+      <GameUIOverlay emitter={emitter} playerStatistics={playerStats} />
     </>
   );
 }

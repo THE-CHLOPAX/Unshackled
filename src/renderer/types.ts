@@ -30,6 +30,7 @@ export type PlayerProfile = {
   id: string;
   name: string;
   class: PlayerClassId;
+  currentHealthPoints: number;
 };
 
 export type LevelIdentifier = {
@@ -60,4 +61,8 @@ export type RunIdentifier = {
   progress: RunProgress;
   completedLevelIds: string[];
   players: PlayerProfile[];
+};
+
+export type PlayerStatistics = {
+  currentHealthPoints: number;
 };

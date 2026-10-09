@@ -2,10 +2,10 @@ import * as THREE from 'three';
 
 import { MODELS, DEFAULT_RIGID_BODY_OPTIONS } from '3D/constants';
 
-import { PlayerOptions } from '../Player';
+import { EntityOptions } from '../../Entity';
 import { stateMachineMonk } from './states/stateMachineMonk';
 
-export const config: PlayerOptions = {
+export const config: EntityOptions = {
   modelOptions: {
     id: MODELS.MONK.id,
   },

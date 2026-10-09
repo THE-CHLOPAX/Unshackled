@@ -102,6 +102,11 @@ export class HealthPointsController extends GameObjectComponent {
     this._isDead = this._healthPoints === 0;
   }
 
+  public setHealthPoints(value: number): void {
+    this._healthPoints = Math.min(Math.max(value, 0), this.initialHealthPoints);
+    this._isDead = this._healthPoints === 0;
+  }
+
   public resetHealth(): void {
     this._healthPoints = this.options.initialHealthPoints;
     this._isDead = false;

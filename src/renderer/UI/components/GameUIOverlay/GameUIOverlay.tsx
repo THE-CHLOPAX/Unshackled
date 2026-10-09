@@ -1,17 +1,20 @@
 import styled from 'styled-components';
 
-import { GameEventsEmitter } from 'renderer/types';
+import { GameEventsEmitter, PlayerStatistics } from 'renderer/types';
 
+import { PlayerStats } from './PlayerStats/PlayerStats';
 import { GameOverModal } from './GameOverModal/GameOverModal';
 import { DamageIndicator } from './DamageIndicator/DamageIndicator';
 
 export type GameUIOverlayProps = {
   emitter: GameEventsEmitter;
+  playerStatistics?: PlayerStatistics | null;
 };
 
-export const GameUIOverlay = ({ emitter }: GameUIOverlayProps) => {
+export const GameUIOverlay = ({ emitter, playerStatistics }: GameUIOverlayProps) => {
   return (
     <Wrapper>
+      {playerStatistics && <PlayerStats {...playerStatistics} />}
       <Vignette />
       <DamageIndicator emitter={emitter} />
       <GameOverModal emitter={emitter} />
