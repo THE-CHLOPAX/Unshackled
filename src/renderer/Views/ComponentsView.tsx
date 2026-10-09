@@ -14,6 +14,7 @@ import {
   TextInput,
   Dropdown,
   SmallPanel,
+  SquarePanel,
   BarSimple,
   BarOrnament,
   ScrollableWrapper,
@@ -183,6 +184,17 @@ export function ComponentsView() {
               <SmallPanel scale={4} active>
                 {''}
               </SmallPanel>
+            </InternalFlex>
+          </ComponentSection>
+
+          <ComponentSection title="SquarePanel">
+            <InternalFlex gap={20} align="center">
+              <SquarePanel>{''}</SquarePanel>
+              <SquarePanel>
+                <Text size="lg">7</Text>
+              </SquarePanel>
+              <SquarePanel scale={2}>{''}</SquarePanel>
+              <SquarePanel scale={4}>{''}</SquarePanel>
             </InternalFlex>
           </ComponentSection>
 

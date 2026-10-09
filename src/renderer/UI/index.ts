@@ -14,6 +14,7 @@ import { ButtonIcon } from './components/ButtonIcon/ButtonIcon';
 import { SmallPanel } from './components/SmallPanel/SmallPanel';
 import { MenuSubviewLayout } from './layouts/MenuSubviewLayout';
 import { Button, ButtonProps } from './components/Button/Button';
+import { SquarePanel } from './components/SquarePanel/SquarePanel';
 import { Icon, IconName, IconProps } from './components/Icon/Icon';
 import { BarOrnament } from './components/BarOrnament/BarOrnament';
 import { PanelScalable } from './components/PanelScalable/PanelScalable';
@@ -45,6 +46,7 @@ export {
   Scrollbar,
   ScrollableWrapper,
   SmallPanel,
+  SquarePanel,
   BarSimple,
   BarOrnament,
   HealthBar,
