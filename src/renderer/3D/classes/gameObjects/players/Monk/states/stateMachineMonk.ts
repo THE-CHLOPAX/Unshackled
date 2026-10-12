@@ -131,7 +131,7 @@ export const stateMachineMonk: StateMachine = {
   initialNode: idleStateNode,
   onDamage: ({ entity }) => {
     entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_HIT);
-    entity.scene.camera.addShake(0.5);
+    entity.scene.camera.addShake(3);
     flashRed(entity);
     return null;
   },

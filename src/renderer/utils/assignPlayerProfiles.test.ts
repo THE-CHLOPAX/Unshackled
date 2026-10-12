@@ -12,7 +12,7 @@ function createActivePlayer(id: string): ActivePlayerState {
 }
 
 function createProfile(id: string): PlayerProfile {
-  return { id, name: id, class: 'monk', currentHealthPoints: 100 };
+  return { id, name: id, class: 'monk', currentHealthPoints: 100, maxHealthPoints: 100 };
 }
 
 describe('assignPlayerProfiles', () => {

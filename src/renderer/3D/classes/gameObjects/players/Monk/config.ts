@@ -25,7 +25,7 @@ export const config: EntityOptions = {
     },
   },
   healthOptions: {
-    initialHealthPoints: 100,
+    maxHealthPoints: 100,
   },
   stateMachine: stateMachineMonk,
 };

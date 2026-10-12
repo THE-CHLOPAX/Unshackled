@@ -4,9 +4,14 @@ import { NavMesh, Crowd } from '@recast-navigation/core';
 import { Entity, EntityOptions } from './Entity';
 import { GameScene } from '../scenes/GameScene/GameScene';
 import { AIAttackOptions, EntityClass } from '../../types';
+import {
+  HealthBarRenderer,
+  HealthBarRendererOptions,
+} from '../gameObjectComponents/HealthBarRenderer/HealthBarRenderer';
 
 export type EntityAIOptions = EntityOptions & {
   detectionRadius?: number;
+  healthBarOptions?: HealthBarRendererOptions;
   attack?: AIAttackOptions;
   enemyTypes?: EntityClass[];
 };
@@ -22,6 +27,7 @@ export class EntityAI extends Entity {
   private _detectionRadius: number | null = null;
   private _attack: AIAttackOptions | null = null;
   private _despawnTimeout: NodeJS.Timeout | null = null;
+  private _healthBarRenderer: HealthBarRenderer | null = null;
 
   constructor(
     scene: GameScene,
@@ -38,6 +44,11 @@ export class EntityAI extends Entity {
     this._enemyTypes = options.enemyTypes ?? null;
 
     this.healthPointsController.events.once('death', this._despawnAfterTimeout);
+
+    this._healthBarRenderer = this.addComponent(
+      'HealthBarRenderer',
+      new HealthBarRenderer(this, this.healthPointsController, options.healthBarOptions)
+    );
 
     this.onInit();
   }

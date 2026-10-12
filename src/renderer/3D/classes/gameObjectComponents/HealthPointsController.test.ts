@@ -21,9 +21,9 @@ function createEntityMock() {
   return { entityMock };
 }
 
-function createController(initialHealthPoints = 100) {
+function createController(maxHealthPoints = 100) {
   const { entityMock } = createEntityMock();
-  const controller = new HealthPointsController(entityMock.object(), { initialHealthPoints });
+  const controller = new HealthPointsController(entityMock.object(), { maxHealthPoints });
 
   return { controller, entityMock };
 }
@@ -33,18 +33,64 @@ describe('HealthPointsController', () => {
     vi.restoreAllMocks();
   });
 
+  describe('setMaxHealthPoints', () => {
+    it('changes max health without changing current health', () => {
+      const { controller } = createController(100);
+
+      controller.setMaxHealthPoints(150);
+
+      expect(controller.maxHealthPoints).toBe(150);
+      expect(controller.healthPoints).toBe(100);
+    });
+
+    it('lets health be set and healed up to the new max', () => {
+      const { controller } = createController(100);
+
+      controller.setMaxHealthPoints(150);
+      controller.setHealthPoints(120);
+      expect(controller.healthPoints).toBe(120);
+
+      controller.healDamage(100);
+      expect(controller.healthPoints).toBe(150);
+    });
+
+    it('clamps current health down when the max is lowered', () => {
+      const { controller } = createController(100);
+
+      controller.setMaxHealthPoints(60);
+
+      expect(controller.healthPoints).toBe(60);
+    });
+
+    it('resets health to the current max', () => {
+      const { controller } = createController(100);
+
+      controller.setMaxHealthPoints(150);
+      controller.inflictDamage(50);
+      controller.resetHealth();
+
+      expect(controller.healthPoints).toBe(150);
+    });
+
+    it('throws when the max is not positive', () => {
+      const { controller } = createController(100);
+
+      expect(() => controller.setMaxHealthPoints(0)).toThrow();
+    });
+  });
+
   describe('setHealthPoints', () => {
-    it('sets health without changing initialHealthPoints', () => {
+    it('sets health without changing maxHealthPoints', () => {
       const { controller } = createController(100);
 
       controller.setHealthPoints(40);
 
       expect(controller.healthPoints).toBe(40);
-      expect(controller.initialHealthPoints).toBe(100);
+      expect(controller.maxHealthPoints).toBe(100);
       expect(controller.isDead).toBe(false);
     });
 
-    it('clamps to the 0..initialHealthPoints range', () => {
+    it('clamps to the 0..maxHealthPoints range', () => {
       const { controller } = createController(100);
 
       controller.setHealthPoints(150);
@@ -62,7 +108,7 @@ describe('HealthPointsController', () => {
       expect(controller.isDead).toBe(true);
     });
 
-    it('heals up to initialHealthPoints afterwards', () => {
+    it('heals up to maxHealthPoints afterwards', () => {
       const { controller } = createController(100);
 
       controller.setHealthPoints(40);
@@ -85,27 +131,27 @@ describe('HealthPointsController', () => {
   });
 
   describe('constructor', () => {
-    it('throws when initialHealthPoints is zero', () => {
+    it('throws when maxHealthPoints is zero', () => {
       const { entityMock } = createEntityMock();
 
       expect(
-        () => new HealthPointsController(entityMock.object(), { initialHealthPoints: 0 })
+        () => new HealthPointsController(entityMock.object(), { maxHealthPoints: 0 })
       ).toThrow();
     });
 
-    it('throws when initialHealthPoints is negative', () => {
+    it('throws when maxHealthPoints is negative', () => {
       const { entityMock } = createEntityMock();
 
       expect(
-        () => new HealthPointsController(entityMock.object(), { initialHealthPoints: -10 })
+        () => new HealthPointsController(entityMock.object(), { maxHealthPoints: -10 })
       ).toThrow();
     });
 
-    it('sets healthPoints to initialHealthPoints when it is positive', () => {
+    it('sets healthPoints to maxHealthPoints when it is positive', () => {
       const { controller } = createController(50);
 
       expect(controller.healthPoints).toBe(50);
-      expect(controller.initialHealthPoints).toBe(50);
+      expect(controller.maxHealthPoints).toBe(50);
       expect(controller.isDead).toBe(false);
     });
   });
@@ -190,7 +236,7 @@ describe('HealthPointsController', () => {
       expect(listener).toHaveBeenCalledWith({ currentHealth: 70, healAmount: 20 });
     });
 
-    it('clamps health points at initialHealthPoints instead of overhealing', () => {
+    it('clamps health points at maxHealthPoints instead of overhealing', () => {
       const { controller } = createController(100);
 
       controller.healDamage(20);
@@ -248,7 +294,7 @@ describe('HealthPointsController', () => {
   });
 
   describe('resetHealth', () => {
-    it('restores health to initialHealthPoints and clears isDead', () => {
+    it('restores health to maxHealthPoints and clears isDead', () => {
       const { controller } = createController(10);
       controller.inflictDamage(10);
       expect(controller.isDead).toBe(true);

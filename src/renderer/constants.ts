@@ -16,6 +16,7 @@ export const COLORS = {
   RED_LIGHT: '#dc4545',
   ORANGE: '#ffaa33',
   GREEN: '#00AB06',
+  BLUE: '#2c4a9b',
   BROWN: '#5D3E2F',
   BROWN_DARK: '#090804',
   // Semantic

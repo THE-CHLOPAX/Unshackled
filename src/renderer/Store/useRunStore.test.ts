@@ -5,7 +5,7 @@ import { PlayerProfile, RunIdentifier } from 'renderer/types';
 import { useRunStore } from './useRunStore';
 
 function createProfile(id: string): PlayerProfile {
-  return { id, name: id, class: 'monk', currentHealthPoints: 100 };
+  return { id, name: id, class: 'monk', currentHealthPoints: 100, maxHealthPoints: 100 };
 }
 
 function createRun(players: PlayerProfile[]): RunIdentifier {

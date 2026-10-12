@@ -72,24 +72,23 @@ export abstract class GameScene extends Scene {
 
   public registerPlayer(player: Player): void {
     this._players.push(player);
+    this._forwardPlayerDamageEvents(player);
   }
 
   protected spawnPlayers(position: THREE.Vector3): Player[] {
-    return (this.options.players ?? []).map(
-      ({ activePlayer, playerProfile }, index) => {
-        const player = new PLAYER_CLASS_CONSTRUCTORS[playerProfile.class](this, {
-          playerProfileId: playerProfile.id,
-          inputSource: createActivePlayerInput(activePlayer),
-        });
-        applyPlayerProfile(player, playerProfile);
+    return (this.options.players ?? []).map(({ activePlayer, playerProfile }, index) => {
+      const player = new PLAYER_CLASS_CONSTRUCTORS[playerProfile.class](this, {
+        playerProfileId: playerProfile.id,
+        inputSource: createActivePlayerInput(activePlayer),
+      });
+      applyPlayerProfile(player, playerProfile);
 
-        player.position.set(position.x + index * PLAYER_SPAWN_SPACING, position.y, position.z);
-        this.add(player);
-        this.registerPlayer(player);
+      player.position.set(position.x + index * PLAYER_SPAWN_SPACING, position.y, position.z);
+      this.add(player);
+      this.registerPlayer(player);
 
-        return player;
-      }
-    );
+      return player;
+    });
   }
 
   public async initializePhysics(): Promise<void> {
@@ -152,4 +151,20 @@ export abstract class GameScene extends Scene {
   }
 
   protected onInit(): void {}
+
+  private _forwardPlayerDamageEvents(player: Player): () => void {
+    const { events } = player.healthPointsController;
+
+    const onDamageTaken = () => {
+      this.options.emitter.trigger('player-damage-taken', {
+        playerProfileId: player.playerProfileId,
+      });
+    };
+
+    events.on('damagetaken', onDamageTaken);
+
+    return () => {
+      events.off('damagetaken', onDamageTaken);
+    };
+  }
 }

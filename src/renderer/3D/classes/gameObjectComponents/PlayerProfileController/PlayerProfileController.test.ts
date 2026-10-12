@@ -1,4 +1,3 @@
-import { Mock } from 'moq.ts';
 import { Emitter, GameObjectEventMap } from '@tgdf';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -14,7 +13,7 @@ vi.mock('electron', () => ({
 }));
 
 function createProfile(id: string): PlayerProfile {
-  return { id, name: id, class: 'monk', currentHealthPoints: 100 };
+  return { id, name: id, class: 'monk', currentHealthPoints: 100, maxHealthPoints: 100 };
 }
 
 function createRun(players: PlayerProfile[]): RunIdentifier {
@@ -31,17 +30,16 @@ function createRun(players: PlayerProfile[]): RunIdentifier {
 }
 
 function createController(playerProfileId = 'profile-1') {
-  const entity = new Mock<Entity>()
-    .setup((e) => e.isAwake)
-    .returns(false)
-    .setup((e) => e.events)
-    .returns(new Emitter<GameObjectEventMap>())
-    .object();
+  const entity = {
+    isAwake: false,
+    name: '',
+    events: new Emitter<GameObjectEventMap>(),
+  } as unknown as Entity;
 
-  const healthPointsController = new HealthPointsController(entity, { initialHealthPoints: 100 });
+  const healthPointsController = new HealthPointsController(entity, { maxHealthPoints: 100 });
   const controller = new PlayerProfileController(entity, playerProfileId, healthPointsController);
 
-  return { controller, healthPointsController };
+  return { controller, healthPointsController, entity };
 }
 
 function getStoredHealthPoints(id: string): number | undefined {

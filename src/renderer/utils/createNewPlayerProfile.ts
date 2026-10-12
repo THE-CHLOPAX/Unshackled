@@ -6,10 +6,13 @@ export function createNewPlayerProfile(
   name: string,
   classId: PlayerClassId
 ): PlayerProfile {
+  const { maxHealthPoints } = PLAYER_CLASS_CONFIGS[classId].healthOptions;
+
   return {
     id,
     name,
     class: classId,
-    currentHealthPoints: PLAYER_CLASS_CONFIGS[classId].healthOptions.initialHealthPoints,
+    currentHealthPoints: maxHealthPoints,
+    maxHealthPoints,
   };
 }

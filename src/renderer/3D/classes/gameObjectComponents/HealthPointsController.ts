@@ -9,11 +9,12 @@ export type HealthPointsControllerEvents = {
 };
 
 export type HealthPointsControllerOptions = {
-  initialHealthPoints: number;
+  maxHealthPoints: number;
 };
 
 export class HealthPointsController extends GameObjectComponent {
   private _healthPoints: number;
+  private _maxHealthPoints: number;
   private _isDead: boolean = false;
   private _isImmuneToDamage: boolean = false;
 
@@ -26,11 +27,12 @@ export class HealthPointsController extends GameObjectComponent {
     super(gameObject);
 
     assert(
-      options.initialHealthPoints > 0,
-      '[HealthPointsController] Initial health points must be greater than zero.'
+      options.maxHealthPoints > 0,
+      '[HealthPointsController] Max health points must be greater than zero.'
     );
 
-    this._healthPoints = options.initialHealthPoints;
+    this._healthPoints = options.maxHealthPoints;
+    this._maxHealthPoints = options.maxHealthPoints;
   }
 
   public get isImmuneToDamage(): boolean {
@@ -45,8 +47,8 @@ export class HealthPointsController extends GameObjectComponent {
     return this._healthPoints;
   }
 
-  public get initialHealthPoints(): number {
-    return this.options.initialHealthPoints;
+  public get maxHealthPoints(): number {
+    return this._maxHealthPoints;
   }
 
   public override get gameObject(): Entity {
@@ -94,7 +96,7 @@ export class HealthPointsController extends GameObjectComponent {
     }
 
     const oldHealthPoints = this._healthPoints;
-    this._healthPoints = Math.min(this.initialHealthPoints, this._healthPoints + amount);
+    this._healthPoints = Math.min(this._maxHealthPoints, this._healthPoints + amount);
 
     const healAmount = this._healthPoints - oldHealthPoints;
 
@@ -103,12 +105,19 @@ export class HealthPointsController extends GameObjectComponent {
   }
 
   public setHealthPoints(value: number): void {
-    this._healthPoints = Math.min(Math.max(value, 0), this.initialHealthPoints);
+    this._healthPoints = Math.min(Math.max(value, 0), this._maxHealthPoints);
     this._isDead = this._healthPoints === 0;
   }
 
+  public setMaxHealthPoints(value: number): void {
+    assert(value > 0, '[HealthPointsController] Max health points must be greater than zero.');
+
+    this._maxHealthPoints = value;
+    this.setHealthPoints(this._healthPoints);
+  }
+
   public resetHealth(): void {
-    this._healthPoints = this.options.initialHealthPoints;
+    this._healthPoints = this._maxHealthPoints;
     this._isDead = false;
   }
 }

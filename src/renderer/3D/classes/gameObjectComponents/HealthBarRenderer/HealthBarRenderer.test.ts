@@ -19,12 +19,12 @@ class TestScene extends Scene {
   camera = new MockCamera();
 }
 
-function createHealthBarRenderer(initialHealthPoints = 100, startingHealthPoints?: number) {
+function createHealthBarRenderer(maxHealthPoints = 100, startingHealthPoints?: number) {
   const scene = new TestScene();
 
   const gameObject = new GameObject({ scene }) as unknown as Entity;
 
-  const healthPointsController = new HealthPointsController(gameObject, { initialHealthPoints });
+  const healthPointsController = new HealthPointsController(gameObject, { maxHealthPoints });
   const healthBarRenderer = new HealthBarRenderer(gameObject, healthPointsController);
 
   gameObject.addComponent('HealthPointsController', healthPointsController);
@@ -67,9 +67,7 @@ describe('HealthBarRenderer', () => {
     expect(entry?.props).toEqual({
       entity: gameObject,
       progress: 0.7,
-      fadeOutEnabled: false,
-      progressDelta: expect.closeTo(0.3),
-      progressDeltaAccumulated: expect.closeTo(0.3),
+      initialProgress: 1,
     });
   });
 
@@ -81,8 +79,7 @@ describe('HealthBarRenderer', () => {
     const entry = useOverlayStore.getState().entries.get(barId);
     expect(entry?.props).toMatchObject({
       progress: expect.closeTo(0.3),
-      progressDelta: expect.closeTo(0.1),
-      progressDeltaAccumulated: expect.closeTo(0.1),
+      initialProgress: expect.closeTo(0.4),
     });
   });
 
@@ -96,15 +93,12 @@ describe('HealthBarRenderer', () => {
     expect(entry?.props).toEqual({
       entity: gameObject,
       progress: 0.7,
-      fadeOutEnabled: false,
-      progressDelta: expect.closeTo(-0.2),
-      progressDeltaAccumulated: expect.closeTo(0.3),
+      initialProgress: 1,
     });
   });
 
   it('creates a new element when none is present yet, and updates it instead of re-adding once mounted', () => {
-    const { healthPointsController, healthBarRenderer, gameObject, barId } =
-      createHealthBarRenderer(100);
+    const { healthPointsController, healthBarRenderer, barId } = createHealthBarRenderer(100);
     const addSpy = vi.spyOn(healthBarRenderer, 'addElement');
     const updateSpy = vi.spyOn(healthBarRenderer, 'updateElement');
 
@@ -120,13 +114,7 @@ describe('HealthBarRenderer', () => {
     healthPointsController.inflictDamage(10);
     expect(addSpy).toHaveBeenCalledTimes(1);
     expect(updateSpy).toHaveBeenCalledTimes(1);
-    expect(updateSpy).toHaveBeenCalledWith(barId, {
-      entity: gameObject,
-      progress: 0.8,
-      fadeOutEnabled: false,
-      progressDelta: expect.closeTo(0.1),
-      progressDeltaAccumulated: expect.closeTo(0.2),
-    });
+    expect(updateSpy).toHaveBeenCalledWith(barId, { progress: 0.8 });
   });
 
   it('clears the previous fade timeout and reschedules it on every damage/heal event', () => {
@@ -140,8 +128,7 @@ describe('HealthBarRenderer', () => {
 
     vi.advanceTimersByTime(HEALTH_BAR_VISIBLE_DURATION_MS - 500);
     healthPointsController.inflictDamage(10);
-    // Both the fade timeout and the recent-damage sync timeout get cleared and rescheduled.
-    expect(clearTimeoutSpy).toHaveBeenCalledTimes(2);
+    expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
 
     // The first hit's original deadline has now passed, but the second hit reset the
     // timer, so the bar should not have started fading yet.
@@ -239,9 +226,26 @@ describe('HealthBarRenderer', () => {
     expect(entry?.props).toEqual({
       entity: gameObject,
       progress: 0.8,
-      fadeOutEnabled: false,
-      progressDelta: expect.closeTo(0.1),
-      progressDeltaAccumulated: expect.closeTo(0.2),
+      initialProgress: 1,
+    });
+  });
+
+  it('starts a re-added bar from the progress it had when the previous bar was removed', () => {
+    const { healthPointsController, barId } = createHealthBarRenderer(100);
+
+    healthPointsController.inflictDamage(30);
+    overlayElementRefs.set(barId, document.createElement('div'));
+    vi.advanceTimersByTime(HEALTH_BAR_VISIBLE_DURATION_MS);
+    const [, vars] = vi.mocked(gsap.to).mock.calls[0];
+    vars.onComplete?.();
+    expect(useOverlayStore.getState().entries.has(barId)).toBe(false);
+
+    healthPointsController.inflictDamage(20);
+
+    const entry = useOverlayStore.getState().entries.get(barId);
+    expect(entry?.props).toMatchObject({
+      progress: expect.closeTo(0.5),
+      initialProgress: expect.closeTo(0.7),
     });
   });
 });

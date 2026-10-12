@@ -36,7 +36,10 @@ export const config: EntityAIOptions = {
     actions: attackActions,
   },
   healthOptions: {
-    initialHealthPoints: 20,
+    maxHealthPoints: 20,
+  },
+  healthBarOptions: {
+    offset: new THREE.Vector3(0, 1.5, 0),
   },
   stateMachine: stateMachineSkeleton,
 };

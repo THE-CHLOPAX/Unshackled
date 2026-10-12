@@ -2,22 +2,20 @@ import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
 import { PlayerStatistics } from 'renderer/types';
 
-import { HealthPointsController } from '../classes/gameObjectComponents/HealthPointsController';
+import { Player } from '../classes/gameObjects/players/Player';
 
 export type UsePlayerStatsParams = {
-  healthPointsController: HealthPointsController | null;
+  player?: Player;
 };
 
-export function usePlayerStats({
-  healthPointsController,
-}: UsePlayerStatsParams): PlayerStatistics | null {
+export function usePlayerStats({ player }: UsePlayerStatsParams): PlayerStatistics | null {
   const subscribe = useCallback(
     (onChange: () => void) => {
-      if (!healthPointsController) {
+      if (!player) {
         return () => {};
       }
 
-      const { events } = healthPointsController;
+      const { events } = player.healthPointsController;
       events.on('damagetaken', onChange);
       events.on('heal', onChange);
       events.on('death', onChange);
@@ -28,16 +26,23 @@ export function usePlayerStats({
         events.off('death', onChange);
       };
     },
-    [healthPointsController]
+    [player]
   );
 
   const currentHealthPoints = useSyncExternalStore(
     subscribe,
-    () => healthPointsController?.healthPoints ?? null
+    () => player?.healthPointsController?.healthPoints ?? null
   );
 
   return useMemo(
-    () => (currentHealthPoints === null ? null : { currentHealthPoints }),
-    [currentHealthPoints]
+    () =>
+      currentHealthPoints === null || !player
+        ? null
+        : {
+            currentHealthPoints,
+            maxHealthPoints: player.healthPointsController.maxHealthPoints,
+            name: player.name,
+          },
+    [currentHealthPoints, player]
   );
 }

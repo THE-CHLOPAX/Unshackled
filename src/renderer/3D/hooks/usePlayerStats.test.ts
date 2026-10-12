@@ -5,13 +5,14 @@ import { act, renderHook } from '@testing-library/react';
 
 import { usePlayerStats } from './usePlayerStats';
 import { Entity } from '../classes/gameObjects/Entity';
+import { Player } from '../classes/gameObjects/players/Player';
 import { HealthPointsController } from '../classes/gameObjectComponents/HealthPointsController';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
 }));
 
-function createHealthPointsController(initialHealthPoints = 100) {
+function createPlayer(maxHealthPoints = 100, name = 'Monk') {
   const entity = new Mock<Entity>()
     .setup((e) => e.isAwake)
     .returns(false)
@@ -19,42 +20,45 @@ function createHealthPointsController(initialHealthPoints = 100) {
     .returns(new Emitter<GameObjectEventMap>())
     .object();
 
-  return new HealthPointsController(entity, { initialHealthPoints });
+  const healthPointsController = new HealthPointsController(entity, { maxHealthPoints });
+  const player = { healthPointsController, name } as unknown as Player;
+
+  return { player, healthPointsController };
 }
 
 describe('usePlayerStats', () => {
-  it('returns null when there is no health points controller', () => {
-    const { result } = renderHook(() => usePlayerStats({ healthPointsController: null }));
+  it('returns null when there is no player', () => {
+    const { result } = renderHook(() => usePlayerStats({}));
 
     expect(result.current).toBeNull();
   });
 
-  it('returns the current health points', () => {
-    const healthPointsController = createHealthPointsController(100);
+  it('returns the name, current and max health points', () => {
+    const { player, healthPointsController } = createPlayer(100);
     healthPointsController.setHealthPoints(40);
 
-    const { result } = renderHook(() => usePlayerStats({ healthPointsController }));
+    const { result } = renderHook(() => usePlayerStats({ player }));
 
-    expect(result.current).toEqual({ currentHealthPoints: 40 });
+    expect(result.current).toEqual({ name: 'Monk', currentHealthPoints: 40, maxHealthPoints: 100 });
   });
 
   it('updates on damage, heal and death', () => {
-    const healthPointsController = createHealthPointsController(100);
-    const { result } = renderHook(() => usePlayerStats({ healthPointsController }));
+    const { player, healthPointsController } = createPlayer(100);
+    const { result } = renderHook(() => usePlayerStats({ player }));
 
     act(() => healthPointsController.inflictDamage(30));
-    expect(result.current).toEqual({ currentHealthPoints: 70 });
+    expect(result.current?.currentHealthPoints).toBe(70);
 
     act(() => healthPointsController.healDamage(10));
-    expect(result.current).toEqual({ currentHealthPoints: 80 });
+    expect(result.current?.currentHealthPoints).toBe(80);
 
     act(() => healthPointsController.inflictDamage(200));
-    expect(result.current).toEqual({ currentHealthPoints: 0 });
+    expect(result.current?.currentHealthPoints).toBe(0);
   });
 
   it('keeps the same object reference when nothing changed', () => {
-    const healthPointsController = createHealthPointsController(100);
-    const { result, rerender } = renderHook(() => usePlayerStats({ healthPointsController }));
+    const { player } = createPlayer(100);
+    const { result, rerender } = renderHook(() => usePlayerStats({ player }));
     const firstResult = result.current;
 
     rerender();
@@ -62,26 +66,25 @@ describe('usePlayerStats', () => {
     expect(result.current).toBe(firstResult);
   });
 
-  it('switches to a new controller when it changes', () => {
-    const first = createHealthPointsController(100);
-    const second = createHealthPointsController(50);
-    const { result, rerender } = renderHook(
-      ({ controller }) => usePlayerStats({ healthPointsController: controller }),
-      { initialProps: { controller: first } }
-    );
+  it('switches to a new player when it changes', () => {
+    const first = createPlayer(100);
+    const second = createPlayer(50);
+    const { result, rerender } = renderHook(({ player }) => usePlayerStats({ player }), {
+      initialProps: { player: first.player },
+    });
 
-    rerender({ controller: second });
-    act(() => first.inflictDamage(10));
-    expect(result.current).toEqual({ currentHealthPoints: 50 });
+    rerender({ player: second.player });
+    act(() => first.healthPointsController.inflictDamage(10));
+    expect(result.current?.currentHealthPoints).toBe(50);
 
-    act(() => second.inflictDamage(10));
-    expect(result.current).toEqual({ currentHealthPoints: 40 });
+    act(() => second.healthPointsController.inflictDamage(10));
+    expect(result.current?.currentHealthPoints).toBe(40);
   });
 
   it('unsubscribes on unmount', () => {
-    const healthPointsController = createHealthPointsController(100);
+    const { player, healthPointsController } = createPlayer(100);
     const offSpy = vi.spyOn(healthPointsController.events, 'off');
-    const { unmount } = renderHook(() => usePlayerStats({ healthPointsController }));
+    const { unmount } = renderHook(() => usePlayerStats({ player }));
 
     unmount();
 

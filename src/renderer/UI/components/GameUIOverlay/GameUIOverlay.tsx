@@ -14,7 +14,11 @@ export type GameUIOverlayProps = {
 export const GameUIOverlay = ({ emitter, playerStatistics }: GameUIOverlayProps) => {
   return (
     <Wrapper>
-      {playerStatistics && <PlayerStats {...playerStatistics} />}
+      {playerStatistics && (
+        <PlayerStatsWrapper>
+          <PlayerStats {...playerStatistics} />
+        </PlayerStatsWrapper>
+      )}
       <Vignette />
       <DamageIndicator emitter={emitter} />
       <GameOverModal emitter={emitter} />
@@ -26,6 +30,13 @@ const Wrapper = styled.div`
   position: relative;
   width: 100vw;
   height: 100vh;
+`;
+
+const PlayerStatsWrapper = styled.div`
+  position: absolute;
+  bottom: 22px;
+  left: 22px;
+  z-index: 1;
 `;
 
 const Vignette = styled.div`

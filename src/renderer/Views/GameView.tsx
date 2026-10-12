@@ -66,7 +66,7 @@ function LevelSession({ progress, onLevelComplete }: LevelSessionProps) {
   });
 
   const playerStats = usePlayerStats({
-    healthPointsController: scene?.players[0]?.healthPointsController ?? null,
+    player: scene?.players[0],
   });
 
   const onLevelCompleteDebounced = useDebouncedCallback(
