@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { logger, useDebouncedCallback, useGraphicsStore } from '@tgdf';
 
-import { GameUIOverlay } from 'UI';
 import { RunProgress } from 'renderer/types';
 import { useRunStore } from 'Store/useRunStore';
+import { GameUIOverlay, VersionLayout } from 'UI';
 import { useLoadScene } from 'renderer/hooks/useLoadScene';
 import { pickRandomLevel } from '3D/utils/pickRandomLevel';
 import { BIOME_SCENES } from '3D/classes/scenes/biomeScenes';
@@ -38,13 +38,15 @@ export function GameView() {
 
   return (
     <BackToViewLayout backToView="MenuView">
-      {progress && (
-        <LevelSession
-          key={`${progress.biomeId}:${progress.levelIndex}`}
-          progress={progress}
-          onLevelComplete={handleLevelComplete}
-        />
-      )}
+      <VersionLayout>
+        {progress && (
+          <LevelSession
+            key={`${progress.biomeId}:${progress.levelIndex}`}
+            progress={progress}
+            onLevelComplete={handleLevelComplete}
+          />
+        )}
+      </VersionLayout>
     </BackToViewLayout>
   );
 }
@@ -94,7 +96,11 @@ function LevelSession({ progress, onLevelComplete }: LevelSessionProps) {
     // Then pass the corresponding player to each UIOverlay instead of hardcoded 0 index player.
     <>
       <ThreeDViewerPixelated scene={scene} resX={resolution.width} resY={resolution.height} debug />
-      <GameUIOverlay emitter={emitter} playerStatistics={playerStats} />
+      <GameUIOverlay
+        emitter={emitter}
+        playerStatistics={playerStats}
+        objectiveType={scene.options.objective?.type}
+      />
     </>
   );
 }

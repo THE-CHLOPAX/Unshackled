@@ -1,5 +1,10 @@
 import { NativeFileLocation } from '@tgdf';
 
+import {
+  OBJECTIVE_ENTITIES_KILLED,
+  OBJECTIVE_SURVIVED_TIME,
+} from '3D/classes/scenes/GameScene/ProgressTracker/constants';
+
 import { CampaignIdentifier, LevelIdentifier } from './types';
 
 export const APP_VERSION = __APP_VERSION__;
@@ -55,6 +60,14 @@ export const SAVE_FILES_LOCATION_DEV: NativeFileLocation = {
 
 // BILLBOARD DOM
 export const BILLBOARD_OVERLAY_ELEMENT_ID = 'billboard-overlay';
+
+export const OBJECTIVE_LABELS: Record<
+  typeof OBJECTIVE_ENTITIES_KILLED | typeof OBJECTIVE_SURVIVED_TIME,
+  string
+> = {
+  [OBJECTIVE_ENTITIES_KILLED]: 'Kill all enemies',
+  [OBJECTIVE_SURVIVED_TIME]: 'Survive for the required time',
+};
 
 // GAMEPLAY
 export const PLAYER_CLASSES = ['monk'] as const;
