@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { COLORS } from 'renderer/constants';
-import { hexStringToRgbaString } from 'UI/utils/hexStringToRgbaString';
+import { getRadialGradient } from 'renderer/UI/utils/getBgRadialGradient';
 
 import { Text } from '../Text/Text';
 import { SmallPanel } from '../SmallPanel/SmallPanel';
@@ -48,12 +48,7 @@ const Wrapper = styled.div`
   justify-content: flex-end;
   align-items: center;
   gap: 6px;
-  background: radial-gradient(
-    ellipse closest-side,
-    ${hexStringToRgbaString(COLORS.BG_COLOR, 0.5)} 50%,
-    ${hexStringToRgbaString(COLORS.BG_COLOR, 0.2)} 80%,
-    ${hexStringToRgbaString(COLORS.BG_COLOR, 0)} 100%
-  );
+  background: ${getRadialGradient(COLORS.BG_COLOR)};
   padding: 15px 30px;
 `;
 

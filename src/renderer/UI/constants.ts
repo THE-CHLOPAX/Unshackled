@@ -5,6 +5,7 @@ import arrowRight from '../assets/svg/arrow-right.svg?url';
 import scrollArrow from '../assets/svg/scroll-arrow.svg?url';
 import scrollThumb from '../assets/svg/scroll-thumb.svg?url';
 import barSimpleFrame from '../assets/svg/bar-simple.svg?url';
+import squarePanelBg from '../assets/svg/square-panel.svg?url';
 import ornamentShort from '../assets/svg/ornament-short.svg?url';
 import barOrnamentFrame from '../assets/svg/bar-ornament.svg?url';
 import inputActiveBg from '../assets/svg/input-active-bg.svg?url';
@@ -55,6 +56,7 @@ export const UI_IMAGE_URLS = {
   scrollThumb,
   smallPanelActiveBg,
   smallPanelInactiveBg,
+  squarePanelBg,
   logoShort,
   ornament,
   ornamentShort,

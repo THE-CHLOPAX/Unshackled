@@ -179,7 +179,7 @@ describe('Spawner', () => {
     );
     const healthPointsController = target.addComponent(
       'HealthPointsController',
-      new HealthPointsController(target as unknown as Entity, { initialHealthPoints: 100 })
+      new HealthPointsController(target as unknown as Entity, { maxHealthPoints: 100 })
     );
     target.update(0);
 

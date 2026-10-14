@@ -45,6 +45,12 @@ function getBoxColliderSize(collider: RAPIER.Collider): THREE.Vector3 {
   return new THREE.Vector3(half.x * 2, half.y * 2, half.z * 2);
 }
 
+function stepPhysics(scene: MockScene, steps: number): void {
+  const world = scene.physics?.world;
+  assert(world, 'Physics world is not initialized');
+  for (let i = 0; i < steps; i++) world.step();
+}
+
 describe('RigidBody', () => {
   beforeAll(async () => {
     await RAPIER.init();
@@ -265,5 +271,115 @@ describe('RigidBody', () => {
 
     rigidBody.setSensor(false);
     expect(rigidBody.isSensor()).toBe(false);
+  });
+
+  describe('mass', () => {
+    it('uses a mass of 1 by default', async () => {
+      const { rigidBody } = await createRigidBody({});
+
+      expect(rigidBody.getMass()).toBeCloseTo(1);
+    });
+
+    it('uses the mass from options', async () => {
+      const { rigidBody } = await createRigidBody({ mass: 3 });
+
+      expect(rigidBody.getMass()).toBeCloseTo(3);
+    });
+
+    it('changes the body mass immediately', async () => {
+      const { rigidBody } = await createRigidBody({ mass: 1 });
+
+      rigidBody.setMass(4);
+
+      expect(rigidBody.getMass()).toBeCloseTo(4);
+      expect(rigidBody.getRigidBody()?.mass()).toBeCloseTo(4);
+    });
+
+    it('applies the new mass to impulses right away', async () => {
+      const { rigidBody } = await createRigidBody({ mass: 1, linearDamping: 0 });
+
+      rigidBody.setMass(2);
+      rigidBody.applyImpulse(new THREE.Vector3(4, 0, 0));
+
+      expect(rigidBody.getLinearVelocity().x).toBeCloseTo(2);
+    });
+
+    it('keeps the new mass when the collider is recreated', async () => {
+      const { rigidBody } = await createRigidBody({ mass: 1 });
+
+      rigidBody.setMass(5);
+      rigidBody.updatePhysicsCollider();
+
+      expect(rigidBody.getMass()).toBeCloseTo(5);
+    });
+
+    it('applies a mass set before the body exists once it is created', async () => {
+      const scene = new MockScene();
+      await scene.initializePhysicsWorld(new THREE.Vector3(0, -9.81, 0));
+      const gameObject = new GameObject({ scene });
+      gameObject.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial()));
+      const rigidBody = new RigidBody(gameObject, { mass: 1 });
+      gameObject.addComponent('RigidBody', rigidBody);
+
+      rigidBody.setMass(6);
+      expect(rigidBody.getRigidBody()).toBeNull();
+      expect(rigidBody.getMass()).toBe(6);
+
+      scene.add(gameObject);
+
+      expect(rigidBody.getRigidBody()?.mass()).toBeCloseTo(6);
+    });
+
+    it('throws for a mass that is not positive', async () => {
+      const { rigidBody } = await createRigidBody({ mass: 2 });
+
+      expect(() => rigidBody.setMass(0)).toThrow();
+      expect(() => rigidBody.setMass(-1)).toThrow();
+      expect(rigidBody.getMass()).toBeCloseTo(2);
+    });
+  });
+
+  describe('gravity scale', () => {
+    it('uses full gravity by default', async () => {
+      const { rigidBody } = await createRigidBody({ type: 'dynamic' });
+
+      expect(rigidBody.getGravityScale()).toBe(1);
+    });
+
+    it('stops a body from falling when gravity is disabled', async () => {
+      const { scene, rigidBody } = await createRigidBody({ type: 'dynamic', linearDamping: 0 });
+      rigidBody.setTranslation(new THREE.Vector3(0, 10, 0));
+
+      rigidBody.setGravityScale(0);
+      stepPhysics(scene, 30);
+
+      expect(rigidBody.getGravityScale()).toBe(0);
+      expect(rigidBody.getTranslation().y).toBeCloseTo(10);
+      expect(rigidBody.getLinearVelocity().y).toBeCloseTo(0);
+    });
+
+    it('lets a body fall again when gravity is restored', async () => {
+      const { scene, rigidBody } = await createRigidBody({ type: 'dynamic', linearDamping: 0 });
+      rigidBody.setTranslation(new THREE.Vector3(0, 10, 0));
+      rigidBody.setGravityScale(0);
+      stepPhysics(scene, 1);
+
+      rigidBody.setGravityScale(1);
+      stepPhysics(scene, 30);
+
+      expect(rigidBody.getTranslation().y).toBeLessThan(10);
+    });
+
+    it('keeps a sensor body in place when gravity is disabled', async () => {
+      const { scene, rigidBody } = await createRigidBody({ type: 'dynamic', linearDamping: 0 });
+      rigidBody.setTranslation(new THREE.Vector3(0, 10, 0));
+
+      rigidBody.setSensor(true);
+      rigidBody.setGravityScale(0);
+      rigidBody.setLinearVelocity(new THREE.Vector3(0, 0, 0));
+      stepPhysics(scene, 30);
+
+      expect(rigidBody.getTranslation().y).toBeCloseTo(10);
+    });
   });
 });

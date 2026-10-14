@@ -6,8 +6,7 @@ import { Entity } from '3D/classes/gameObjects/Entity';
 import { Player } from '3D/classes/gameObjects/players/Player';
 import { GameEventsEmitter, GameEventsMap } from 'renderer/types';
 
-export const OBJECTIVE_ENTITIES_KILLED = 'entities-killed';
-export const OBJECTIVE_SURVIVED_TIME = 'survived-time';
+import { OBJECTIVE_ENTITIES_KILLED, OBJECTIVE_SURVIVED_TIME } from './constants';
 
 export type ProgressTrackerObjective =
   | {

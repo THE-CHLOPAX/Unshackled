@@ -54,6 +54,12 @@ const sprintingStateNode: StateNode<SprintingState> = {
       [PlayerActionType.IDLE, () => idleStateNode],
     ]);
   },
+  onUpdate: ({ entity }) => {
+    if (canSprint(entity)) {
+      return null;
+    }
+    return resolveLocomotionNode(entity);
+  },
 };
 
 const runningStateNode: StateNode<RunningState> = {
@@ -61,13 +67,17 @@ const runningStateNode: StateNode<RunningState> = {
   onInput: ({ entity }) => {
     return getInputBasedStateNode(entity.inputSource.getControls(), [
       [PlayerActionType.ACTION_UP, () => aimingStateNode],
-      [PlayerActionType.ACTION_LEFT, () => getAttackStateNode(punchRight)],
+      [
+        PlayerActionType.ACTION_LEFT,
+        () => getAttackStateNode(punchRight),
+        canAttack(entity, punchRight),
+      ],
       [
         PlayerActionType.ACTION_RIGHT,
         () => dashingStateNode,
         !entity.cooldownController.isOnCooldown(DashStateMonk.COOLDOWN_ID),
       ],
-      [PlayerActionType.SPRINT, () => sprintingStateNode],
+      [PlayerActionType.SPRINT, () => resolveSprintingNode(entity)],
       [PlayerActionType.IDLE, () => idleStateNode],
     ]);
   },
@@ -78,7 +88,11 @@ const idleStateNode: StateNode<IdleState> = {
   onInput: ({ entity }) => {
     return getInputBasedStateNode(entity.inputSource.getControls(), [
       [PlayerActionType.ACTION_UP, () => aimingStateNode],
-      [PlayerActionType.ACTION_LEFT, () => getAttackStateNode(punchRight)],
+      [
+        PlayerActionType.ACTION_LEFT,
+        () => getAttackStateNode(punchRight),
+        canAttack(entity, punchRight),
+      ],
       [PlayerActionType.RUN, () => runningStateNode],
     ]);
   },
@@ -98,11 +112,25 @@ function getInteractStateNode(target: Interactable): StateNode<InteractState> {
 
 function resolveLocomotionNode(entity: Player): StateNode {
   const newStateNode = getInputBasedStateNode(entity.inputSource.getControls(), [
-    [PlayerActionType.SPRINT, () => sprintingStateNode],
+    [PlayerActionType.SPRINT, () => resolveSprintingNode(entity)],
     [PlayerActionType.RUN, () => runningStateNode],
   ]);
 
   return newStateNode ?? idleStateNode;
+}
+
+function resolveSprintingNode(entity: Player): StateNode {
+  entity.staminaPointsController.markShortTermDrainAttempt();
+  return canSprint(entity) ? sprintingStateNode : runningStateNode;
+}
+
+function canSprint(entity: Player): boolean {
+  return entity.staminaPointsController.shortTermStamina > 0;
+}
+
+function canAttack(entity: Player, action: ChainedAction): boolean {
+  if (!action.staminaCost) return true;
+  return entity.staminaPointsController.shortTermStamina >= action.staminaCost;
 }
 
 function getAttackStateNode(action: ChainedAction): StateNode<AttackState> {
@@ -113,6 +141,7 @@ function getAttackStateNode(action: ChainedAction): StateNode<AttackState> {
       if (currentState.isChainWindowOpen && chain) {
         const controlsStates = entity.inputSource.getControls();
         if (controlsStates.some((controlState) => controlState.type === chain.requiredInput)) {
+          if (!canAttack(entity, chain.next)) return null;
           return getAttackStateNode(chain.next);
         }
       }
@@ -131,7 +160,7 @@ export const stateMachineMonk: StateMachine = {
   initialNode: idleStateNode,
   onDamage: ({ entity }) => {
     entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_HIT);
-    entity.scene.camera.addShake(0.5);
+    entity.scene.camera.addShake(3);
     flashRed(entity);
     return null;
   },

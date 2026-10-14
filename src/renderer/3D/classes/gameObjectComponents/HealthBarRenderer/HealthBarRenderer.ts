@@ -10,7 +10,6 @@ import {
   HEALTH_BAR_OFFSET,
   HEALTH_BAR_VISIBLE_DURATION_MS,
   HEALTH_BAR_FADE_DURATION_S,
-  RECENT_DAMAGE_VISIBLE_DURATION_S,
 } from './constants';
 
 export type HealthBarRendererOptions = {
@@ -21,11 +20,9 @@ export type HealthBarRendererOptions = {
 export class HealthBarRenderer extends BillboardRenderer {
   private _healthBarId: string;
   private _healthBarTimeout: NodeJS.Timeout | null = null;
-  private _syncRecentDamageTimeout: NodeJS.Timeout | null = null;
   private _healthBarTween: GSAPTween | null = null;
   private _hasElement: boolean = false;
-  private _lastProgress: number;
-  private _recentDamageAccumulator = 0;
+  private _lastProgress = 1;
 
   constructor(
     public readonly entity: Entity,
@@ -34,13 +31,13 @@ export class HealthBarRenderer extends BillboardRenderer {
   ) {
     super(entity);
     this._healthBarId = `health-bar-${entity.uuid}`;
-
-    const { healthPoints, initialHealthPoints } = healthPointsController;
-    this._lastProgress = healthPoints / initialHealthPoints;
   }
 
   // Subscribe to HealthPointController events.
   protected onAwake(): void {
+    const { healthPoints, maxHealthPoints } = this.healthPointsController;
+    this._lastProgress = healthPoints / maxHealthPoints;
+
     this.healthPointsController.events.on('damagetaken', this._updateHealthBar);
     this.healthPointsController.events.on('death', this._updateHealthBar);
     this.healthPointsController.events.on('heal', this._updateHealthBar);
@@ -56,14 +53,9 @@ export class HealthBarRenderer extends BillboardRenderer {
 
   private _updateHealthBar = () => {
     if (this._healthBarTimeout) clearTimeout(this._healthBarTimeout);
-    if (this._syncRecentDamageTimeout) clearTimeout(this._syncRecentDamageTimeout);
 
     const progress =
-      this.healthPointsController.healthPoints / this.healthPointsController.initialHealthPoints;
-
-    const progressDelta = this._lastProgress - progress;
-
-    this._recentDamageAccumulator += progressDelta;
+      this.healthPointsController.healthPoints / this.healthPointsController.maxHealthPoints;
 
     if (this._hasElement) {
       // Reset and kill fade tween if active
@@ -73,14 +65,7 @@ export class HealthBarRenderer extends BillboardRenderer {
         this._healthBarTween = null;
       }
 
-      this.updateElement(this._healthBarId, {
-        entity: this.entity,
-        name: this.options.name,
-        progress,
-        fadeOutEnabled: false,
-        progressDelta,
-        progressDeltaAccumulated: this._recentDamageAccumulator,
-      } satisfies HealthBarProps);
+      this.updateElement<HealthBarProps>(this._healthBarId, { progress });
     } else {
       this._hasElement = true;
       this.addElement(
@@ -90,10 +75,8 @@ export class HealthBarRenderer extends BillboardRenderer {
           entity: this.entity,
           name: this.options.name,
           progress,
-          fadeOutEnabled: false,
-          progressDelta,
-          progressDeltaAccumulated: this._recentDamageAccumulator,
-        },
+          initialProgress: this._lastProgress,
+        } satisfies HealthBarProps,
         { offset: this.options.offset }
       );
     }
@@ -104,22 +87,7 @@ export class HealthBarRenderer extends BillboardRenderer {
     );
 
     this._lastProgress = progress;
-
-    this._syncRecentDamageTimeout = setTimeout(
-      this._syncRecentDamageToProgress.bind(this),
-      RECENT_DAMAGE_VISIBLE_DURATION_S * 1000
-    );
   };
-
-  private _syncRecentDamageToProgress(): void {
-    this._recentDamageAccumulator = 0;
-    this.updateElement(this._healthBarId, {
-      progress: this._lastProgress,
-      progressDelta: 0,
-      progressDeltaAccumulated: this._recentDamageAccumulator,
-      fadeOutEnabled: true,
-    });
-  }
 
   private _fadeHealthBar(): void {
     const healthBarElement = this.getElement(this._healthBarId);
@@ -135,11 +103,6 @@ export class HealthBarRenderer extends BillboardRenderer {
     if (this._healthBarTimeout) {
       clearTimeout(this._healthBarTimeout);
       this._healthBarTimeout = null;
-    }
-
-    if (this._syncRecentDamageTimeout) {
-      clearTimeout(this._syncRecentDamageTimeout);
-      this._syncRecentDamageTimeout = null;
     }
 
     if (this._healthBarTween) {

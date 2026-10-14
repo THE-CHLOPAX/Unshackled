@@ -24,10 +24,6 @@ import {
   HealthPointsControllerOptions,
 } from '../gameObjectComponents/HealthPointsController';
 import {
-  HealthBarRenderer,
-  HealthBarRendererOptions,
-} from '../gameObjectComponents/HealthBarRenderer/HealthBarRenderer';
-import {
   AnimationController,
   AnimationControllerOptions,
 } from '../gameObjectComponents/AnimationController/AnimationController';
@@ -35,7 +31,6 @@ import {
 export type EntityOptions = {
   modelOptions: ModelRendererOptions;
   healthOptions: HealthPointsControllerOptions;
-  healthBarOptions?: HealthBarRendererOptions;
   rigidBodyOptions?: RigidBodyOptions;
   animationControllerOptions?: AnimationControllerOptions;
   movementOptions?: MovementControllerOptions;
@@ -54,7 +49,6 @@ export class Entity extends GameSceneObject {
   public cooldownController: CooldownController;
   public fmodSoundController: FMODSoundController;
   public healthPointsController: HealthPointsController;
-  public healthBarRenderer: HealthBarRenderer;
   public movementController: MovementController;
 
   private _spawnPosition: THREE.Vector3 = new THREE.Vector3();
@@ -88,11 +82,6 @@ export class Entity extends GameSceneObject {
     this.healthPointsController = this.addComponent(
       'HealthPointsController',
       new HealthPointsController(this, options.healthOptions)
-    );
-
-    this.healthBarRenderer = this.addComponent(
-      'HealthBarRenderer',
-      new HealthBarRenderer(this, this.healthPointsController, options.healthBarOptions)
     );
 
     this.damageHitboxController = this.addComponent(

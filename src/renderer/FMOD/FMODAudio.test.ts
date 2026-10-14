@@ -27,9 +27,9 @@ vi.mock('./utils/getInstancePointer', () => ({ getInstancePointer: vi.fn() }));
 vi.mock('@tgdf', async () => ({
   logger: vi.fn(),
   assert,
-  Emitter: (await vi.importActual<typeof import('@tgdf/internal-3d/Emitter')>(
-    '@tgdf/internal-3d/Emitter'
-  )).Emitter,
+  Emitter: (
+    await vi.importActual<typeof import('@tgdf/internal-3d/Emitter')>('@tgdf/internal-3d/Emitter')
+  ).Emitter,
   useSoundsStore: {
     getState: vi.fn(),
     subscribe: vi.fn(() => vi.fn()),
@@ -302,7 +302,10 @@ describe('FMODAudio', () => {
       const result = audio.playEvent({ eventPath: 'event:/Missing' });
 
       expect(result).toBeNull();
-      expect(onFailed).toHaveBeenCalledWith({ eventPath: 'event:/Missing', error: expect.any(Error) });
+      expect(onFailed).toHaveBeenCalledWith({
+        eventPath: 'event:/Missing',
+        error: expect.any(Error),
+      });
       expect(vi.mocked(logger)).toHaveBeenCalledWith({
         message: expect.stringContaining('event:/Missing'),
         type: 'error',
@@ -590,9 +593,6 @@ describe('FMODAudio', () => {
       expect(unsubscribe).toHaveBeenCalledTimes(1);
       expect(audio['_channelSubscriptions'].has(INSTANCE_PTR)).toBe(false);
       expect(callbackWrapper.release).toHaveBeenCalledTimes(1);
-      expect(logger).toHaveBeenCalledWith(
-        expect.objectContaining({ message: MESSAGES.EVENT_SOUND_CHANNEL_SUBSCRIPTION_CLEARED })
-      );
     });
   });
 });

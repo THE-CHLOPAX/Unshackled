@@ -5,7 +5,7 @@ import { PLAYER_CLASSES, BIOMES } from './constants';
 export type GameEventsMap = {
   'game-over': undefined;
   'level-complete': undefined;
-  'player-damage-taken': undefined;
+  'player-damage-taken': { playerProfileId: string };
 };
 
 export type WorldCell = {
@@ -30,7 +30,15 @@ export type PlayerProfile = {
   id: string;
   name: string;
   class: PlayerClassId;
+  currentHealthPoints: number;
+  maxHealthPoints: number;
+  currentShortTermStamina: number;
+  currentLongTermStamina: number;
+  maxShortTermStamina: number;
+  maxLongTermStamina: number;
 };
+
+export type PlayerStatistics = Omit<PlayerProfile, 'id' | 'class'>;
 
 export type LevelIdentifier = {
   id: string;

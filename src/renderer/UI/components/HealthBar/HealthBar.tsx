@@ -1,13 +1,15 @@
 import styled, { keyframes } from 'styled-components';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { BarSimple, Text } from 'UI';
+import { Text } from 'UI';
 import { COLORS } from 'renderer/constants';
 import { Entity } from '3D/classes/gameObjects/Entity';
 import { formatNameBillboard } from 'renderer/UI/utils/formatNameBillboard';
 
+import { BarAnimated } from '../BarAnimated/BarAnimated';
+import { useRecentProgressChange } from '../BarAnimated/useRecentProgressChange';
+
 const FLOATING_NUMBER_DURATION_MS = 1000;
-const MINIMAL_PROGRESS = 0.01;
 const DAMAGE_THRESHOLDS = {
   CRITICAL: 0.25,
   STRONG: 0.1,
@@ -16,10 +18,8 @@ const DAMAGE_THRESHOLDS = {
 export type HealthBarProps = {
   entity: Entity;
   progress: number;
-  progressDelta: number;
-  progressDeltaAccumulated: number;
+  initialProgress?: number;
   name?: string;
-  fadeOutEnabled?: boolean;
 };
 
 type FloatingNumber = {
@@ -35,13 +35,14 @@ let floatingNumberIdCounter = 0;
 export const HealthBar = ({
   entity,
   progress,
-  progressDelta,
-  progressDeltaAccumulated,
+  initialProgress = progress,
   name,
-  fadeOutEnabled = false,
 }: HealthBarProps) => {
   const [floatingNumbers, setFloatingNumbers] = useState<FloatingNumber[]>([]);
   const activeTimeouts = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+  const { recentChange, recentChangeFading, lastChange } = useRecentProgressChange(progress, {
+    initialProgress,
+  });
 
   const displayedName = useMemo(() => {
     if (!name && !entity.name) return '';
@@ -56,11 +57,11 @@ export const HealthBar = ({
   }, []);
 
   useEffect(() => {
-    if (progressDelta === 0) return;
+    if (!lastChange) return;
 
-    const isHeal = progressDelta < 0;
-    const { initialHealthPoints } = entity.healthPointsController;
-    const amount = Math.round(Math.abs(progressDelta) * initialHealthPoints);
+    const isHeal = lastChange.delta < 0;
+    const { maxHealthPoints } = entity.healthPointsController;
+    const amount = Math.round(Math.abs(lastChange.delta) * maxHealthPoints);
     if (amount === 0) return;
 
     const id = floatingNumberIdCounter++;
@@ -70,7 +71,7 @@ export const HealthBar = ({
       {
         id,
         text: `${amount}`,
-        color: isHeal ? COLORS.GREEN : getDamageIndicatorColor(amount, initialHealthPoints),
+        color: isHeal ? COLORS.GREEN : getDamageIndicatorColor(amount, maxHealthPoints),
         offsetX: (Math.random() - 0.5) * 30,
         offsetY: (Math.random() - 0.5) * 10 - 15,
       },
@@ -81,16 +82,16 @@ export const HealthBar = ({
       setFloatingNumbers((current) => current.filter((entry) => entry.id !== id));
     }, FLOATING_NUMBER_DURATION_MS);
     activeTimeouts.current.add(timeoutId);
-  }, [progressDelta, entity]);
+  }, [lastChange, entity]);
 
   return (
     <Wrapper>
       <Text>{displayedName}</Text>
-      <StyledBarSimple
+      <BarAnimated
         fillColor={COLORS.RED}
-        progress={getClampedProgress(progress)}
-        $fadeOutEnabled={fadeOutEnabled}
-        $progressDeltaAccumulated={progressDeltaAccumulated}
+        progress={progress}
+        recentChange={recentChange}
+        recentChangeFading={recentChangeFading}
         short
         scale={1.5}
       />
@@ -110,12 +111,8 @@ export const HealthBar = ({
   );
 };
 
-function getClampedProgress(progress: number): number {
-  return Math.max(MINIMAL_PROGRESS, progress);
-}
-
-function getDamageIndicatorColor(amount: number, initialHealthPoints: number): string {
-  const percentage = amount / initialHealthPoints;
+function getDamageIndicatorColor(amount: number, maxHealthPoints: number): string {
+  const percentage = amount / maxHealthPoints;
   switch (true) {
     case percentage >= DAMAGE_THRESHOLDS.CRITICAL:
       return COLORS.RED_LIGHT;
@@ -153,29 +150,4 @@ const FloatingText = styled(Text)<{ $offsetX: number; $offsetY: number }>`
   margin-left: ${({ $offsetX }) => $offsetX}px;
   pointer-events: none;
   animation: ${floatUp} ${FLOATING_NUMBER_DURATION_MS}ms ease-out forwards;
-`;
-
-const StyledBarSimple = styled(BarSimple)<{
-  progress: number;
-  $fadeOutEnabled: boolean;
-  $progressDeltaAccumulated: number;
-}>`
-  .bar-simple-fill {
-    transition: ${({ $progressDeltaAccumulated }) =>
-      `width ${$progressDeltaAccumulated < 0 ? 0.5 : 0}s`};
-
-    &:after {
-      content: '';
-      display: block;
-      position: absolute;
-      top: 0;
-      right: 0;
-      transform: translateX(100%) scaleY(2);
-      height: 100%;
-      transition: ${({ $fadeOutEnabled }) => `width ${$fadeOutEnabled ? 0.5 : 0}s`};
-      width: ${({ progress, $progressDeltaAccumulated }) =>
-        `${(100 * $progressDeltaAccumulated) / getClampedProgress(progress)}%`};
-      background: ${COLORS.GOLDEN};
-    }
-  }
 `;

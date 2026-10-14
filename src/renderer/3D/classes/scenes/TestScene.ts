@@ -1,9 +1,10 @@
 import * as THREE from 'three';
-import { AssetRecord, PlayerInput, useAssetStore } from '@tgdf';
+import { AssetRecord, useAssetStore } from '@tgdf';
 
 import { GameEventsEmitter } from 'renderer/types';
 import { getModelClone } from 'renderer/3D/utils/getModelClone';
 import { pixelateTexture } from 'renderer/3D/utils/pixelateTexture';
+import { ActivePlayerWithProfile } from 'renderer/utils/assignPlayerProfiles';
 import {
   CHECKERBOARD_TEXTURE,
   FLOOR_OBJECT_MESH_NAME,
@@ -12,7 +13,6 @@ import {
 } from 'renderer/3D/constants';
 
 import { GameScene } from './GameScene/GameScene';
-import { Monk } from '../gameObjects/players/Monk/Monk';
 import { DungeonDoor } from '../gameObjects/props/DungeonDoor';
 import { RigidStaticObject } from '../gameObjects/RigidStaticObject';
 import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
@@ -36,8 +36,11 @@ export class TestScene extends GameScene {
     () => createSwingTrailWarmupMesh(),
   ];
 
-  constructor(public readonly emitter: GameEventsEmitter) {
-    super({ emitter });
+  constructor(
+    public readonly emitter: GameEventsEmitter,
+    players: ActivePlayerWithProfile[]
+  ) {
+    super({ emitter, players });
 
     this.background = new THREE.Color(0x0a0a0a);
 
@@ -68,9 +71,11 @@ export class TestScene extends GameScene {
   }
 
   protected override onInit(): void {
-    const monk = new Monk(this, { inputSource: PlayerInput.keyboard() });
-    this.add(monk);
-    this.camera.follow(monk);
+    const [firstPlayer] = this.spawnPlayers(new THREE.Vector3());
+
+    if (firstPlayer) {
+      this.camera.follow(firstPlayer);
+    }
 
     this.add(new DungeonDoor(this));
   }

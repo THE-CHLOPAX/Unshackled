@@ -2,21 +2,28 @@ import * as THREE from 'three';
 import { assert, AssetRecord, isDev, Scene } from '@tgdf';
 
 import { loadWorldMap } from 'renderer/utils/loadWorldMap';
+import { applyPlayerProfile } from '3D/utils/applyPlayerProfile';
 import { GameEventsEmitter, LevelIdentifier } from 'renderer/types';
 import { generateChunkedLevel } from '3D/utils/generateChunkedLevel';
+import { ActivePlayerWithProfile } from 'renderer/utils/assignPlayerProfiles';
+import { createActivePlayerInput } from 'renderer/utils/createActivePlayerInput';
 import { GAME_GRAVITY, LEVEL_CHUNK_SIZE, MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
 
 import { loadAssetRecord } from './loadAssetRecord';
 import { Player } from '../../gameObjects/players/Player';
 import { ShadersManager, WarmupFactory } from './ShadersManager/ShadersManager';
+import { PLAYER_CLASS_CONSTRUCTORS } from '../../gameObjects/players/playerClasses';
 import { getDefaultWarmupMaterialFactories } from './getDefaultWarmupMaterialFactories';
 import { OrtographicCamera, OrtographicCameraOptions } from '../../cameras/OrtographicCamera';
 import { ProgressTracker, ProgressTrackerObjective } from './ProgressTracker/ProgressTracker';
+
+const PLAYER_SPAWN_SPACING = 1.5;
 
 export type GameSceneOptions = {
   emitter: GameEventsEmitter;
   level?: LevelIdentifier;
   objective?: ProgressTrackerObjective;
+  players?: ActivePlayerWithProfile[];
 };
 
 export abstract class GameScene extends Scene {
@@ -65,6 +72,23 @@ export abstract class GameScene extends Scene {
 
   public registerPlayer(player: Player): void {
     this._players.push(player);
+    this._forwardPlayerDamageEvents(player);
+  }
+
+  protected spawnPlayers(position: THREE.Vector3): Player[] {
+    return (this.options.players ?? []).map(({ activePlayer, playerProfile }, index) => {
+      const player = new PLAYER_CLASS_CONSTRUCTORS[playerProfile.class](this, {
+        playerProfileId: playerProfile.id,
+        inputSource: createActivePlayerInput(activePlayer),
+      });
+      applyPlayerProfile(player, playerProfile);
+
+      player.position.set(position.x + index * PLAYER_SPAWN_SPACING, position.y, position.z);
+      this.add(player);
+      this.registerPlayer(player);
+
+      return player;
+    });
   }
 
   public async initializePhysics(): Promise<void> {
@@ -127,4 +151,16 @@ export abstract class GameScene extends Scene {
   }
 
   protected onInit(): void {}
+
+  private _forwardPlayerDamageEvents(player: Player): void {
+    const { events } = player.healthPointsController;
+
+    const onDamageTaken = () => {
+      this.options.emitter.trigger('player-damage-taken', {
+        playerProfileId: player.playerProfileId,
+      });
+    };
+
+    events.on('damagetaken', onDamageTaken);
+  }
 }

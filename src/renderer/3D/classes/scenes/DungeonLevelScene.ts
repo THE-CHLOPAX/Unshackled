@@ -1,16 +1,16 @@
 import * as THREE from 'three';
-import { AssetRecord, PlayerInput } from '@tgdf';
+import { AssetRecord } from '@tgdf';
 
 import { getModelClone } from 'renderer/3D/utils/getModelClone';
 import { GameEventsEmitter, LevelIdentifier } from 'renderer/types';
 import { MODELS, SPAWN_MARKER_NAME, TEXTURES } from 'renderer/3D/constants';
+import { ActivePlayerWithProfile } from 'renderer/utils/assignPlayerProfiles';
 
 import { GameScene } from './GameScene/GameScene';
-import { Monk } from '../gameObjects/players/Monk/Monk';
 import { Skeleton } from '../gameObjects/mobs/Skeleton/Skeleton';
 import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
 import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
-import { OBJECTIVE_ENTITIES_KILLED } from './GameScene/ProgressTracker/ProgressTracker';
+import { OBJECTIVE_ENTITIES_KILLED } from './GameScene/ProgressTracker/constants';
 
 export class DungeonLevelScene extends GameScene {
   public readonly preloadedAssets: AssetRecord[] = [
@@ -40,11 +40,13 @@ export class DungeonLevelScene extends GameScene {
 
   constructor(
     public readonly emitter: GameEventsEmitter,
-    level: LevelIdentifier
+    level: LevelIdentifier,
+    players: ActivePlayerWithProfile[]
   ) {
     super({
       emitter,
       level,
+      players,
       objective: {
         type: OBJECTIVE_ENTITIES_KILLED,
         objectiveClasses: [Skeleton],
@@ -63,12 +65,11 @@ export class DungeonLevelScene extends GameScene {
     const marker = this.getObjectByName(SPAWN_MARKER_NAME);
 
     if (marker !== undefined) {
-      const { x, y, z } = marker.position;
-      const monk = new Monk(this, { inputSource: PlayerInput.keyboard() });
-      monk.position.set(x, y, z);
-      this.add(monk);
-      this.registerPlayer(monk);
-      this.camera.follow(monk);
+      const [firstPlayer] = this.spawnPlayers(marker.position);
+
+      if (firstPlayer) {
+        this.camera.follow(firstPlayer);
+      }
       //this.camera.moveTo(marker.position);
     }
   }

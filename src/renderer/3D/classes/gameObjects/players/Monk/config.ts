@@ -2,10 +2,10 @@ import * as THREE from 'three';
 
 import { MODELS, DEFAULT_RIGID_BODY_OPTIONS } from '3D/constants';
 
-import { PlayerOptions } from '../Player';
+import { PlayerConfig } from '../Player';
 import { stateMachineMonk } from './states/stateMachineMonk';
 
-export const config: PlayerOptions = {
+export const config: PlayerConfig = {
   modelOptions: {
     id: MODELS.MONK.id,
   },
@@ -25,7 +25,11 @@ export const config: PlayerOptions = {
     },
   },
   healthOptions: {
-    initialHealthPoints: 100,
+    maxHealthPoints: 100,
+  },
+  staminaOptions: {
+    maxLongTermStamina: 300,
+    maxShortTermStamina: 25,
   },
   stateMachine: stateMachineMonk,
 };

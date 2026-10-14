@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 import styled from 'styled-components';
 
 import { COLORS } from 'renderer/constants';
@@ -24,6 +26,7 @@ export type BarSimpleProps = {
   progress: number;
   fillColor: string;
   className?: string;
+  style?: CSSProperties;
   scale?: number;
   short?: boolean;
 };
@@ -32,20 +35,21 @@ export const BarSimple = ({
   progress,
   fillColor,
   className,
+  style,
   scale = DEFAULT_SCALE,
   short = false,
 }: BarSimpleProps) => {
   const clampedProgress = clamp(progress, 0, 1);
+  const fillWidth = (short ? SHORT_FILL_NATIVE_WIDTH : FILL_NATIVE_WIDTH) * scale * clampedProgress;
 
   return (
-    <Wrapper className={className} $scale={scale} $short={short}>
+    <Wrapper className={className} style={style} $scale={scale} $short={short}>
       <FillBg className="bar-simple-fill-bg" $scale={scale} />
       <Fill
         className="bar-simple-fill"
-        $progress={clampedProgress}
+        style={{ width: `${fillWidth}px` }}
         $color={fillColor}
         $scale={scale}
-        $short={short}
       />
       <Frame className="bar-simple-frame" $short={short} />
     </Wrapper>
@@ -65,12 +69,10 @@ const FillBg = styled.div<{ $scale: number }>`
   clip-path: ${({ $scale }) => `inset(${FILL_NATIVE_TOP * $scale}px)`};
 `;
 
-const Fill = styled.div<{ $progress: number; $color: string; $scale: number; $short: boolean }>`
+const Fill = styled.div<{ $color: string; $scale: number }>`
   position: absolute;
   left: ${({ $scale }) => FILL_NATIVE_LEFT * $scale}px;
   top: ${({ $scale }) => FILL_NATIVE_TOP * $scale}px;
-  width: ${({ $progress, $scale, $short }) =>
-    ($short ? SHORT_FILL_NATIVE_WIDTH : FILL_NATIVE_WIDTH) * $scale * $progress}px;
   height: ${({ $scale }) => FILL_NATIVE_HEIGHT * $scale}px;
   background: ${({ $color }) => $color};
   border-top: ${({ $scale }) => $scale}px solid rgba(255, 255, 255, 0.3);

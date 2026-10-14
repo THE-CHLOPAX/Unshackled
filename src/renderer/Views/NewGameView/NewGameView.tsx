@@ -9,6 +9,7 @@ import { writeSaveFile } from 'renderer/utils/writeSaveFile';
 import { PlayerClassId, PlayerProfile } from 'renderer/types';
 import { Button, MenuSubviewLayout, PanelScalable } from 'UI';
 import { useActivePlayersStore } from 'Store/useActivePlayersStore';
+import { createNewPlayerProfile } from 'renderer/utils/createNewPlayerProfile';
 
 import { GameOption } from './GameOption';
 import { ClassSelector } from './ClassSelector';
@@ -24,11 +25,9 @@ export const NewGameView = () => {
 
   const [selectedClasses, setSelectedClasses] = useState<Map<string, PlayerClassId>>(new Map());
 
-  const playerProfiles: PlayerProfile[] = players.map(({ id, name }) => ({
-    id,
-    name,
-    class: selectedClasses.get(id) ?? PLAYER_CLASSES[0],
-  }));
+  const playerProfiles: PlayerProfile[] = players.map(({ id, name }) =>
+    createNewPlayerProfile(id, name, selectedClasses.get(id) ?? PLAYER_CLASSES[0])
+  );
 
   const [skipTutorial, setSkipTutorial] = useState(false);
   const [autosave, setAutosave] = useState(true);
