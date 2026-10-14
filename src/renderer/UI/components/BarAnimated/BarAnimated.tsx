@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 import styled from 'styled-components';
 
 import { COLORS } from 'renderer/constants';
@@ -6,6 +8,7 @@ import { BarSimple, BarSimpleProps } from '../BarSimple/BarSimple';
 
 const MINIMAL_PROGRESS = 0.01;
 const TRANSITION_DURATION_S = 0.5;
+const RECENT_CHANGE_WIDTH_VARIABLE = '--bar-recent-change-width';
 
 export type BarAnimatedProps = BarSimpleProps & {
   recentChange: number;
@@ -18,16 +21,18 @@ export const BarAnimated = ({
   recentChange,
   recentChangeFading,
   recentChangeColor = COLORS.GOLDEN,
+  style,
   ...barSimpleProps
 }: BarAnimatedProps) => {
   const clampedProgress = Math.max(MINIMAL_PROGRESS, progress);
+  const recentChangeWidth = `${(100 * recentChange) / clampedProgress}%`;
 
   return (
     <StyledBarSimple
       {...barSimpleProps}
       progress={clampedProgress}
-      $progress={clampedProgress}
-      $recentChange={recentChange}
+      style={{ ...style, [RECENT_CHANGE_WIDTH_VARIABLE]: recentChangeWidth } as CSSProperties}
+      $isGrowing={recentChange < 0}
       $recentChangeFading={recentChangeFading}
       $recentChangeColor={recentChangeColor}
     />
@@ -35,14 +40,12 @@ export const BarAnimated = ({
 };
 
 const StyledBarSimple = styled(BarSimple)<{
-  $progress: number;
-  $recentChange: number;
+  $isGrowing: boolean;
   $recentChangeFading: boolean;
   $recentChangeColor: string;
 }>`
   .bar-simple-fill {
-    transition: ${({ $recentChange }) =>
-      `width ${$recentChange < 0 ? TRANSITION_DURATION_S : 0}s`};
+    transition: ${({ $isGrowing }) => `width ${$isGrowing ? TRANSITION_DURATION_S : 0}s`};
 
     &:after {
       content: '';
@@ -54,7 +57,7 @@ const StyledBarSimple = styled(BarSimple)<{
       height: 100%;
       transition: ${({ $recentChangeFading }) =>
         `width ${$recentChangeFading ? TRANSITION_DURATION_S : 0}s`};
-      width: ${({ $progress, $recentChange }) => `${(100 * $recentChange) / $progress}%`};
+      width: var(${RECENT_CHANGE_WIDTH_VARIABLE}, 0%);
       background: ${({ $recentChangeColor }) => $recentChangeColor};
     }
   }

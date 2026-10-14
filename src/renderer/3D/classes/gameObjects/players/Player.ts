@@ -3,16 +3,24 @@ import { Input, PlayerInput } from '@tgdf';
 import { Entity, EntityOptions } from '../Entity';
 import { GameScene } from '../../scenes/GameScene/GameScene';
 import { PlayerRegisterableInputSource } from './PlayerRegisterableInputSource';
-import { PlayerProfileController } from '../../gameObjectComponents/PlayerProfileController/PlayerProfileController';
+import { StaminaBarRenderer } from '../../gameObjectComponents/StaminaBarRenderer/StaminaBarRenderer';
+import {
+  StaminaPointsController,
+  StaminaPointsControllerOptions,
+} from '../../gameObjectComponents/StaminaPointsController';
 
 export type PlayerOptions = EntityOptions & {
   playerProfileId: string;
+  staminaOptions: StaminaPointsControllerOptions;
 };
+
+export type PlayerConfig = Omit<PlayerOptions, 'playerProfileId'>;
 
 export class Player extends Entity {
   public isPlayer = true;
 
-  public playerProfileController: PlayerProfileController;
+  public staminaPointsController: StaminaPointsController;
+  public staminaBarRenderer: StaminaBarRenderer;
 
   constructor(
     scene: GameScene,
@@ -23,9 +31,14 @@ export class Player extends Entity {
       inputSource: new PlayerRegisterableInputSource(options.inputSource ?? Input),
     });
 
-    this.playerProfileController = this.addComponent(
-      'PlayerProfileController',
-      new PlayerProfileController(this, options.playerProfileId, this.healthPointsController)
+    this.staminaPointsController = this.addComponent(
+      'StaminaPointsController',
+      new StaminaPointsController(this, options.staminaOptions)
+    );
+
+    this.staminaBarRenderer = this.addComponent(
+      'StaminaBarRenderer',
+      new StaminaBarRenderer(this, this.staminaPointsController)
     );
   }
 

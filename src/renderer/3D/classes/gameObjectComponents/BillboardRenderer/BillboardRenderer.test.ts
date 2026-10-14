@@ -3,11 +3,7 @@ import { GameObject, logger, Scene, worldToScreen } from '@tgdf';
 import { MockCamera } from '@tgdf/internal-3d/testUtils/MockCamera';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import {
-  useOverlayStore,
-  overlayElementRefs,
-  overlayContainerSize,
-} from 'Store/useOverlayStore';
+import { useOverlayStore, overlayElementRefs, overlayContainerSize } from 'Store/useOverlayStore';
 
 import { BillboardRenderer } from './BillboardRenderer';
 import { BILLBOARD_POSITION_UPDATE_INTERVAL_MS } from './constants';

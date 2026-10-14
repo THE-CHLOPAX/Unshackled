@@ -40,8 +40,7 @@ export const HealthBar = ({
 }: HealthBarProps) => {
   const [floatingNumbers, setFloatingNumbers] = useState<FloatingNumber[]>([]);
   const activeTimeouts = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
-  const lastProgress = useRef(initialProgress);
-  const { recentChange, recentChangeFading } = useRecentProgressChange(progress, {
+  const { recentChange, recentChangeFading, lastChange } = useRecentProgressChange(progress, {
     initialProgress,
   });
 
@@ -58,13 +57,11 @@ export const HealthBar = ({
   }, []);
 
   useEffect(() => {
-    const progressDelta = lastProgress.current - progress;
-    lastProgress.current = progress;
-    if (progressDelta === 0) return;
+    if (!lastChange) return;
 
-    const isHeal = progressDelta < 0;
+    const isHeal = lastChange.delta < 0;
     const { maxHealthPoints } = entity.healthPointsController;
-    const amount = Math.round(Math.abs(progressDelta) * maxHealthPoints);
+    const amount = Math.round(Math.abs(lastChange.delta) * maxHealthPoints);
     if (amount === 0) return;
 
     const id = floatingNumberIdCounter++;
@@ -85,7 +82,7 @@ export const HealthBar = ({
       setFloatingNumbers((current) => current.filter((entry) => entry.id !== id));
     }, FLOATING_NUMBER_DURATION_MS);
     activeTimeouts.current.add(timeoutId);
-  }, [progress, entity]);
+  }, [lastChange, entity]);
 
   return (
     <Wrapper>

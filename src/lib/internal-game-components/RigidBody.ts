@@ -149,6 +149,31 @@ export class RigidBody extends GameObjectComponent<ResolvedRigidBodyOptions> {
     return body.isEnabled();
   }
 
+  public getMass(): number {
+    return this._body ? this._body.mass() : (this.options.mass ?? 0);
+  }
+
+  public setMass(mass: number): void {
+    if (mass <= 0) {
+      throw new Error('RigidBody: Mass must be greater than zero');
+    }
+
+    this.options.mass = mass;
+
+    if (!this._collider) return;
+
+    this._collider.setMass(mass);
+    this._body?.recomputeMassPropertiesFromColliders();
+  }
+
+  public getGravityScale(): number {
+    return this._getBody().gravityScale();
+  }
+
+  public setGravityScale(scale: number, wake = true): void {
+    this._getBody().setGravityScale(scale, wake);
+  }
+
   public setSensor(isSensor: boolean): void {
     if (!this._collider) {
       throw new Error('RigidBody: Cannot set sensor state before collider is initialized');
@@ -189,6 +214,7 @@ export class RigidBody extends GameObjectComponent<ResolvedRigidBodyOptions> {
   public updatePhysicsCollider(): void {
     this._removePhysicsCollider();
     this._collider = this._createPhysicsCollider();
+    this._body?.recomputeMassPropertiesFromColliders();
   }
 
   public toggleDebug(visible: boolean): void {

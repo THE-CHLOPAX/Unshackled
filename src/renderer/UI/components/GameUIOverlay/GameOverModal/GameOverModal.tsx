@@ -1,33 +1,14 @@
 import { useViewsStore } from '@tgdf';
 import styled from 'styled-components';
-import { useEffect, useState } from 'react';
 
 import { COLORS } from 'renderer/constants';
-import { GameEventsEmitter } from 'renderer/types';
 import { Banner, PanelScalable, Button, Text } from 'UI';
 import { hexStringToRgbaString } from 'UI/utils/hexStringToRgbaString';
 
-export type GameOverModalProps = {
-  emitter: GameEventsEmitter;
-};
-
-export const GameOverModal = ({ emitter }: GameOverModalProps) => {
+export const GameOverModal = () => {
   const { setView } = useViewsStore();
 
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const handleGameOver = () => {
-      setIsVisible(true);
-    };
-    emitter.once('game-over', handleGameOver);
-
-    return () => {
-      emitter.off('game-over', handleGameOver);
-    };
-  }, [emitter]);
-
-  return !isVisible ? null : (
+  return (
     <Wrapper>
       <BannerSection>
         <BannerStyled label="GAME OVER" />

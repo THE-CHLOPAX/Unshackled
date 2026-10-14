@@ -6,7 +6,7 @@ import { spawnSwingTrail } from '3D/utils/spawnSwingTrail';
 
 import { Player } from '../Player';
 import { Entity } from '../../Entity';
-import { ActionWithSound, ChainedAction, PlayerActionType } from '../../../../types';
+import { PlayerAction, ChainedAction, PlayerActionType } from '../../../../types';
 
 const PUNCH_CHAIN_WINDOW_DELAY_MS = 150;
 const PUNCH_CHAIN_WINDOW_DURATION_MS = 300;
@@ -26,7 +26,7 @@ function applyForwardImpulse(entity: Entity, strength: number): void {
   entity.rigidBody.applyImpulse(direction.multiplyScalar(strength));
 }
 
-export const kick: ActionWithSound = {
+export const kick: PlayerAction = {
   sound: FMOD_EVENTS.MONK_ATTACK_3,
   action: (entity: Entity) =>
     new Promise<void>((resolve) => {
@@ -71,6 +71,7 @@ export const kick: ActionWithSound = {
         },
       });
     }),
+  staminaCost: 10,
   freezeDurationMs: 100,
 };
 
@@ -119,6 +120,7 @@ export const punchLeft: ChainedAction = {
         },
       });
     }),
+  staminaCost: 5,
   chain: {
     next: kick,
     requiredInput: PlayerActionType.ACTION_LEFT,
@@ -172,6 +174,7 @@ export const punchRight: ChainedAction = {
         },
       });
     }),
+  staminaCost: 5,
   chain: {
     next: punchLeft,
     requiredInput: PlayerActionType.ACTION_LEFT,

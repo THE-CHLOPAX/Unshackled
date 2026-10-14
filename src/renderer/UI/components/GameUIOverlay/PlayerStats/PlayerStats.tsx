@@ -1,7 +1,9 @@
 import styled from 'styled-components';
 
-import { COLORS } from 'renderer/constants';
 import { PlayerStatistics } from 'renderer/types';
+import { COLORS, GRADIENTS } from 'renderer/constants';
+import { usePlayerStats } from '3D/hooks/usePlayerStats';
+import { Player } from '3D/classes/gameObjects/players/Player';
 
 import { Text } from '../../Text/Text';
 import { SquarePanel } from '../../SquarePanel/SquarePanel';
@@ -13,19 +15,23 @@ const BAR_NATIVE_HEIGHT = 6;
 const BAR_NATIVE_OVERLAP = 1;
 const BAR_PITCH = (BAR_NATIVE_HEIGHT - BAR_NATIVE_OVERLAP) * SCALE;
 
-/* const PLACEHOLDER_STAMINA_POINTS = 100;
-const PLACEHOLDER_MANA_POINTS = 100; */
-
-export type PlayerStatsProps = PlayerStatistics;
-
-type StatBarProps = {
-  label: string;
-  current: number;
-  max: number;
-  fillColor: string;
+export type PlayerStatsProps = {
+  player: Player;
 };
 
-export function PlayerStats({ name, currentHealthPoints, maxHealthPoints }: PlayerStatsProps) {
+export function PlayerStats({ player }: PlayerStatsProps) {
+  const playerStatistics = usePlayerStats({ player });
+
+  return playerStatistics && <PlayerStatsComponent {...playerStatistics} />;
+}
+
+function PlayerStatsComponent({
+  name,
+  currentHealthPoints,
+  maxHealthPoints,
+  currentLongTermStamina,
+  maxLongTermStamina,
+}: PlayerStatistics) {
   const stats: StatBarProps[] = [
     {
       label: 'HP',
@@ -33,23 +39,18 @@ export function PlayerStats({ name, currentHealthPoints, maxHealthPoints }: Play
       max: maxHealthPoints,
       fillColor: COLORS.RED,
     },
-    /* {
-      label: 'SP',
-      current: PLACEHOLDER_STAMINA_POINTS,
-      max: PLACEHOLDER_STAMINA_POINTS,
-      fillColor: COLORS.GOLDEN,
-    },
     {
-      label: 'MP',
-      current: PLACEHOLDER_MANA_POINTS,
-      max: PLACEHOLDER_MANA_POINTS,
-      fillColor: COLORS.BLUE,
-    }, */
+      label: 'SP',
+      current: currentLongTermStamina,
+      max: maxLongTermStamina,
+      fillColor: COLORS.GOLDEN,
+      recentChangeColor: COLORS.SOFT_FAWN,
+    },
   ];
 
   return (
     <Wrapper>
-      <SquarePanel scale={SCALE} />
+      <SquarePanel scale={SCALE}>{<MockFill />}</SquarePanel>
       <Details>
         <Name size="xl" color={COLORS.FONT_COLOR_HIGHLIGHT} nowrap>
           {name}
@@ -68,7 +69,7 @@ export function PlayerStats({ name, currentHealthPoints, maxHealthPoints }: Play
                 </Text>
                 <Text nowrap>
                   &nbsp;
-                  {Math.round(current)}/{max}
+                  {current}/{max}
                 </Text>
               </LabelRow>
             ))}
@@ -79,7 +80,15 @@ export function PlayerStats({ name, currentHealthPoints, maxHealthPoints }: Play
   );
 }
 
-function StatBar({ current, max, fillColor }: StatBarProps) {
+type StatBarProps = {
+  label: string;
+  current: number;
+  max: number;
+  fillColor: string;
+  recentChangeColor?: string;
+};
+
+function StatBar({ current, max, fillColor, recentChangeColor }: StatBarProps) {
   const progress = max > 0 ? current / max : 0;
   const { recentChange, recentChangeFading } = useRecentProgressChange(progress);
 
@@ -89,6 +98,7 @@ function StatBar({ current, max, fillColor }: StatBarProps) {
       fillColor={fillColor}
       recentChange={recentChange}
       recentChangeFading={recentChangeFading}
+      recentChangeColor={recentChangeColor}
       scale={SCALE}
     />
   );
@@ -108,6 +118,11 @@ const Details = styled.div`
 
 const Name = styled(Text)`
   padding-left: ${4 * SCALE}px;
+`;
+const MockFill = styled.div`
+  width: 100%;
+  height: 100%;
+  background: ${GRADIENTS.BACKGROUND};
 `;
 
 const BarsRow = styled.div`

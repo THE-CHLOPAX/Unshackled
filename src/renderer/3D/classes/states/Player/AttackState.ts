@@ -42,6 +42,10 @@ export class AttackState extends State {
 
     this._attackInProgress = true;
 
+    if (this._attackAction.staminaCost) {
+      this.entity.staminaPointsController.drainShortTermStamina(this._attackAction.staminaCost);
+    }
+
     this._attackAction.action(this.entity).then(() => {
       const freezeDurationMs = this._attackAction.freezeDurationMs ?? 0;
 

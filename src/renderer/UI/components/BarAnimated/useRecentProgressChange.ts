@@ -2,9 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 
 const DEFAULT_VISIBLE_DURATION_MS = 500;
 
+export type ProgressChange = {
+  delta: number;
+};
+
 export type RecentProgressChange = {
   recentChange: number;
   recentChangeFading: boolean;
+  lastChange: ProgressChange | null;
 };
 
 export type UseRecentProgressChangeOptions = {
@@ -23,6 +28,7 @@ export function useRecentProgressChange(
   const [recentProgressChange, setRecentProgressChange] = useState<RecentProgressChange>({
     recentChange: 0,
     recentChangeFading: false,
+    lastChange: null,
   });
 
   useEffect(() => {
@@ -33,6 +39,7 @@ export function useRecentProgressChange(
       setRecentProgressChange((current) => ({
         recentChange: current.recentChange + delta,
         recentChangeFading: false,
+        lastChange: { delta },
       }));
     }
   }, [progress]);
@@ -45,7 +52,11 @@ export function useRecentProgressChange(
     }
 
     const timeoutId = setTimeout(() => {
-      setRecentProgressChange({ recentChange: 0, recentChangeFading: true });
+      setRecentProgressChange((current) => ({
+        ...current,
+        recentChange: 0,
+        recentChangeFading: true,
+      }));
     }, visibleDurationMs);
 
     return () => clearTimeout(timeoutId);

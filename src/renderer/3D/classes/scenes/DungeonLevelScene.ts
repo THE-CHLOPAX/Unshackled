@@ -10,7 +10,7 @@ import { GameScene } from './GameScene/GameScene';
 import { Skeleton } from '../gameObjects/mobs/Skeleton/Skeleton';
 import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
 import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
-import { OBJECTIVE_ENTITIES_KILLED } from './GameScene/ProgressTracker/ProgressTracker';
+import { OBJECTIVE_ENTITIES_KILLED } from './GameScene/ProgressTracker/constants';
 
 export class DungeonLevelScene extends GameScene {
   public readonly preloadedAssets: AssetRecord[] = [

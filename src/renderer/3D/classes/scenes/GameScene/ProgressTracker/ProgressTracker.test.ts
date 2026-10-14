@@ -5,12 +5,8 @@ import { Entity } from 'renderer/3D/classes/gameObjects/Entity';
 import { Player } from 'renderer/3D/classes/gameObjects/players/Player';
 
 import { MockGameScene } from '../MockGameScene';
-import {
-  ProgressTracker,
-  ProgressTrackerObjective,
-  OBJECTIVE_ENTITIES_KILLED,
-  OBJECTIVE_SURVIVED_TIME,
-} from './ProgressTracker';
+import { ProgressTracker, ProgressTrackerObjective } from './ProgressTracker';
+import { OBJECTIVE_ENTITIES_KILLED, OBJECTIVE_SURVIVED_TIME } from './constants';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },

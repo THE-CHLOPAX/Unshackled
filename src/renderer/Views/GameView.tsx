@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { logger, useDebouncedCallback, useGraphicsStore } from '@tgdf';
+import { assert, logger, useDebouncedCallback, useGraphicsStore } from '@tgdf';
 
 import { RunProgress } from 'renderer/types';
 import { useRunStore } from 'Store/useRunStore';
@@ -8,12 +8,12 @@ import { useLoadScene } from 'renderer/hooks/useLoadScene';
 import { pickRandomLevel } from '3D/utils/pickRandomLevel';
 import { BIOME_SCENES } from '3D/classes/scenes/biomeScenes';
 import { writeSaveFile } from 'renderer/utils/writeSaveFile';
+import { getUpdatedRun } from 'renderer/utils/getUpdatedRun';
 import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
-import { usePlayerStats } from 'renderer/3D/hooks/usePlayerStats';
+import { Player } from '3D/classes/gameObjects/players/Player';
 import { useActivePlayersStore } from 'Store/useActivePlayersStore';
 import { assignPlayerProfiles } from 'renderer/utils/assignPlayerProfiles';
 import { ThreeDViewerPixelated } from 'UI/components/ThreeDViewerPixelated';
-import { getIncrementedProgress } from 'renderer/utils/getIncrementedProgress';
 
 import { LoadingView } from './LoadingView';
 
@@ -23,15 +23,14 @@ export function GameView() {
   const { currentRun, setCurrentRun } = useRunStore();
   const progress = currentRun?.progress;
 
-  const handleLevelComplete = (levelId: string) => {
-    if (!currentRun) {
-      return;
-    }
+  const handleLevelComplete = (levelId: string, players?: readonly Player[]) => {
+    assert(currentRun, 'No current run found');
+    assert(players && players.length > 0, 'No active players found');
 
-    const incrementedRun = getIncrementedProgress(currentRun, levelId);
+    const updatedRun = getUpdatedRun(currentRun, levelId, players);
 
-    setCurrentRun(incrementedRun);
-    writeSaveFile(incrementedRun).catch((error) => {
+    setCurrentRun(updatedRun);
+    writeSaveFile(updatedRun).catch((error) => {
       logger({ message: 'Failed to save run progress: ' + error.message, type: 'error' });
     });
   };
@@ -53,7 +52,7 @@ export function GameView() {
 
 type LevelSessionProps = {
   progress: RunProgress;
-  onLevelComplete: (levelId: string) => void;
+  onLevelComplete: (levelId: string, players?: readonly Player[]) => void;
 };
 
 function LevelSession({ progress, onLevelComplete }: LevelSessionProps) {
@@ -67,12 +66,8 @@ function LevelSession({ progress, onLevelComplete }: LevelSessionProps) {
     return new BIOME_SCENES[progress.biomeId](emitter, level, players);
   });
 
-  const playerStats = usePlayerStats({
-    player: scene?.players[0],
-  });
-
   const onLevelCompleteDebounced = useDebouncedCallback(
-    () => onLevelComplete(level.id),
+    () => onLevelComplete(level.id, scene?.players),
     LEVEL_COMPLETE_DEBOUNCE_TIME
   );
 
@@ -98,7 +93,7 @@ function LevelSession({ progress, onLevelComplete }: LevelSessionProps) {
       <ThreeDViewerPixelated scene={scene} resX={resolution.width} resY={resolution.height} debug />
       <GameUIOverlay
         emitter={emitter}
-        playerStatistics={playerStats}
+        player={scene.players[0]}
         objectiveType={scene.options.objective?.type}
       />
     </>

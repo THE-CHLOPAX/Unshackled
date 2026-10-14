@@ -14,5 +14,9 @@ export function createNewPlayerProfile(
     class: classId,
     currentHealthPoints: maxHealthPoints,
     maxHealthPoints,
+    currentShortTermStamina: PLAYER_CLASS_CONFIGS[classId].staminaOptions.maxShortTermStamina,
+    maxShortTermStamina: PLAYER_CLASS_CONFIGS[classId].staminaOptions.maxShortTermStamina,
+    currentLongTermStamina: PLAYER_CLASS_CONFIGS[classId].staminaOptions.maxLongTermStamina,
+    maxLongTermStamina: PLAYER_CLASS_CONFIGS[classId].staminaOptions.maxLongTermStamina,
   };
 }

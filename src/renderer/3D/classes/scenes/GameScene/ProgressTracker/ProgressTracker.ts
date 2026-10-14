@@ -8,8 +8,6 @@ import { GameEventsEmitter, GameEventsMap } from 'renderer/types';
 
 import { OBJECTIVE_ENTITIES_KILLED, OBJECTIVE_SURVIVED_TIME } from './constants';
 
-export { OBJECTIVE_ENTITIES_KILLED, OBJECTIVE_SURVIVED_TIME };
-
 export type ProgressTrackerObjective =
   | {
       type: typeof OBJECTIVE_ENTITIES_KILLED;

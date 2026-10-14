@@ -7,7 +7,7 @@ export function VersionLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="version-layout">
       {children}
-      <VersionLabel size="md" color={COLORS.FONT_COLOR_DIMMED}>
+      <VersionLabel size="md" color={COLORS.BG_COLOR_HIGHLIGHTED}>
         v.{APP_VERSION}
       </VersionLabel>
     </div>

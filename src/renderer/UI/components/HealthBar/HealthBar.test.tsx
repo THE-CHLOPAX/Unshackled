@@ -30,9 +30,7 @@ describe('HealthBar', () => {
   });
 
   it('shows the first hit measured from initialProgress', () => {
-    const { container } = render(
-      <HealthBar entity={entity} progress={0.7} initialProgress={1} />
-    );
+    const { container } = render(<HealthBar entity={entity} progress={0.7} initialProgress={1} />);
 
     expect(getFloatingNumbers(container)).toEqual(['30']);
   });
@@ -55,9 +53,7 @@ describe('HealthBar', () => {
   });
 
   it('removes floating numbers after their animation', () => {
-    const { container } = render(
-      <HealthBar entity={entity} progress={0.7} initialProgress={1} />
-    );
+    const { container } = render(<HealthBar entity={entity} progress={0.7} initialProgress={1} />);
 
     act(() => vi.advanceTimersByTime(1000));
 

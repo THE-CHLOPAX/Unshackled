@@ -152,7 +152,7 @@ export abstract class GameScene extends Scene {
 
   protected onInit(): void {}
 
-  private _forwardPlayerDamageEvents(player: Player): () => void {
+  private _forwardPlayerDamageEvents(player: Player): void {
     const { events } = player.healthPointsController;
 
     const onDamageTaken = () => {
@@ -162,9 +162,5 @@ export abstract class GameScene extends Scene {
     };
 
     events.on('damagetaken', onDamageTaken);
-
-    return () => {
-      events.off('damagetaken', onDamageTaken);
-    };
   }
 }

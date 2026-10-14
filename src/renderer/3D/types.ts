@@ -36,18 +36,22 @@ export type { ModelRecord, TextureRecord, AssetRecord } from '@tgdf';
 
 export type AsyncAction = (entity: Entity) => Promise<void>;
 
-export type ActionWithSound = {
+export type EntityAction = {
   action: AsyncAction;
   sound?: FMODEventDefinition;
   freezeDurationMs?: number;
 };
 
-export type AIAttackAction = ActionWithSound & {
+export type AIAttackAction = EntityAction & {
   minRange: number;
   maxRange: number;
 };
 
-export type ChainedAction = ActionWithSound & {
+export type PlayerAction = EntityAction & {
+  staminaCost?: number;
+};
+
+export type ChainedAction = PlayerAction & {
   chain?: {
     next: ChainedAction;
     requiredInput: PlayerActionType;

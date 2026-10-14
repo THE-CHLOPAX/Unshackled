@@ -25,7 +25,7 @@ export const SquarePanel = ({
 }: SquarePanelProps) => {
   return (
     <Wrapper $scale={scale} className={className} style={style}>
-      {children}
+      <Content $scale={scale}>{children}</Content>
     </Wrapper>
   );
 };
@@ -43,4 +43,11 @@ const Wrapper = styled.div<{ $scale: number }>`
   background-repeat: no-repeat;
   background-size: 100% 100%;
   image-rendering: pixelated;
+`;
+
+const Content = styled.div<{ $scale: number }>`
+  position: absolute;
+  inset: ${({ $scale }) => ORNAMENT_HEIGHT * $scale}px ${({ $scale }) => $scale}px
+    ${({ $scale }) => $scale}px ${({ $scale }) => $scale}px;
+  z-index: -1;
 `;

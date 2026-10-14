@@ -1,6 +1,8 @@
 import styled from 'styled-components';
+import { useState, useEffect } from 'react';
 
-import { GameEventsEmitter, PlayerStatistics } from 'renderer/types';
+import { GameEventsEmitter } from 'renderer/types';
+import { Player } from '3D/classes/gameObjects/players/Player';
 import { ProgressTrackerObjective } from '3D/classes/scenes/GameScene/ProgressTracker/ProgressTracker';
 
 import { PlayerStats } from './PlayerStats/PlayerStats';
@@ -10,26 +12,39 @@ import { DamageIndicator } from './DamageIndicator/DamageIndicator';
 
 export type GameUIOverlayProps = {
   emitter: GameEventsEmitter;
-  playerStatistics?: PlayerStatistics | null;
+  player?: Player;
   objectiveType?: ProgressTrackerObjective['type'];
 };
 
-export const GameUIOverlay = ({ emitter, playerStatistics, objectiveType }: GameUIOverlayProps) => {
+export const GameUIOverlay = ({ emitter, player, objectiveType }: GameUIOverlayProps) => {
+  const [isGameOver, setIsGameOver] = useState(false);
+
+  useEffect(() => {
+    const handleGameOver = () => {
+      setIsGameOver(true);
+    };
+    emitter.once('game-over', handleGameOver);
+
+    return () => {
+      emitter.off('game-over', handleGameOver);
+    };
+  }, [emitter]);
+
   return (
     <Wrapper>
-      {objectiveType && (
+      {!isGameOver && objectiveType && (
         <ObjectivesWrapper>
           <ObjectivesPanel objectiveType={objectiveType} />
         </ObjectivesWrapper>
       )}
-      {playerStatistics && (
+      {!isGameOver && player && (
         <PlayerStatsWrapper>
-          <PlayerStats {...playerStatistics} />
+          <PlayerStats player={player} />
         </PlayerStatsWrapper>
       )}
       <Vignette />
       <DamageIndicator emitter={emitter} />
-      <GameOverModal emitter={emitter} />
+      {isGameOver && <GameOverModal />}
     </Wrapper>
   );
 };

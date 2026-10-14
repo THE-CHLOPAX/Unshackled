@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
 import { COLORS, OBJECTIVE_LABELS } from 'renderer/constants';
+import { getRadialGradient } from 'renderer/UI/utils/getBgRadialGradient';
 import { ProgressTrackerObjective } from '3D/classes/scenes/GameScene/ProgressTracker/ProgressTracker';
 
 import { Text } from '../../Text/Text';
-import { PanelScalable } from '../../PanelScalable/PanelScalable';
 
 export type ObjectivesPanelProps = {
   objectiveType: ProgressTrackerObjective['type'];
@@ -12,9 +12,9 @@ export type ObjectivesPanelProps = {
 
 export function ObjectivesPanel({ objectiveType }: ObjectivesPanelProps) {
   return (
-    <PanelScalable>
+    <Wrapper>
       <Content>
-        <Text size="lg" color={COLORS.FONT_COLOR_HIGHLIGHT} nowrap>
+        <Text color={COLORS.FONT_COLOR_HIGHLIGHT} nowrap>
           Objectives
         </Text>
         <List>
@@ -23,14 +23,23 @@ export function ObjectivesPanel({ objectiveType }: ObjectivesPanelProps) {
           </Text>
         </List>
       </Content>
-    </PanelScalable>
+    </Wrapper>
   );
 }
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 40px 60px;
+  margin-left: -50px;
+  background: ${getRadialGradient(COLORS.BG_COLOR)};
+`;
 
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
 `;
 
 const List = styled.div`

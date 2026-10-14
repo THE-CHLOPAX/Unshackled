@@ -449,7 +449,6 @@ export class FMODAudio {
 
     const unsubscribe = this._channelSubscriptions.get(getInstancePointer(instance));
     if (unsubscribe) {
-      //logger({ message: MESSAGES.EVENT_SOUND_CHANNEL_SUBSCRIPTION_CLEARED, type: 'info' });
       unsubscribe();
       this._channelSubscriptions.delete(getInstancePointer(instance));
     }

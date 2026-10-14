@@ -32,12 +32,13 @@ export type PlayerProfile = {
   class: PlayerClassId;
   currentHealthPoints: number;
   maxHealthPoints: number;
+  currentShortTermStamina: number;
+  currentLongTermStamina: number;
+  maxShortTermStamina: number;
+  maxLongTermStamina: number;
 };
 
-export type PlayerStatistics = Pick<
-  PlayerProfile,
-  'name' | 'currentHealthPoints' | 'maxHealthPoints'
->;
+export type PlayerStatistics = Omit<PlayerProfile, 'id' | 'class'>;
 
 export type LevelIdentifier = {
   id: string;
