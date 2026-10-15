@@ -1,22 +1,18 @@
-import { PlayerClassId, PlayerProfile } from 'renderer/types';
-import { PLAYER_CLASS_CONFIGS } from '3D/classes/gameObjects/players/playerClassConfigs';
+import { PlayerProfile } from 'renderer/types';
+import { playerConfig } from '3D/classes/gameObjects/players/config';
 
-export function createNewPlayerProfile(
-  id: string,
-  name: string,
-  classId: PlayerClassId
-): PlayerProfile {
-  const { maxHealthPoints } = PLAYER_CLASS_CONFIGS[classId].healthOptions;
+export function createNewPlayerProfile(id: string, name: string): PlayerProfile {
+  const { maxHealthPoints } = playerConfig.healthOptions;
+  const { maxShortTermStamina, maxLongTermStamina } = playerConfig.staminaOptions;
 
   return {
     id,
     name,
-    class: classId,
     currentHealthPoints: maxHealthPoints,
     maxHealthPoints,
-    currentShortTermStamina: PLAYER_CLASS_CONFIGS[classId].staminaOptions.maxShortTermStamina,
-    maxShortTermStamina: PLAYER_CLASS_CONFIGS[classId].staminaOptions.maxShortTermStamina,
-    currentLongTermStamina: PLAYER_CLASS_CONFIGS[classId].staminaOptions.maxLongTermStamina,
-    maxLongTermStamina: PLAYER_CLASS_CONFIGS[classId].staminaOptions.maxLongTermStamina,
+    currentShortTermStamina: maxShortTermStamina,
+    maxShortTermStamina,
+    currentLongTermStamina: maxLongTermStamina,
+    maxLongTermStamina,
   };
 }

@@ -6,9 +6,14 @@ import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUti
 import { COLORS } from 'renderer/constants';
 import { MATERIALS } from 'renderer/3D/constants';
 import { FMOD_EVENTS } from 'renderer/FMOD/constants';
-import { DashOptions, DashState } from 'renderer/3D/classes/states';
 
-import { Player } from '../../Player';
+import { State } from '..';
+import { Player } from '../../gameObjects/players/Player';
+
+export type DashOptions = {
+  speed: number;
+  durationMs: number;
+};
 
 type FlashableMaterial = THREE.Material & {
   color: THREE.Color;
@@ -32,12 +37,15 @@ const GHOST_FADE_DURATION = 0.35;
 const GHOST_INITIAL_OPACITY = 0.45;
 const GHOST_EMISSIVE_INTENSITY = 2;
 
-const MONK_DASH_ANIMATION_CLIP_NAME = 'dash';
+const DASH_ANIMATION_CLIP_NAME = 'dash';
 
-export class DashStateMonk extends DashState {
+export class DashState extends State {
   public static readonly COOLDOWN_MS = 1000;
-  public static readonly COOLDOWN_ID = 'dash-state-monk-cooldown';
+  public static readonly COOLDOWN_ID = 'dash-state-player-cooldown';
 
+  private _durationTimeout: NodeJS.Timeout | null = null;
+  private _dashComplete = false;
+  private _direction = new THREE.Vector3();
   private _originalMaterialState = new Map<FlashableMaterial, OriginalMaterialState>();
   private _ghostSpawnInterval: NodeJS.Timeout | null = null;
 
@@ -45,24 +53,32 @@ export class DashStateMonk extends DashState {
     public entity: Player,
     public options: DashOptions
   ) {
-    super(entity, options);
+    super(entity);
   }
 
-  public override onEnter(): void {
-    super.onEnter();
+  public get isComplete(): boolean {
+    return this._dashComplete;
+  }
 
-    this.entity.fmodSoundController.playSound(FMOD_EVENTS.MONK_ATTACK_3);
+  public onEnter(): void {
+    this.entity.rigidBody.setSensor(true);
+    this.entity.getWorldDirection(this._direction);
 
-    this.entity.animationController.playAnimation(MONK_DASH_ANIMATION_CLIP_NAME, {
+    this.entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_DASH);
+
+    this._durationTimeout = setTimeout(() => {
+      this._dashComplete = true;
+    }, this.options.durationMs);
+
+    this.entity.fmodSoundController.playSound(FMOD_EVENTS.PLAYER_GRUNT);
+
+    this.entity.animationController.playAnimation(DASH_ANIMATION_CLIP_NAME, {
       clampWhenFinished: true,
     });
 
     this.entity.scene.camera.addShake(1);
 
-    this.entity.cooldownController.startCooldown(
-      DashStateMonk.COOLDOWN_ID,
-      DashStateMonk.COOLDOWN_MS
-    );
+    this.entity.cooldownController.startCooldown(DashState.COOLDOWN_ID, DashState.COOLDOWN_MS);
 
     const materials = this.entity.modelRenderer.getModelMaterials();
     if (materials) {
@@ -96,8 +112,12 @@ export class DashStateMonk extends DashState {
     this._ghostSpawnInterval = setInterval(() => this._spawnGhost(), GHOST_SPAWN_INTERVAL_MS);
   }
 
-  public override onExit(): void {
-    super.onExit();
+  public onExit(): void {
+    if (this._durationTimeout) {
+      this.entity.rigidBody.setSensor(false);
+      clearTimeout(this._durationTimeout);
+      this._durationTimeout = null;
+    }
 
     this._originalMaterialState.forEach((original, material) => {
       gsap.to(material.color, {
@@ -124,6 +144,14 @@ export class DashStateMonk extends DashState {
       clearInterval(this._ghostSpawnInterval);
       this._ghostSpawnInterval = null;
     }
+  }
+
+  public onInput(): void {}
+
+  public onUpdate(): void {
+    if (this._dashComplete) return;
+
+    this.entity.movementController.move(this._direction, this.options.speed);
   }
 
   private _spawnGhost(): void {

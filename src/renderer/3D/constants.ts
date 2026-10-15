@@ -100,9 +100,9 @@ export const MODELS: Record<string, ModelRecord> = {
     path: './assets/models/skeleton.glb',
     nameExtractor: 'Armature',
   },
-  MONK: {
+  PLAYER: {
     type: 'model',
-    id: 'model-monk',
+    id: 'model-player',
     path: './assets/models/monk.glb',
     nameExtractor: 'Armature',
   },

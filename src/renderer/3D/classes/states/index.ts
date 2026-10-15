@@ -17,4 +17,4 @@ export { SprintingState } from './Player/SprintingState';
 export { AttackState } from './Player/AttackState';
 export { AimingState } from './Player/AimingState';
 export { InteractState, type InteractStateOptions } from './Player/InteractState';
-export { DashState, type DashOptions } from './DashState';
+export { DashState, type DashOptions } from './Player/DashState';

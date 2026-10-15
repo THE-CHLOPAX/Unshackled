@@ -6,7 +6,6 @@ export function createProfile(overrides: Partial<PlayerProfile> = {}): PlayerPro
   return {
     id,
     name: id,
-    class: 'monk',
     currentHealthPoints: 100,
     maxHealthPoints: 100,
     currentShortTermStamina: 100,

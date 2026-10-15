@@ -1,3 +1,5 @@
+import type { Player } from '3D/classes/gameObjects/players/Player';
+
 import { FMOD_EVENTS } from 'renderer/FMOD';
 import { flashRed } from '3D/utils/flashRed';
 import { deadStateNode } from '3D/classes/states/utils/deadStateNode';
@@ -6,16 +8,15 @@ import { ChainedAction, Interactable, PlayerActionType, StateMachine, StateNode 
 import {
   AimingState,
   AttackState,
+  DashState,
   IdleState,
   InteractState,
   RunningState,
   SprintingState,
 } from '3D/classes/states';
 
-import { Player } from '../../Player';
-import { punchRight } from '../actions';
-import { Rock } from '../childObjects/Rock';
-import { DashStateMonk } from './DashStateMonk';
+import { punchRight } from './actions';
+import { Rock } from './childObjects/Rock';
 
 const INTERACT_TRIGGER_DELAY_S = 0.4;
 
@@ -32,8 +33,8 @@ const aimingStateNode: StateNode<AimingState> = {
   },
 };
 
-const dashingStateNode: StateNode<DashStateMonk> = {
-  state: (entity) => new DashStateMonk(entity, { speed: 12, durationMs: 150 }),
+const dashingStateNode: StateNode<DashState> = {
+  state: (entity) => new DashState(entity, { speed: 12, durationMs: 150 }),
   onUpdate: ({ entity, currentState }) => {
     if (!currentState.isComplete) return null;
 
@@ -48,7 +49,7 @@ const sprintingStateNode: StateNode<SprintingState> = {
       [
         PlayerActionType.ACTION_RIGHT,
         () => dashingStateNode,
-        !entity.cooldownController.isOnCooldown(DashStateMonk.COOLDOWN_ID),
+        !entity.cooldownController.isOnCooldown(DashState.COOLDOWN_ID),
       ],
       [PlayerActionType.RUN, () => runningStateNode],
       [PlayerActionType.IDLE, () => idleStateNode],
@@ -75,7 +76,7 @@ const runningStateNode: StateNode<RunningState> = {
       [
         PlayerActionType.ACTION_RIGHT,
         () => dashingStateNode,
-        !entity.cooldownController.isOnCooldown(DashStateMonk.COOLDOWN_ID),
+        !entity.cooldownController.isOnCooldown(DashState.COOLDOWN_ID),
       ],
       [PlayerActionType.SPRINT, () => resolveSprintingNode(entity)],
       [PlayerActionType.IDLE, () => idleStateNode],
@@ -156,7 +157,7 @@ function getAttackStateNode(action: ChainedAction): StateNode<AttackState> {
   };
 }
 
-export const stateMachineMonk: StateMachine = {
+export const stateMachinePlayer: StateMachine = {
   initialNode: idleStateNode,
   onDamage: ({ entity }) => {
     entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_HIT);

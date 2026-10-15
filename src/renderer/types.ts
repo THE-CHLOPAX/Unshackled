@@ -1,6 +1,6 @@
 import { Emitter } from '@tgdf';
 
-import { PLAYER_CLASSES, BIOMES } from './constants';
+import { BIOMES } from './constants';
 
 export type GameEventsMap = {
   'game-over': undefined;
@@ -22,14 +22,11 @@ export type WorldOutputData = {
 
 export type GameEventsEmitter = Emitter<GameEventsMap>;
 
-export type PlayerClassId = (typeof PLAYER_CLASSES)[number];
-
 export type BiomeId = (typeof BIOMES)[number];
 
 export type PlayerProfile = {
   id: string;
   name: string;
-  class: PlayerClassId;
   currentHealthPoints: number;
   maxHealthPoints: number;
   currentShortTermStamina: number;
@@ -38,7 +35,7 @@ export type PlayerProfile = {
   maxLongTermStamina: number;
 };
 
-export type PlayerStatistics = Omit<PlayerProfile, 'id' | 'class'>;
+export type PlayerStatistics = Omit<PlayerProfile, 'id'>;
 
 export type LevelIdentifier = {
   id: string;

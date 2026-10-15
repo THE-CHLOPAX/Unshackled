@@ -4,9 +4,9 @@ import * as THREE from 'three';
 import { FMOD_EVENTS } from 'renderer/FMOD';
 import { spawnSwingTrail } from '3D/utils/spawnSwingTrail';
 
-import { Player } from '../Player';
-import { Entity } from '../../Entity';
-import { PlayerAction, ChainedAction, PlayerActionType } from '../../../../types';
+import { Player } from './Player';
+import { Entity } from '../Entity';
+import { PlayerAction, ChainedAction, PlayerActionType } from '../../../types';
 
 const PUNCH_CHAIN_WINDOW_DELAY_MS = 150;
 const PUNCH_CHAIN_WINDOW_DURATION_MS = 300;
@@ -27,7 +27,7 @@ function applyForwardImpulse(entity: Entity, strength: number): void {
 }
 
 export const kick: PlayerAction = {
-  sound: FMOD_EVENTS.MONK_ATTACK_3,
+  sound: FMOD_EVENTS.PLAYER_GRUNT,
   action: (entity: Entity) =>
     new Promise<void>((resolve) => {
       const HITBOX_DELAY = 0.2; // Delay in seconds before the hitbox is attached

@@ -23,7 +23,7 @@ const TEST_PLANE_CHECKERBOARD_REPEAT = 10;
 
 export class TestScene extends GameScene {
   public readonly preloadedAssets: AssetRecord[] = [
-    MODELS.MONK,
+    MODELS.PLAYER,
     MODELS.SKELETON,
     TEXTURES.CHECKERBOARD,
     TEXTURES.AIMING_ARROW,
@@ -31,7 +31,7 @@ export class TestScene extends GameScene {
   ];
 
   protected override additionalWarmupFactories: WarmupFactory[] = [
-    () => getModelClone(MODELS.MONK.id),
+    () => getModelClone(MODELS.PLAYER.id),
     () => getModelClone(MODELS.SKELETON.id),
     () => createSwingTrailWarmupMesh(),
   ];

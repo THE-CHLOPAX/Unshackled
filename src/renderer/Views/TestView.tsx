@@ -15,7 +15,7 @@ import { LoadingView } from './LoadingView';
 export function TestView() {
   const { resolution } = useGraphicsStore();
   const { scene, loadingProgress, emitter } = useLoadScene((emitter) => {
-    const mockProfile = createNewPlayerProfile('test-player', 'Test player', 'monk');
+    const mockProfile = createNewPlayerProfile('test-player', 'Test player');
     const players = assignPlayerProfiles(
       Array.from(useActivePlayersStore.getState().getActivePlayers()),
       [mockProfile]

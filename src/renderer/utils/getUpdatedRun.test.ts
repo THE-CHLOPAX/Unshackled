@@ -138,7 +138,6 @@ describe('getUpdatedRun', () => {
       expect(getProfile(updatedRun, 'a')).toMatchObject({
         id: 'a',
         name: 'Brother Ansel',
-        class: profile.class,
       });
     });
 

@@ -70,7 +70,6 @@ export const OBJECTIVE_LABELS: Record<
 };
 
 // GAMEPLAY
-export const PLAYER_CLASSES = ['monk'] as const;
 
 export const BIOMES = ['dungeon'] as const;
 

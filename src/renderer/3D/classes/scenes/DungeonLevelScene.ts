@@ -14,7 +14,7 @@ import { OBJECTIVE_ENTITIES_KILLED } from './GameScene/ProgressTracker/constants
 
 export class DungeonLevelScene extends GameScene {
   public readonly preloadedAssets: AssetRecord[] = [
-    MODELS.MONK,
+    MODELS.PLAYER,
     MODELS.SKELETON,
     TEXTURES.EXPLOSION,
     TEXTURES.ARCANE_CIRCLE,
@@ -29,7 +29,7 @@ export class DungeonLevelScene extends GameScene {
   ];
 
   protected override additionalWarmupFactories: WarmupFactory[] = [
-    () => getModelClone(MODELS.MONK.id),
+    () => getModelClone(MODELS.PLAYER.id),
     () => getModelClone(MODELS.SKELETON.id),
     () => createSwingTrailWarmupMesh(),
   ];

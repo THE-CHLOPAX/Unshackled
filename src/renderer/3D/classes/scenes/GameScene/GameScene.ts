@@ -12,7 +12,6 @@ import { GAME_GRAVITY, LEVEL_CHUNK_SIZE, MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } f
 import { loadAssetRecord } from './loadAssetRecord';
 import { Player } from '../../gameObjects/players/Player';
 import { ShadersManager, WarmupFactory } from './ShadersManager/ShadersManager';
-import { PLAYER_CLASS_CONSTRUCTORS } from '../../gameObjects/players/playerClasses';
 import { getDefaultWarmupMaterialFactories } from './getDefaultWarmupMaterialFactories';
 import { OrtographicCamera, OrtographicCameraOptions } from '../../cameras/OrtographicCamera';
 import { ProgressTracker, ProgressTrackerObjective } from './ProgressTracker/ProgressTracker';
@@ -77,7 +76,7 @@ export abstract class GameScene extends Scene {
 
   protected spawnPlayers(position: THREE.Vector3): Player[] {
     return (this.options.players ?? []).map(({ activePlayer, playerProfile }, index) => {
-      const player = new PLAYER_CLASS_CONSTRUCTORS[playerProfile.class](this, {
+      const player = new Player(this, {
         playerProfileId: playerProfile.id,
         inputSource: createActivePlayerInput(activePlayer),
       });

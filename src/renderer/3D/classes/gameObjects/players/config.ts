@@ -1,13 +1,14 @@
+import type { PlayerConfig } from './Player';
+
 import * as THREE from 'three';
 
 import { MODELS, DEFAULT_RIGID_BODY_OPTIONS } from '3D/constants';
 
-import { PlayerConfig } from '../Player';
-import { stateMachineMonk } from './states/stateMachineMonk';
+import { stateMachinePlayer } from './stateMachinePlayer';
 
-export const config: PlayerConfig = {
+export const playerConfig: PlayerConfig = {
   modelOptions: {
-    id: MODELS.MONK.id,
+    id: MODELS.PLAYER.id,
   },
   movementOptions: {
     defaultSpeed: 2.3,
@@ -31,5 +32,5 @@ export const config: PlayerConfig = {
     maxLongTermStamina: 300,
     maxShortTermStamina: 25,
   },
-  stateMachine: stateMachineMonk,
+  stateMachine: stateMachinePlayer,
 };

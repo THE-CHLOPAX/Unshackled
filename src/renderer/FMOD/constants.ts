@@ -1,7 +1,7 @@
 import type { FMODEventDefinition } from './types';
 
 export const FMOD_EVENTS = {
-  MONK_ATTACK_3: { path: 'event:/SFX/Player/Attack no. 3', volume: 1, parameters: {} },
+  PLAYER_GRUNT: { path: 'event:/SFX/Player/Attack no. 3', volume: 1, parameters: {} },
   GENERIC_HIT: {
     path: 'event:/SFX/Player/Hit',
     volume: 1,
