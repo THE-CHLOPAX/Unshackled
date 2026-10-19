@@ -4,10 +4,10 @@ import { InputState, logger } from '@tgdf';
 import { FMOD_EVENTS, type FMODEventDefinition } from 'renderer/FMOD';
 
 import { State } from '..';
+import { AIAttackAction } from '../../../types';
 import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from '../utils/getBestAttack';
 import { getTargetEnemy } from '../utils/getTargetEnemy';
-import { AIAttackAction, AnimationClipNamesShared } from '../../../types';
 import { FMODLoopedSound } from '../../gameObjectComponents/FMODSoundController';
 import { getRandomNavMeshPointInRadius } from '../../../utils/getRandomNavMeshPointInRadius';
 
@@ -33,6 +33,7 @@ export class AIRoamingState extends State {
 
   constructor(
     public entity: EntityAI,
+    private readonly _animationName: string,
     private _roamingOptions: AIRoamingOptions
   ) {
     super(entity);
@@ -47,7 +48,7 @@ export class AIRoamingState extends State {
   }
 
   public override onEnter(): void {
-    this.entity.animationController.playAnimation(AnimationClipNamesShared.WALK, {
+    this.entity.animationController.playAnimation(this._animationName, {
       loop: true,
     });
     this._footsteps = this.entity.fmodSoundController.playLoopedSound(

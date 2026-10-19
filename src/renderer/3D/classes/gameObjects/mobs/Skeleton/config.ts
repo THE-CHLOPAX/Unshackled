@@ -4,8 +4,11 @@ import { attackActions } from './actions';
 import { Player } from '../../players/Player';
 import { EntityAIOptions } from '../../EntityAI';
 import { stateMachineSkeleton } from './stateMachineSkeleton';
-import { AnimationClipNamesShared } from '../../../../../3D/types';
-import { MODELS, DEFAULT_RIGID_BODY_OPTIONS } from '../../../../../3D/constants';
+import {
+  MODELS,
+  ANIMATION_CLIP_NAMES,
+  DEFAULT_RIGID_BODY_OPTIONS,
+} from '../../../../../3D/constants';
 
 export const config: EntityAIOptions = {
   modelOptions: {
@@ -23,11 +26,11 @@ export const config: EntityAIOptions = {
   },
   animationControllerOptions: {
     playbackRates: {
-      [AnimationClipNamesShared.WALK]: 1.5,
-      [AnimationClipNamesShared.RUN]: 1.5,
+      [ANIMATION_CLIP_NAMES.SKELETON.WALK]: 1.5,
+      [ANIMATION_CLIP_NAMES.SKELETON.RUN]: 1.5,
     },
     fadeOutDurations: {
-      [AnimationClipNamesShared.IDLE]: 0.1,
+      [ANIMATION_CLIP_NAMES.SKELETON.IDLE]: 0.1,
     },
   },
   detectionRadius: 8,

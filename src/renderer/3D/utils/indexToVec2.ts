@@ -1,4 +1,4 @@
-import { WorldVec2 } from '../types';
+import { WorldVec2 } from 'renderer/types';
 
 export function indexToVec2(index: number, width: number): WorldVec2 | null {
   if (width === 0) return null;

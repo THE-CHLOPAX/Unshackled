@@ -1,6 +1,5 @@
-import { WORLD_PROP_DEFINITIONS, WORLD_TILE_DEFINITIONS } from '3D/worldDefinitions';
-
-import { WorldTileCodes } from '../types';
+import { WorldTileCodes } from 'renderer/types';
+import { WORLD_PROP_DEFINITIONS, WORLD_TILE_DEFINITIONS } from 'WorldEditor/worldDefinitions';
 
 export function isInstancedCell(code: WorldTileCodes): boolean {
   const found = [...WORLD_TILE_DEFINITIONS, ...WORLD_PROP_DEFINITIONS].find(

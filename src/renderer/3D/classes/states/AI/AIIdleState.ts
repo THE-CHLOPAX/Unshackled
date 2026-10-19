@@ -1,15 +1,18 @@
 import { InputState } from '@tgdf';
 
 import { State } from '..';
+import { AIAttackAction } from '../../../types';
 import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from '../utils/getBestAttack';
 import { getTargetEnemy } from '../utils/getTargetEnemy';
-import { AIAttackAction, AnimationClipNamesShared } from '../../../types';
 
 export class AIIdleState extends State {
   private _bestAttack: AIAttackAction | null = null;
 
-  constructor(public entity: EntityAI) {
+  constructor(
+    public entity: EntityAI,
+    private readonly _animationName: string
+  ) {
     super(entity);
   }
 
@@ -18,7 +21,9 @@ export class AIIdleState extends State {
   }
 
   public override onEnter(): void {
-    this.entity.animationController.playAnimation(AnimationClipNamesShared.IDLE, { loop: true });
+    this.entity.animationController.playAnimation(this._animationName, {
+      loop: true,
+    });
   }
 
   public override onExit(): void {}

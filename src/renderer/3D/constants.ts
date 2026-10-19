@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { RigidBodyOptions } from '@tgdf';
 
-import { ModelRecord, TextureRecord, WorldTileCodes } from './types';
+import { WorldTileCodes } from 'renderer/types';
+
+import { ModelRecord, TextureRecord } from './types';
 
 // Default camera position relative to its pivot point, e.g. for an isometric-style view.
 export const CAMERA_POSITION_OFFSET = new THREE.Vector3(6, 6, 6);
@@ -92,6 +94,31 @@ export const SPAWNER_IDS = {
   PLAYER: 'player-spawner',
 };
 
+export const ANIMATION_CLIP_NAMES = {
+  PLAYER: {
+    IDLE: 'idle',
+    RUN: 'run',
+    SPRINT: 'sprint',
+    FALL: 'fall',
+    INTERACT: 'interact',
+    DASH: 'dash',
+    AIM: 'aim',
+    THROW: 'throw',
+    KICK: 'kick',
+    KICK_RETURN: 'kick-return',
+    PUNCH_LEFT: 'punch-left',
+    PUNCH_RIGHT: 'punch-right',
+    ROLL: 'roll',
+  },
+  SKELETON: {
+    IDLE: 'idle',
+    WALK: 'walk',
+    RUN: 'run',
+    FALL: 'fall',
+    PUNCH: 'punch',
+  },
+} as const;
+
 // Model records
 export const MODELS: Record<string, ModelRecord> = {
   SKELETON: {
@@ -100,17 +127,10 @@ export const MODELS: Record<string, ModelRecord> = {
     path: './assets/models/skeleton.glb',
     nameExtractor: 'Armature',
   },
-  MONK: {
+  PLAYER: {
     type: 'model',
-    id: 'model-monk',
-    path: './assets/models/monk.glb',
-    nameExtractor: 'Armature',
-  },
-  KNIGHT: {
-    type: 'model',
-    id: 'model-knight',
-    path: './assets/models/knight.glb',
-    nameExtractor: 'Knight',
+    id: 'model-player',
+    path: './assets/models/player.glb',
   },
   DUNGEON_DOOR: {
     type: 'model',

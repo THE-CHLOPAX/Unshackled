@@ -1,25 +1,10 @@
 import type { FMODEventDefinition } from 'renderer/FMOD';
 
 import * as THREE from 'three';
-import { InputState, Scene, SceneCamera } from '@tgdf';
-
-import { WorldCell } from 'renderer/types';
+import { InputState, SceneCamera } from '@tgdf';
 
 import { State } from './classes/states';
 import { Entity } from './classes/gameObjects/Entity';
-
-export enum AnimationClipNamesShared {
-  SPAWN = 'spawn',
-  IDLE = 'idle',
-  WALK = 'walk',
-  RUN = 'run',
-  SPRINT = 'sprint',
-  JUMP = 'jump',
-  FALL = 'fall',
-  HIT = 'hit',
-  STAND_UP = 'stand-up',
-  INTERACT = 'interact',
-}
 
 export enum PlayerActionType {
   IDLE = 'idle',
@@ -67,60 +52,6 @@ export type AIAttackOptions = {
 export type GameCamera = SceneCamera & {
   addShake: (intensity: number) => void;
   pivotPoint: THREE.Vector3;
-};
-
-export enum WorldTileCodes {
-  // Dungeon
-  DungeonFloorFlat = 0x773333,
-  DungeonFloorFull = 0x552222,
-  DungeonFloorFullElevated = 0x663333,
-  DungeonWallBrickTall = 0x888888,
-  DungeonWallBrickTallCorner = 0xaaaaaa,
-  DungeonWallBrickDoorFrame = 0xccc,
-  DungeonWallTorch = 0xffaa33,
-  DungeonDoor = 0x8a5a2b,
-  DungeonPillar = 0x5a5a5a,
-  DungeonPillarCorner = 0x6b6b6b,
-  // Shared
-  Empty = 0,
-  SpawnMarker = 0x00ff00,
-  LevelEndMarker = 0xff00ff,
-  Flame = 0xff0000,
-  SkeletonSpawner = 0x00ffff,
-}
-
-export type WorldObjectArgs = { cell?: WorldCell };
-
-export type WorldObjectDefitionBase = {
-  code: number;
-  label: string;
-  offset?: THREE.Vector3;
-  collider?: boolean;
-  disableModelScaling?: boolean;
-};
-
-export type InstancedWorldObjectDefinition = WorldObjectDefitionBase & {
-  type: 'instanced';
-  getGeometry(): THREE.BufferGeometry;
-  getMaterial(): THREE.Material | THREE.Material[];
-};
-
-export type EntityWorldObjectDefinition = WorldObjectDefitionBase & {
-  type: 'entity';
-  object: new (scene: Scene, args: WorldObjectArgs) => THREE.Object3D;
-};
-
-export type WorldObjectDefinition = InstancedWorldObjectDefinition | EntityWorldObjectDefinition;
-
-export type WorldVec2 = { x: number; z: number };
-
-export type WorldChunkBoundary = {
-  start: WorldVec2;
-  end: WorldVec2;
-};
-
-export type LevelGeneratedData = {
-  floorGroup: THREE.Group;
 };
 
 type StateNodeFor<E extends Entity, S extends State> = {

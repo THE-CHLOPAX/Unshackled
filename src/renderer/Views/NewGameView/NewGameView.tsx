@@ -2,17 +2,17 @@ import styled from 'styled-components';
 import { useMemo, useState } from 'react';
 import { InternalFlex, logger, useViewsStore } from '@tgdf';
 
+import { COLORS } from 'renderer/constants';
+import { PlayerProfile } from 'renderer/types';
 import { useRunStore } from 'Store/useRunStore';
 import { createNewRun } from 'renderer/utils/createNewRun';
-import { COLORS, PLAYER_CLASSES } from 'renderer/constants';
 import { writeSaveFile } from 'renderer/utils/writeSaveFile';
-import { PlayerClassId, PlayerProfile } from 'renderer/types';
 import { Button, MenuSubviewLayout, PanelScalable } from 'UI';
 import { useActivePlayersStore } from 'Store/useActivePlayersStore';
 import { createNewPlayerProfile } from 'renderer/utils/createNewPlayerProfile';
 
 import { GameOption } from './GameOption';
-import { ClassSelector } from './ClassSelector';
+import { PlayerSlot } from './PlayerSlot';
 
 export const NewGameView = () => {
   const { setCurrentRun } = useRunStore();
@@ -23,10 +23,8 @@ export const NewGameView = () => {
     [basePlayer, additionalPlayers]
   );
 
-  const [selectedClasses, setSelectedClasses] = useState<Map<string, PlayerClassId>>(new Map());
-
   const playerProfiles: PlayerProfile[] = players.map(({ id, name }) =>
-    createNewPlayerProfile(id, name, selectedClasses.get(id) ?? PLAYER_CLASSES[0])
+    createNewPlayerProfile(id, name)
   );
 
   const [skipTutorial, setSkipTutorial] = useState(false);
@@ -47,24 +45,12 @@ export const NewGameView = () => {
       });
   };
 
-  const handleClassChange = (playerId: string, classId: PlayerClassId) => {
-    setSelectedClasses((prev) => {
-      const newMap = new Map(prev);
-      newMap.set(playerId, classId);
-      return newMap;
-    });
-  };
-
   return (
     <MenuSubviewLayout title="New game">
       <Wrapper color={COLORS.BG_COLOR_HIGHLIGHTED}>
         <SelectorsWrapper justify="center">
           {playerProfiles.map((player) => (
-            <ClassSelector
-              key={player.id}
-              classId={selectedClasses.get(player.id) ?? PLAYER_CLASSES[0]}
-              onChange={(classId) => handleClassChange(player.id, classId)}
-            />
+            <PlayerSlot key={player.id} name={player.name} />
           ))}
         </SelectorsWrapper>
         <Footer justify="between" align="center">

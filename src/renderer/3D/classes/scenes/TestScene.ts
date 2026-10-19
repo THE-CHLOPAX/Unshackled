@@ -13,7 +13,6 @@ import {
 } from 'renderer/3D/constants';
 
 import { GameScene } from './GameScene/GameScene';
-import { DungeonDoor } from '../gameObjects/props/DungeonDoor';
 import { RigidStaticObject } from '../gameObjects/RigidStaticObject';
 import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
 import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
@@ -23,7 +22,7 @@ const TEST_PLANE_CHECKERBOARD_REPEAT = 10;
 
 export class TestScene extends GameScene {
   public readonly preloadedAssets: AssetRecord[] = [
-    MODELS.MONK,
+    MODELS.PLAYER,
     MODELS.SKELETON,
     TEXTURES.CHECKERBOARD,
     TEXTURES.AIMING_ARROW,
@@ -31,7 +30,7 @@ export class TestScene extends GameScene {
   ];
 
   protected override additionalWarmupFactories: WarmupFactory[] = [
-    () => getModelClone(MODELS.MONK.id),
+    () => getModelClone(MODELS.PLAYER.id),
     () => getModelClone(MODELS.SKELETON.id),
     () => createSwingTrailWarmupMesh(),
   ];
@@ -76,7 +75,5 @@ export class TestScene extends GameScene {
     if (firstPlayer) {
       this.camera.follow(firstPlayer);
     }
-
-    this.add(new DungeonDoor(this));
   }
 }

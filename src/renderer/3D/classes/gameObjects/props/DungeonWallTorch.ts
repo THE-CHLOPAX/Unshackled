@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { assert, GameObject, getModelFromStore, Scene } from '@tgdf';
 
-import { WorldObjectArgs } from '3D/types';
+import { WorldObjectArgs } from 'renderer/types';
 import { MODELS, WORLD_CELL_SIZE } from '3D/constants';
 import { FMOD_EVENTS, FMODEventInstance } from 'renderer/FMOD';
 import { FMODSoundController } from '3D/classes/gameObjectComponents/FMODSoundController';

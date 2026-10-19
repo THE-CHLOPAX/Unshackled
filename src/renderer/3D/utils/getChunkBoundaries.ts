@@ -1,4 +1,4 @@
-import { WorldChunkBoundary, WorldVec2 } from '../types';
+import { WorldChunkBoundary, WorldVec2 } from 'renderer/types';
 
 export function getChunkBoundaries(
   width: number,

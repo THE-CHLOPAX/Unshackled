@@ -6,6 +6,7 @@ import { DamageHitbox, DamageHitboxIgnoreCondition } from '../gameObjects/Damage
 
 export class DamageHitboxController extends GameObjectComponent {
   private _attackHitbox: DamageHitbox | null = null;
+  private _debugEnabled: boolean = false;
 
   public hitboxTimeline: gsap.core.Timeline | null = null;
 
@@ -22,6 +23,8 @@ export class DamageHitboxController extends GameObjectComponent {
     if (this._attackHitbox || !this.scene) return;
     this._attackHitbox = new DamageHitbox(this.scene, size, damage, ignoreCondition);
 
+    this._attackHitbox.rigidBody.toggleDebug(this._debugEnabled);
+
     this.entity.modelRenderer.addAttachment({
       object: this._attackHitbox,
       parentName: parentName,
@@ -29,6 +32,7 @@ export class DamageHitboxController extends GameObjectComponent {
   }
 
   public toggleDebug(enabled: boolean): void {
+    this._debugEnabled = enabled;
     this._attackHitbox?.rigidBody.toggleDebug(enabled);
   }
 

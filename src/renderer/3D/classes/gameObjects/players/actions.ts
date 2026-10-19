@@ -2,11 +2,12 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 
 import { FMOD_EVENTS } from 'renderer/FMOD';
+import { ANIMATION_CLIP_NAMES } from '3D/constants';
 import { spawnSwingTrail } from '3D/utils/spawnSwingTrail';
 
-import { Player } from '../Player';
-import { Entity } from '../../Entity';
-import { PlayerAction, ChainedAction, PlayerActionType } from '../../../../types';
+import { Player } from './Player';
+import { Entity } from '../Entity';
+import { PlayerAction, ChainedAction, PlayerActionType } from '../../../types';
 
 const PUNCH_CHAIN_WINDOW_DELAY_MS = 150;
 const PUNCH_CHAIN_WINDOW_DURATION_MS = 300;
@@ -20,6 +21,13 @@ const PUNCH_CAMERA_SHAKE = 1;
 const SWING_TRAIL_WIDTH = 0.3;
 const SWING_TRAIL_COLOR = 0xf5f0e6;
 
+const PLAYER_BONES = {
+  LEFT_HAND: 'handL',
+  RIGHT_HAND: 'handR',
+  LEFT_FOOT: 'footL',
+  RIGHT_FOOT: 'footR',
+};
+
 function applyForwardImpulse(entity: Entity, strength: number): void {
   const direction = new THREE.Vector3();
   entity.getWorldDirection(direction);
@@ -27,7 +35,7 @@ function applyForwardImpulse(entity: Entity, strength: number): void {
 }
 
 export const kick: PlayerAction = {
-  sound: FMOD_EVENTS.MONK_ATTACK_3,
+  sound: FMOD_EVENTS.PLAYER_GRUNT,
   action: (entity: Entity) =>
     new Promise<void>((resolve) => {
       const HITBOX_DELAY = 0.2; // Delay in seconds before the hitbox is attached
@@ -40,7 +48,7 @@ export const kick: PlayerAction = {
             entity.damageHitboxController.attachDamageHitbox(
               new THREE.Vector3(0.3, 1, 0.3),
               10,
-              'mixamorigRightFoot',
+              PLAYER_BONES.RIGHT_FOOT,
               (other) => other instanceof Player
             ),
           [],
@@ -55,24 +63,33 @@ export const kick: PlayerAction = {
         );
 
       applyForwardImpulse(entity, KICK_IMPULSE_STRENGTH);
-      spawnSwingTrail(entity, 'mixamorigRightFoot', {
+      spawnSwingTrail(entity, PLAYER_BONES.RIGHT_FOOT, {
         durationMs: (HITBOX_DELAY + HITBOX_DURATION) * 1000 * 0.7,
         color: SWING_TRAIL_COLOR,
         width: SWING_TRAIL_WIDTH,
       });
 
-      entity.animationController.playAnimation('kick', {
+      const playKickReturn = () => {
+        entity.animationController.playAnimation(ANIMATION_CLIP_NAMES.PLAYER.KICK_RETURN, {
+          clampWhenFinished: true,
+          playbackRate: 1,
+          onComplete: () => {
+            resolve();
+          },
+        });
+      };
+
+      entity.animationController.playAnimation(ANIMATION_CLIP_NAMES.PLAYER.KICK, {
         clampWhenFinished: true,
-        playbackRate: 3,
+        playbackRate: 1,
         onComplete: () => {
-          resolve();
           entity.scene.camera.addShake(KICK_CAMERA_SHAKE);
           entity.damageHitboxController.clearHitboxEvents();
+          playKickReturn();
         },
       });
     }),
   staminaCost: 10,
-  freezeDurationMs: 100,
 };
 
 export const punchLeft: ChainedAction = {
@@ -89,7 +106,7 @@ export const punchLeft: ChainedAction = {
             entity.damageHitboxController.attachDamageHitbox(
               new THREE.Vector3(0.3, 1, 0.3),
               10,
-              'mixamorigLeftHand',
+              PLAYER_BONES.LEFT_HAND,
               (other) => other instanceof Player
             ),
           [],
@@ -104,13 +121,13 @@ export const punchLeft: ChainedAction = {
         );
 
       applyForwardImpulse(entity, PUNCH_IMPULSE_STRENGTH);
-      spawnSwingTrail(entity, 'mixamorigLeftHand', {
+      spawnSwingTrail(entity, PLAYER_BONES.LEFT_HAND, {
         durationMs: (HITBOX_DELAY + HITBOX_DURATION) * 1000,
         color: SWING_TRAIL_COLOR,
         width: SWING_TRAIL_WIDTH,
       });
 
-      entity.animationController.playAnimation('punch-left', {
+      entity.animationController.playAnimation(ANIMATION_CLIP_NAMES.PLAYER.PUNCH_LEFT, {
         clampWhenFinished: true,
         playbackRate: 2.5,
         onComplete: () => {
@@ -133,7 +150,7 @@ export const punchRight: ChainedAction = {
   sound: FMOD_EVENTS.GENERIC_SWOOSH,
   action: (entity: Entity) =>
     new Promise<void>((resolve) => {
-      const HITBOX_DELAY = 0.15;
+      const HITBOX_DELAY = 0.08;
       const HITBOX_DURATION = 0.25;
 
       entity.damageHitboxController.hitboxTimeline = gsap
@@ -143,7 +160,7 @@ export const punchRight: ChainedAction = {
             entity.damageHitboxController.attachDamageHitbox(
               new THREE.Vector3(0.3, 1, 0.3),
               10,
-              'mixamorigRightHand',
+              PLAYER_BONES.RIGHT_HAND,
               (other) => other instanceof Player
             ),
           [],
@@ -158,13 +175,13 @@ export const punchRight: ChainedAction = {
         );
 
       applyForwardImpulse(entity, PUNCH_IMPULSE_STRENGTH);
-      spawnSwingTrail(entity, 'mixamorigRightHand', {
+      spawnSwingTrail(entity, PLAYER_BONES.RIGHT_HAND, {
         durationMs: (HITBOX_DELAY + HITBOX_DURATION) * 1000,
         width: SWING_TRAIL_WIDTH,
         color: SWING_TRAIL_COLOR,
       });
 
-      entity.animationController.playAnimation('punch-right', {
+      entity.animationController.playAnimation(ANIMATION_CLIP_NAMES.PLAYER.PUNCH_RIGHT, {
         clampWhenFinished: true,
         playbackRate: 2,
         onComplete: () => {

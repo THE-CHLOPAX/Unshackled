@@ -1,15 +1,19 @@
 import { gsap } from 'gsap';
 import * as THREE from 'three';
 
+import { ANIMATION_CLIP_NAMES } from '3D/constants';
 import { isEntityAi } from 'renderer/3D/utils/isEntityAi';
 
 import { Entity } from '../../Entity';
 import { AIAttackAction } from '../../../../types';
 import { FMOD_EVENTS } from '../../../../../FMOD/constants';
 
-export enum SkeletonAttackAnimations {
-  PUNCH = 'punch',
-}
+const SKELETON_BONES = {
+  LEFT_HAND: 'mixamorigLeftHand',
+  RIGHT_HAND: 'mixamorigRightHand',
+  LEFT_FOOT: 'mixamorigLeftFoot',
+  RIGHT_FOOT: 'mixamorigRightFoot',
+};
 
 export const attackActions: AIAttackAction[] = [
   {
@@ -33,7 +37,7 @@ function punch(entity: Entity) {
           entity.damageHitboxController.attachDamageHitbox(
             new THREE.Vector3(0.5, 0.5, 0.5),
             10,
-            'mixamorigRightHand',
+            SKELETON_BONES.RIGHT_HAND,
             (other) => isEntityAi(other)
           );
         },
@@ -48,7 +52,7 @@ function punch(entity: Entity) {
         HITBOX_DELAY + HITBOX_DURATION
       );
 
-    entity.animationController.playAnimation(SkeletonAttackAnimations.PUNCH, {
+    entity.animationController.playAnimation(ANIMATION_CLIP_NAMES.SKELETON.PUNCH, {
       clampWhenFinished: true,
       playbackRate: 1.8,
       onComplete: () => {

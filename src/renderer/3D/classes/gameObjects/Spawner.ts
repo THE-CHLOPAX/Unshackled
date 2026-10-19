@@ -5,9 +5,9 @@ import * as THREE from 'three';
 import { GameObject, Scene } from '@tgdf';
 import { Crowd, NavMesh } from '@recast-navigation/core';
 
-import { WorldObjectArgs } from '3D/types';
 import { COLORS } from 'renderer/constants';
 import { MAIN_CROWD_ID } from '3D/constants';
+import { WorldObjectArgs } from 'renderer/types';
 import { isEntityAi } from '3D/utils/isEntityAi';
 import { Entity } from '3D/classes/gameObjects/Entity';
 import { flashEmissive } from '3D/utils/flashMaterial';

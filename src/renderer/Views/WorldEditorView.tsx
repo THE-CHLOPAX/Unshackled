@@ -3,13 +3,13 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { GRADIENTS } from 'renderer/constants';
 import { loadWorldMap } from 'renderer/utils/loadWorldMap';
-import { WORLD_TILE_DEFINITIONS } from '3D/worldDefinitions';
 import { saveWorldMap } from 'WorldEditor/utils/saveWorldMap';
 import { WorldGridCanvas } from 'WorldEditor/WorldGridCanvas';
 import { useWorldGrid } from 'WorldEditor/hooks/useWorldGrid';
 import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
 import { useWorldEditorStore } from 'Store/useWorldEditorStore';
 import { WorldEditorPalette } from 'WorldEditor/WorldEditorPalette';
+import { WORLD_TILE_DEFINITIONS } from 'WorldEditor/worldDefinitions';
 
 const FIRST_TILE_CODE = WORLD_TILE_DEFINITIONS[0]?.code ?? 0;
 

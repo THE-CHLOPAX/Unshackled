@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import { InternalButton, InternalFlex, InternalInput, InternalText } from '@tgdf';
 
-import { WorldObjectDefinition, WorldTileCodes } from 'renderer/3D/types';
-import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from '3D/worldDefinitions';
+import { WorldObjectDefinition, WorldTileCodes } from 'renderer/types';
+import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from 'WorldEditor/worldDefinitions';
 
 import { COLORS } from '../constants';
 import { CELL_ROTATIONS } from './const';

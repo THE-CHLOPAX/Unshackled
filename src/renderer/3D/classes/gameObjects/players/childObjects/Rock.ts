@@ -5,7 +5,7 @@ import { COLORS } from 'renderer/constants';
 import { isEntity } from 'renderer/3D/utils/isEntity';
 import { GameScene } from 'renderer/3D/classes/scenes/GameScene/GameScene';
 
-import { Projectile, ProjectileOptions } from '../../../Projectile';
+import { Projectile, ProjectileOptions } from '../../Projectile';
 
 export class Rock extends Projectile {
   constructor(

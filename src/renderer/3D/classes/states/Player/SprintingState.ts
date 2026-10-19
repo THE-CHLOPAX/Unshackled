@@ -1,5 +1,6 @@
+import { ANIMATION_CLIP_NAMES } from '3D/constants';
+
 import { RunningState } from '..';
-import { AnimationClipNamesShared } from '../../../types';
 import { Player } from '../../gameObjects/players/Player';
 
 const FOOTSTEP_INTERVAL_MS = 300;
@@ -12,7 +13,9 @@ export class SprintingState extends RunningState {
 
   public override onEnter(): void {
     this.startFootsteps(FOOTSTEP_INTERVAL_MS);
-    this.entity.animationController.playAnimation(AnimationClipNamesShared.SPRINT, { loop: true });
+    this.entity.animationController.playAnimation(ANIMATION_CLIP_NAMES.PLAYER.SPRINT, {
+      loop: true,
+    });
     this.entity.movementController.toggleSprint(true);
   }
 

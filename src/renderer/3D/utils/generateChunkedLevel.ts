@@ -2,6 +2,14 @@ import * as THREE from 'three';
 import { assert, Scene } from '@tgdf';
 
 import { WorldCell, WorldOutputData } from 'renderer/types';
+import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from 'WorldEditor/worldDefinitions';
+import {
+  WorldChunkBoundary,
+  WorldTileCodes,
+  LevelGeneratedData,
+  WorldObjectDefinition,
+  EntityWorldObjectDefinition,
+} from 'renderer/types';
 
 import { vec2toIndex } from './vec2ToIndex';
 import { isInstancedCell } from './isInstancedCell';
@@ -10,18 +18,10 @@ import { GameScene } from '../classes/scenes/GameScene/GameScene';
 import { RigidStaticObject } from '../classes/gameObjects/RigidStaticObject';
 import { createFloorProjectionGeometry } from './createFloorProjectionGeometry';
 import { FLOOR_TILE_CODES, MODEL_TILE_SCALE, WORLD_CELL_SIZE } from '../constants';
-import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from '../worldDefinitions';
 import {
   ColliderGeometryEntry,
   mergeCollidersIntoTrimeshGeometry,
 } from './mergeCollidersIntoTrimeshGeometry';
-import {
-  WorldChunkBoundary,
-  WorldTileCodes,
-  LevelGeneratedData,
-  WorldObjectDefinition,
-  EntityWorldObjectDefinition,
-} from '../types';
 
 export const LEVEL_FLOOR_GROUP_NAME = 'level-floor-group';
 

@@ -1,15 +1,16 @@
 import { FMOD_EVENTS } from 'renderer/FMOD';
 import { flashRed } from '3D/utils/flashRed';
 import { StateMachine, StateNode } from '3D/types';
+import { ANIMATION_CLIP_NAMES } from '3D/constants';
 import { shouldChase } from '3D/classes/states/utils/shouldChase';
 import { shouldAttack } from '3D/classes/states/utils/shouldAttack';
-import { deadStateNode } from '3D/classes/states/utils/deadStateNode';
 import { AIRoamingOptions } from '3D/classes/states/AI/AIRoamingState';
 import {
   AIIdleStateRoaming,
   AIRoamingState,
   AIChasingState,
   AIAttackState,
+  DeadState,
 } from '3D/classes/states';
 
 const ROAMING_OPTIONS: AIRoamingOptions = {
@@ -18,6 +19,10 @@ const ROAMING_OPTIONS: AIRoamingOptions = {
     min: 3000,
     max: 7000,
   },
+};
+
+const aiDeadStateNode: StateNode<DeadState> = {
+  state: (entity) => new DeadState(entity, ANIMATION_CLIP_NAMES.SKELETON.FALL),
 };
 
 const aiAttackStateNode: StateNode<AIAttackState> = {
@@ -33,7 +38,10 @@ const aiAttackStateNode: StateNode<AIAttackState> = {
 };
 
 const aiChasingStateNode: StateNode<AIChasingState> = {
-  state: (entity) => new AIChasingState(entity, { footstepEvent: FMOD_EVENTS.SKELETON_FOOTSTEP }),
+  state: (entity) =>
+    new AIChasingState(entity, ANIMATION_CLIP_NAMES.SKELETON.RUN, {
+      footstepEvent: FMOD_EVENTS.SKELETON_FOOTSTEP,
+    }),
   onUpdate: ({ entity, currentState }) => {
     if (!currentState.bestAttack) return aiIdleStateNode;
     if (shouldAttack(entity, currentState.bestAttack)) return aiAttackStateNode;
@@ -45,7 +53,7 @@ const aiChasingStateNode: StateNode<AIChasingState> = {
 
 const aiRoamingStateNode: StateNode<AIRoamingState> = {
   state: (entity) =>
-    new AIRoamingState(entity, {
+    new AIRoamingState(entity, ANIMATION_CLIP_NAMES.SKELETON.WALK, {
       ...ROAMING_OPTIONS,
       footstepEvent: FMOD_EVENTS.SKELETON_FOOTSTEP,
     }),
@@ -62,7 +70,8 @@ const aiRoamingStateNode: StateNode<AIRoamingState> = {
 };
 
 export const aiIdleStateNode: StateNode<AIIdleStateRoaming> = {
-  state: (entity) => new AIIdleStateRoaming(entity, ROAMING_OPTIONS),
+  state: (entity) =>
+    new AIIdleStateRoaming(entity, ANIMATION_CLIP_NAMES.SKELETON.IDLE, ROAMING_OPTIONS),
   onUpdate: ({ entity, currentState }) => {
     if (currentState.bestAttack) {
       if (shouldChase(entity, currentState.bestAttack)) return aiChasingStateNode;
@@ -86,6 +95,6 @@ export const stateMachineSkeleton: StateMachine = {
     flashRed(entity);
     entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_HIT);
     entity.fmodSoundController.playSound(FMOD_EVENTS.SKELETON_ATTACK, { volume: 0.5 });
-    return deadStateNode;
+    return aiDeadStateNode;
   },
 };

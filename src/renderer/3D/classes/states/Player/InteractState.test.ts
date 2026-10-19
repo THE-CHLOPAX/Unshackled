@@ -1,9 +1,11 @@
 import { Mock } from 'moq.ts';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { ANIMATION_CLIP_NAMES } from '3D/constants';
+
+import { Interactable } from '../../../types';
 import { InteractState } from './InteractState';
 import { Player } from '../../gameObjects/players/Player';
-import { AnimationClipNamesShared, Interactable } from '../../../types';
 import { AnimationPlayOptions } from '../../gameObjectComponents/AnimationController/AnimationController';
 
 const delayedCalls = vi.hoisted(() => [] as { callback: () => void; kill: () => void }[]);
@@ -47,7 +49,7 @@ describe('InteractState', () => {
     new InteractState(player, target).enter();
 
     expect(playAnimation).toHaveBeenCalledWith(
-      AnimationClipNamesShared.INTERACT,
+      ANIMATION_CLIP_NAMES.PLAYER.INTERACT,
       expect.objectContaining({ clampWhenFinished: true })
     );
   });

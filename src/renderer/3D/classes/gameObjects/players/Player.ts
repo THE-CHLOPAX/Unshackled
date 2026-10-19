@@ -1,5 +1,6 @@
 import { Input, PlayerInput } from '@tgdf';
 
+import { playerConfig } from './config';
 import { Entity, EntityOptions } from '../Entity';
 import { GameScene } from '../../scenes/GameScene/GameScene';
 import { PlayerRegisterableInputSource } from './PlayerRegisterableInputSource';
@@ -9,12 +10,14 @@ import {
   StaminaPointsControllerOptions,
 } from '../../gameObjectComponents/StaminaPointsController';
 
-export type PlayerOptions = EntityOptions & {
-  playerProfileId: string;
+export type PlayerConfig = Omit<EntityOptions, 'inputSource'> & {
   staminaOptions: StaminaPointsControllerOptions;
 };
 
-export type PlayerConfig = Omit<PlayerOptions, 'playerProfileId'>;
+export type PlayerOptions = {
+  playerProfileId: string;
+  inputSource?: PlayerInput;
+};
 
 export class Player extends Entity {
   public isPlayer = true;
@@ -24,16 +27,16 @@ export class Player extends Entity {
 
   constructor(
     scene: GameScene,
-    public readonly options: PlayerOptions
+    public readonly playerOptions: PlayerOptions
   ) {
     super(scene, {
-      ...options,
-      inputSource: new PlayerRegisterableInputSource(options.inputSource ?? Input),
+      ...playerConfig,
+      inputSource: new PlayerRegisterableInputSource(playerOptions.inputSource ?? Input),
     });
 
     this.staminaPointsController = this.addComponent(
       'StaminaPointsController',
-      new StaminaPointsController(this, options.staminaOptions)
+      new StaminaPointsController(this, playerConfig.staminaOptions)
     );
 
     this.staminaBarRenderer = this.addComponent(
@@ -43,7 +46,7 @@ export class Player extends Entity {
   }
 
   public get playerProfileId(): string {
-    return this.options.playerProfileId;
+    return this.playerOptions.playerProfileId;
   }
 
   public override get inputSource(): PlayerRegisterableInputSource {
