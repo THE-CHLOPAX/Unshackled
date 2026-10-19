@@ -2,12 +2,14 @@ import { InputState } from '@tgdf';
 
 import { State } from '.';
 import { Entity } from '../gameObjects/Entity';
-import { AnimationClipNamesShared } from '../../types';
 
 export class SpawnState extends State {
   private _spawnAnimationEnded: boolean = false;
 
-  constructor(public entity: Entity) {
+  constructor(
+    public entity: Entity,
+    private readonly _animationName: string
+  ) {
     super(entity);
   }
 
@@ -16,7 +18,7 @@ export class SpawnState extends State {
   }
 
   public onEnter(): void {
-    this.entity.animationController.playAnimation(AnimationClipNamesShared.SPAWN, {
+    this.entity.animationController.playAnimation(this._animationName, {
       clampWhenFinished: true,
       onComplete: () => {
         this._spawnAnimationEnded = true;

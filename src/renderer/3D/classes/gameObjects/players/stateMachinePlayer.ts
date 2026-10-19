@@ -2,13 +2,14 @@ import type { Player } from '3D/classes/gameObjects/players/Player';
 
 import { FMOD_EVENTS } from 'renderer/FMOD';
 import { flashRed } from '3D/utils/flashRed';
-import { deadStateNode } from '3D/classes/states/utils/deadStateNode';
+import { ANIMATION_CLIP_NAMES } from '3D/constants';
 import { getInputBasedStateNode } from '3D/classes/states/utils/getInputBasedStateNode';
 import { ChainedAction, Interactable, PlayerActionType, StateMachine, StateNode } from '3D/types';
 import {
   AimingState,
   AttackState,
-  DashState,
+  //DashState,
+  DeadState,
   IdleState,
   InteractState,
   RunningState,
@@ -17,8 +18,13 @@ import {
 
 import { punchRight } from './actions';
 import { Rock } from './childObjects/Rock';
+import { RollState } from '../../states/Player/RollState';
 
 const INTERACT_TRIGGER_DELAY_S = 0.4;
+
+const deadStateNode: StateNode<DeadState> = {
+  state: (entity) => new DeadState(entity, ANIMATION_CLIP_NAMES.PLAYER.FALL),
+};
 
 const aimingStateNode: StateNode<AimingState> = {
   state: (entity) =>
@@ -33,8 +39,17 @@ const aimingStateNode: StateNode<AimingState> = {
   },
 };
 
-const dashingStateNode: StateNode<DashState> = {
+/* const dashingStateNode: StateNode<DashState> = {
   state: (entity) => new DashState(entity, { speed: 12, durationMs: 150 }),
+  onUpdate: ({ entity, currentState }) => {
+    if (!currentState.isComplete) return null;
+
+    return resolveLocomotionNode(entity);
+  },
+}; */
+
+const rollingStateNode: StateNode<RollState> = {
+  state: (entity) => new RollState(entity),
   onUpdate: ({ entity, currentState }) => {
     if (!currentState.isComplete) return null;
 
@@ -46,11 +61,7 @@ const sprintingStateNode: StateNode<SprintingState> = {
   state: (entity) => new SprintingState(entity),
   onInput: ({ entity }) => {
     return getInputBasedStateNode(entity.inputSource.getControls(), [
-      [
-        PlayerActionType.ACTION_RIGHT,
-        () => dashingStateNode,
-        !entity.cooldownController.isOnCooldown(DashState.COOLDOWN_ID),
-      ],
+      [PlayerActionType.ACTION_RIGHT, () => rollingStateNode, canRoll(entity)],
       [PlayerActionType.RUN, () => runningStateNode],
       [PlayerActionType.IDLE, () => idleStateNode],
     ]);
@@ -73,11 +84,7 @@ const runningStateNode: StateNode<RunningState> = {
         () => getAttackStateNode(punchRight),
         canAttack(entity, punchRight),
       ],
-      [
-        PlayerActionType.ACTION_RIGHT,
-        () => dashingStateNode,
-        !entity.cooldownController.isOnCooldown(DashState.COOLDOWN_ID),
-      ],
+      [PlayerActionType.ACTION_RIGHT, () => rollingStateNode, canRoll(entity)],
       [PlayerActionType.SPRINT, () => resolveSprintingNode(entity)],
       [PlayerActionType.IDLE, () => idleStateNode],
     ]);
@@ -94,6 +101,7 @@ const idleStateNode: StateNode<IdleState> = {
         () => getAttackStateNode(punchRight),
         canAttack(entity, punchRight),
       ],
+      [PlayerActionType.ACTION_RIGHT, () => rollingStateNode, canRoll(entity)],
       [PlayerActionType.RUN, () => runningStateNode],
     ]);
   },
@@ -132,6 +140,13 @@ function canSprint(entity: Player): boolean {
 function canAttack(entity: Player, action: ChainedAction): boolean {
   if (!action.staminaCost) return true;
   return entity.staminaPointsController.shortTermStamina >= action.staminaCost;
+}
+
+function canRoll(entity: Player): boolean {
+  return (
+    entity.staminaPointsController.shortTermStamina >= RollState.STAMINA_COST &&
+    !entity.cooldownController.isOnCooldown(RollState.COOLDOWN_ID)
+  );
 }
 
 function getAttackStateNode(action: ChainedAction): StateNode<AttackState> {

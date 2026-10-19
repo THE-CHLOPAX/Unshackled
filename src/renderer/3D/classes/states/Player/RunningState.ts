@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import { InputState, logger } from '@tgdf';
 
 import { FMOD_EVENTS } from 'renderer/FMOD';
+import { ANIMATION_CLIP_NAMES } from '3D/constants';
 
 import { State } from '..';
-import { AnimationClipNamesShared } from '../../../types';
 import { Player } from '../../gameObjects/players/Player';
 import { FMODLoopedSound } from '../../gameObjectComponents/FMODSoundController';
 
@@ -20,7 +20,7 @@ export class RunningState extends State {
   public override onEnter(): void {
     this.startFootsteps(FOOTSTEP_INTERVAL_MS);
 
-    this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, { loop: true });
+    this.entity.animationController.playAnimation(ANIMATION_CLIP_NAMES.PLAYER.RUN, { loop: true });
   }
 
   public override onExit(): void {

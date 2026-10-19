@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 
+import { MODELS, WORLD_CELL_SIZE } from '3D/constants';
+import { getModelMaterial } from '3D/utils/getModelMaterial';
+import { WorldObjectDefinition, WorldTileCodes } from 'renderer/types';
 import { DungeonDoor } from '3D/classes/gameObjects/props/DungeonDoor';
 import { DungeonWallTorch } from '3D/classes/gameObjects/props/DungeonWallTorch';
 
-import { MODELS, WORLD_CELL_SIZE } from '../constants';
 import { getModelGeometry } from './utils/getModelGeometry';
-import { getModelMaterial } from '../utils/getModelMaterial';
-import { WorldObjectDefinition, WorldTileCodes } from '../types';
 import { getDungeonWallParts } from './utils/getDungeonWallGeometry';
 import { getDungeonDoorFrameParts } from './utils/getDungeonDoorFrameGeometry';
 import { getDungeonWallCornerParts } from './utils/getDungeonWallCornerGeometry';

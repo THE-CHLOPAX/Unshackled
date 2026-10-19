@@ -1,7 +1,7 @@
 import { Scene } from '@tgdf';
 import * as THREE from 'three';
 
-import { WorldObjectArgs } from '3D/types';
+import { WorldObjectArgs } from 'renderer/types';
 import { Spawner } from '3D/classes/gameObjects/Spawner';
 import { Skeleton } from '3D/classes/gameObjects/mobs/Skeleton/Skeleton';
 

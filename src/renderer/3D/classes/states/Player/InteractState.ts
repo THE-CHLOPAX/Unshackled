@@ -1,9 +1,11 @@
 import { gsap } from 'gsap';
 import { InputState } from '@tgdf';
 
+import { ANIMATION_CLIP_NAMES } from '3D/constants';
+
 import { State } from '..';
+import { Interactable } from '../../../types';
 import { Player } from '../../gameObjects/players/Player';
-import { AnimationClipNamesShared, Interactable } from '../../../types';
 
 export type InteractStateOptions = {
   animationName?: string;
@@ -30,7 +32,7 @@ export class InteractState extends State {
 
   public override onEnter(): void {
     const {
-      animationName = AnimationClipNamesShared.INTERACT,
+      animationName = ANIMATION_CLIP_NAMES.PLAYER.INTERACT,
       playbackRate,
       triggerDelayS,
     } = this._options;

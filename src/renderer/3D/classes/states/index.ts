@@ -1,7 +1,7 @@
 // Shared
 export { State } from './State';
-export { DeadState } from './DeadState';
 export { SpawnState } from './SpawnState';
+export { DeadState } from './DeadState';
 
 // AI
 export { AIIdleState } from './AI/AIIdleState';

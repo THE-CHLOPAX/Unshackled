@@ -1,8 +1,9 @@
 import { InputState } from '@tgdf';
 
+import { ANIMATION_CLIP_NAMES } from '3D/constants';
+
 import { State } from '..';
 import { Player } from '../../gameObjects/players/Player';
-import { AnimationClipNamesShared } from '../../../types';
 
 export class IdleState extends State {
   constructor(public entity: Player) {
@@ -10,7 +11,7 @@ export class IdleState extends State {
   }
 
   public override onEnter(): void {
-    this.entity.animationController.playAnimation(AnimationClipNamesShared.IDLE, { loop: true });
+    this.entity.animationController.playAnimation(ANIMATION_CLIP_NAMES.PLAYER.IDLE, { loop: true });
   }
 
   public override onExit(): void {}

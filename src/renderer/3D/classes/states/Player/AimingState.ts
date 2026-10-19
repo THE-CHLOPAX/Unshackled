@@ -9,8 +9,8 @@ import { pixelateTexture } from 'renderer/3D/utils/pixelateTexture';
 import { State } from '..';
 import { Player } from '../../gameObjects/players/Player';
 import { GameScene } from '../../scenes/GameScene/GameScene';
-import { AIMING_ARROW_TEXTURE, MATERIALS } from '../../../constants';
 import { ProjectileOptions, Projectile } from '../../gameObjects/Projectile';
+import { MATERIALS, AIMING_ARROW_TEXTURE, ANIMATION_CLIP_NAMES } from '../../../constants';
 
 export type AimingProjectileConstructor = new (
   scene: GameScene,
@@ -43,7 +43,7 @@ export class AimingState extends State {
   }
 
   public override onEnter(): void {
-    this.entity.animationController.playAnimation('aim', {
+    this.entity.animationController.playAnimation(ANIMATION_CLIP_NAMES.PLAYER.AIM, {
       clampWhenFinished: true,
     });
     this._spawnIndicator();
@@ -75,7 +75,7 @@ export class AimingState extends State {
       }
 
       this.entity.fmodSoundController.playSound(FMOD_EVENTS.GENERIC_SWOOSH);
-      this.entity.animationController.playAnimation('throw', {
+      this.entity.animationController.playAnimation(ANIMATION_CLIP_NAMES.PLAYER.THROW, {
         clampWhenFinished: true,
         playbackRate: 2,
         onComplete: () => {

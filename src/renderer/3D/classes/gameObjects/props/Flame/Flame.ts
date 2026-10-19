@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GameObject, logger, ResourceTracker, Scene } from '@tgdf';
 
 import { COLORS } from 'renderer/constants';
-import { WorldObjectArgs } from 'renderer/3D/types';
+import { WorldObjectArgs } from 'renderer/types';
 
 import { createFlameParticlesGeometry } from './flameGeometry';
 import { createFlameMaterial, updateFlameMaterialTime, FlameMaterial } from './flameMaterial';

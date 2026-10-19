@@ -10,9 +10,10 @@ export class AIIdleStateRoaming extends AIIdleState {
 
   constructor(
     entity: EntityAI,
+    animationName: string,
     private _roamingOptions: AIRoamingOptions
   ) {
-    super(entity);
+    super(entity, animationName);
   }
 
   public get shouldTransitionToRoaming(): boolean {

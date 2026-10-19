@@ -3,10 +3,12 @@ import { InputState } from '@tgdf';
 
 import { State } from '.';
 import { Entity } from '../gameObjects/Entity';
-import { AnimationClipNamesShared } from '../../types';
 
 export class DeadState extends State {
-  constructor(public entity: Entity) {
+  constructor(
+    public entity: Entity,
+    private readonly _animationName: string
+  ) {
     super(entity);
   }
 
@@ -15,7 +17,7 @@ export class DeadState extends State {
     this.entity.rigidBody.setGravityScale(0);
     this.entity.rigidBody.setLinearVelocity(new THREE.Vector3(0, 0, 0));
 
-    this.entity.animationController.playAnimation(AnimationClipNamesShared.FALL, {
+    this.entity.animationController.playAnimation(this._animationName, {
       loop: false,
       clampWhenFinished: true,
     });

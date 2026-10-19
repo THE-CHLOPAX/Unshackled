@@ -9,22 +9,14 @@ import { stateMachinePlayer } from './stateMachinePlayer';
 export const playerConfig: PlayerConfig = {
   modelOptions: {
     id: MODELS.PLAYER.id,
+    scale: new THREE.Vector3(1.4, 1.4, 1.4),
   },
   movementOptions: {
     defaultSpeed: 2.3,
     sprintSpeed: 4,
     walkSpeed: 1,
   },
-  rigidBodyOptions: { ...DEFAULT_RIGID_BODY_OPTIONS, colliderSize: new THREE.Vector3(1, 2, 1) },
-  animationControllerOptions: {
-    playbackRates: {
-      spawn: 2.5,
-      kick: 1.5,
-      hit: 1.8,
-      run: 0.9,
-      interact: 2.5,
-    },
-  },
+  rigidBodyOptions: { ...DEFAULT_RIGID_BODY_OPTIONS },
   healthOptions: {
     maxHealthPoints: 100,
   },

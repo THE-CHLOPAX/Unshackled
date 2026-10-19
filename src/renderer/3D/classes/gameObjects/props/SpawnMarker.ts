@@ -1,7 +1,7 @@
 import { Scene } from '@tgdf';
 import * as THREE from 'three';
 
-import { WorldObjectArgs } from 'renderer/3D/types';
+import { WorldObjectArgs } from 'renderer/types';
 import { SPAWN_MARKER_NAME } from 'renderer/3D/constants';
 
 export class SpawnMarker extends THREE.Object3D {

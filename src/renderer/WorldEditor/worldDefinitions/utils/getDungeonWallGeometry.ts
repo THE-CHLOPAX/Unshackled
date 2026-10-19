@@ -2,10 +2,10 @@ import * as THREE from 'three';
 import { assert, getModelFromStore, isMesh, ResourceTracker } from '@tgdf';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
+import { getModelMaterial } from '3D/utils/getModelMaterial';
 import { MODEL_NATIVE_TILE_SIZE } from 'renderer/3D/constants';
 
 import { FLOOR_FULL_DEPTH } from '../dungeon';
-import { getModelMaterial } from '../../utils/getModelMaterial';
 
 export type GetDungeonWallArgs = {
   pillarModelId: string;

@@ -3,11 +3,11 @@ import { InputState, throttleWithLastValue } from '@tgdf';
 import { FMOD_EVENTS, type FMODEventDefinition } from 'renderer/FMOD';
 
 import { State } from '..';
+import { AIAttackAction } from '../../../types';
 import { shouldAttack } from '../utils/shouldAttack';
 import { EntityAI } from '../../gameObjects/EntityAI';
 import { getBestAttack } from '../utils/getBestAttack';
 import { getTargetEnemy } from '../utils/getTargetEnemy';
-import { AIAttackAction, AnimationClipNamesShared } from '../../../types';
 import { FMODLoopedSound } from '../../gameObjectComponents/FMODSoundController';
 
 const UPDATE_THROTTLE_INTERVAL_MS = 250;
@@ -24,6 +24,7 @@ export class AIChasingState extends State {
 
   constructor(
     public entity: EntityAI,
+    private readonly _animationName: string,
     public readonly options?: AIChasingOptions
   ) {
     super(entity);
@@ -42,7 +43,7 @@ export class AIChasingState extends State {
       this.options?.footstepEvent ?? FMOD_EVENTS.GENERIC_FOOTSTEP,
       { intervalMs: FOOTSTEP_INTERVAL_MS }
     );
-    this.entity.animationController.playAnimation(AnimationClipNamesShared.RUN, {
+    this.entity.animationController.playAnimation(this._animationName, {
       loop: true,
     });
   }

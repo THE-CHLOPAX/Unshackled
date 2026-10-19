@@ -4,8 +4,8 @@ import { isMesh } from '@tgdf';
 import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUtils';
 
 import { COLORS } from 'renderer/constants';
-import { MATERIALS } from 'renderer/3D/constants';
 import { FMOD_EVENTS } from 'renderer/FMOD/constants';
+import { MATERIALS, ANIMATION_CLIP_NAMES } from 'renderer/3D/constants';
 
 import { State } from '..';
 import { Player } from '../../gameObjects/players/Player';
@@ -36,8 +36,6 @@ const GHOST_SPAWN_INTERVAL_MS = 40;
 const GHOST_FADE_DURATION = 0.35;
 const GHOST_INITIAL_OPACITY = 0.45;
 const GHOST_EMISSIVE_INTENSITY = 2;
-
-const DASH_ANIMATION_CLIP_NAME = 'dash';
 
 export class DashState extends State {
   public static readonly COOLDOWN_MS = 1000;
@@ -72,7 +70,7 @@ export class DashState extends State {
 
     this.entity.fmodSoundController.playSound(FMOD_EVENTS.PLAYER_GRUNT);
 
-    this.entity.animationController.playAnimation(DASH_ANIMATION_CLIP_NAME, {
+    this.entity.animationController.playAnimation(ANIMATION_CLIP_NAMES.PLAYER.DASH, {
       clampWhenFinished: true,
     });
 
