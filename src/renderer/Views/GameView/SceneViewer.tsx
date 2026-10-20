@@ -1,67 +1,47 @@
-import { useState, useEffect } from 'react';
-import { useGraphicsStore, useDebouncedCallback } from '@tgdf';
+import { useMemo } from 'react';
+import styled from 'styled-components';
+import { useGraphicsStore } from '@tgdf';
 
 import { GameUIOverlay } from 'renderer/UI';
-import { RunProgress } from 'renderer/types';
-import { useRunStore } from 'renderer/Store/useRunStore';
-import { useLoadScene } from 'renderer/hooks/useLoadScene';
-import { pickRandomLevel } from 'renderer/3D/utils/pickRandomLevel';
-import { BIOME_SCENES } from 'renderer/3D/classes/scenes/biomeScenes';
 import { Player } from 'renderer/3D/classes/gameObjects/players/Player';
-import { assignPlayerProfiles } from 'renderer/utils/assignPlayerProfiles';
-import { useActivePlayersStore } from 'renderer/Store/useActivePlayersStore';
+import { GameScene } from 'renderer/3D/classes/scenes/GameScene/GameScene';
 import { ThreeDViewerPixelated } from 'renderer/UI/components/ThreeDViewerPixelated';
-
-import { LoadingView } from '../LoadingView';
+import { ViewerContext, ViewerContextValue } from 'renderer/UI/contexts/ViewerContext';
 
 type SceneViewerProps = {
-  progress: RunProgress;
-  onLevelComplete: (levelId: string, players?: readonly Player[]) => void;
+  scene: GameScene;
+  player: Player;
 };
 
-const LEVEL_COMPLETE_DEBOUNCE_TIME = 3000;
-
-export function SceneViewer({ progress, onLevelComplete }: SceneViewerProps) {
+export function SceneViewer({ scene, player }: SceneViewerProps) {
   const { resolution } = useGraphicsStore();
-  const [level] = useState(() => pickRandomLevel(progress));
-  const { scene, loadingProgress, emitter } = useLoadScene((emitter) => {
-    const players = assignPlayerProfiles(
-      Array.from(useActivePlayersStore.getState().getActivePlayers()),
-      useRunStore.getState().currentRun?.players ?? []
-    );
-    return new BIOME_SCENES[progress.biomeId](emitter, level, players);
-  });
 
-  const onLevelCompleteDebounced = useDebouncedCallback(
-    () => onLevelComplete(level.id, scene?.players),
-    LEVEL_COMPLETE_DEBOUNCE_TIME
+  const viewerContextValue = useMemo<ViewerContextValue>(
+    () => ({ player, inputType: player.inputType, camera: scene.camera }),
+    [player, scene]
   );
 
-  const [loadingFinished, setLoadingFinished] = useState(false);
-
-  useEffect(() => {
-    const handleLevelComplete = () => {
-      onLevelCompleteDebounced();
-    };
-
-    emitter.on('level-complete', handleLevelComplete);
-    return () => {
-      emitter.off('level-complete', handleLevelComplete);
-    };
-  }, [emitter, onLevelCompleteDebounced]);
-
-  return !loadingFinished || scene === null ? (
-    <LoadingView progress={loadingProgress} onComplete={() => setLoadingFinished(true)} />
-  ) : (
-    // TODO: in coop update we need to have multiple ThreedViewer + UIOverlay pairs per each active player
-    // Then pass the corresponding player to each UIOverlay instead of hardcoded 0 index player.
-    <>
-      <ThreeDViewerPixelated scene={scene} resX={resolution.width} resY={resolution.height} debug />
-      <GameUIOverlay
-        emitter={emitter}
-        player={scene.players[0]}
-        objectiveType={scene.options.objective?.type}
-      />
-    </>
+  return (
+    <ViewerContext.Provider value={viewerContextValue}>
+      <Wrapper>
+        <ThreeDViewerPixelated
+          scene={scene}
+          resX={resolution.width}
+          resY={resolution.height}
+          debug
+        />
+        <GameUIOverlay
+          emitter={scene.options.emitter}
+          player={player}
+          objectiveType={scene.options.objective?.type}
+        />
+      </Wrapper>
+    </ViewerContext.Provider>
   );
 }
+
+const Wrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+`;

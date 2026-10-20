@@ -4,11 +4,13 @@ import { useGraphicsStore } from '@tgdf';
 import { GameUIOverlay } from 'UI';
 import { TestScene } from '3D/classes/scenes/TestScene';
 import { useLoadScene } from 'renderer/hooks/useLoadScene';
+import { useIsGameOver } from 'renderer/hooks/useIsGameOver';
 import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
 import { useActivePlayersStore } from 'Store/useActivePlayersStore';
 import { assignPlayerProfiles } from 'renderer/utils/assignPlayerProfiles';
 import { ThreeDViewerPixelated } from 'UI/components/ThreeDViewerPixelated';
 import { createNewPlayerProfile } from 'renderer/utils/createNewPlayerProfile';
+import { GameOverModal } from 'UI/components/GameUIOverlay/GameOverModal/GameOverModal';
 
 import { LoadingView } from './LoadingView';
 
@@ -23,6 +25,7 @@ export function TestView() {
     return new TestScene(emitter, players);
   });
 
+  const isGameOver = useIsGameOver(emitter);
   const [loadingFinished, setLoadingFinished] = useState(false);
 
   return (
@@ -38,6 +41,7 @@ export function TestView() {
             debug
           />
           <GameUIOverlay emitter={emitter} />
+          {isGameOver && <GameOverModal />}
         </>
       )}
     </BackToViewLayout>

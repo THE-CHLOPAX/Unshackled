@@ -7,7 +7,7 @@ import { getUpdatedRun } from 'renderer/utils/getUpdatedRun';
 import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
 import { Player } from '3D/classes/gameObjects/players/Player';
 
-import { SceneViewer } from './SceneViewer';
+import { LevelSession } from './LevelSession';
 
 export function GameView() {
   const { currentRun, setCurrentRun } = useRunStore();
@@ -29,7 +29,7 @@ export function GameView() {
     <BackToViewLayout backToView="MenuView">
       <VersionLayout>
         {progress && (
-          <SceneViewer
+          <LevelSession
             key={`${progress.biomeId}:${progress.levelIndex}`}
             progress={progress}
             onLevelComplete={handleLevelComplete}
