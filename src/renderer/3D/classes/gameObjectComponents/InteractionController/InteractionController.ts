@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { GameObject, GameObjectComponent } from '@tgdf';
 
 import { HintBillboardHint } from 'UI';
-import { Interactable, PlayerActionType } from '3D/types';
+import { Interactable } from '3D/types';
+import { PlayerActionType } from 'renderer/types';
 
 import { Entity } from '../../gameObjects/Entity';
 import { Player } from '../../gameObjects/players/Player';

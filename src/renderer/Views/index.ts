@@ -1,4 +1,4 @@
-export { GameView } from './GameView';
+export { GameView } from './GameView/GameView';
 export { TestView } from './TestView';
 export { MenuView } from './MenuView/MenuView';
 export { PlayersView } from './PlayersView';

@@ -7,7 +7,7 @@ vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
 }));
 
-import { PlayerActionType } from '3D/types';
+import { PlayerActionType } from 'renderer/types';
 
 import { Player } from './players/Player';
 import { PlayerDetectionZone } from './PlayerDetectionZone';

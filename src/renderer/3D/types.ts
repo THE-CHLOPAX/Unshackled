@@ -1,3 +1,4 @@
+import type { PlayerActionType } from 'renderer/types';
 import type { FMODEventDefinition } from 'renderer/FMOD';
 
 import * as THREE from 'three';
@@ -5,17 +6,6 @@ import { InputState, SceneCamera } from '@tgdf';
 
 import { State } from './classes/states';
 import { Entity } from './classes/gameObjects/Entity';
-
-export enum PlayerActionType {
-  IDLE = 'idle',
-  RUN = 'run',
-  SPRINT = 'sprint',
-  ACTION_UP = 'action-up',
-  ACTION_DOWN = 'action-down',
-  ACTION_LEFT = 'action-left',
-  ACTION_RIGHT = 'action-right',
-  ACTION_FOCUS = 'action-focus',
-}
 
 export type { ModelRecord, TextureRecord, AssetRecord } from '@tgdf';
 

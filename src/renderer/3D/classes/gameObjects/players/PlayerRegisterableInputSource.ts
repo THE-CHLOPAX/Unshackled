@@ -8,7 +8,7 @@ import {
   RegisterableInputSource,
 } from '@tgdf';
 
-import { PlayerActionType } from '../../../types';
+import { PlayerActionType } from 'renderer/types';
 
 export type PlayerActionEvent =
   | {

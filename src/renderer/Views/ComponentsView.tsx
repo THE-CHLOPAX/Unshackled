@@ -19,6 +19,7 @@ import {
   BarOrnament,
   ScrollableWrapper,
   PanelScalable,
+  Icon,
 } from 'UI';
 
 const TEXT_SIZES = ['sm', 'md', 'lg', 'xl', 'xxl'] as const;
@@ -253,6 +254,10 @@ export function ComponentsView() {
               hints={[
                 { icon: 'A', label: 'Open' },
                 { icon: 'X', label: 'Lock' },
+                {
+                  icon: <Icon icon="arrowUp" color={COLORS.FONT_COLOR_HIGHLIGHT} scale={1.3} />,
+                  label: 'Move',
+                },
               ]}
             />
           </ComponentSection>

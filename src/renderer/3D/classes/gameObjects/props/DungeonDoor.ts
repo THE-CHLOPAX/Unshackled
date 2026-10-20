@@ -2,7 +2,7 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 import { assert, GameObject, getModelFromStore, isMesh, RigidBody, Scene } from '@tgdf';
 
-import { PlayerActionType } from '3D/types';
+import { PlayerActionType } from 'renderer/types';
 import { MODELS, WORLD_CELL_SIZE } from '3D/constants';
 import { pixelateModelMaterial } from 'renderer/3D/utils/pixelateModelMaterial';
 

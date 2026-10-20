@@ -13,6 +13,7 @@ import {
 } from 'renderer/3D/constants';
 
 import { GameScene } from './GameScene/GameScene';
+import { DungeonDoor } from '../gameObjects/props/DungeonDoor';
 import { RigidStaticObject } from '../gameObjects/RigidStaticObject';
 import { createSwingTrailWarmupMesh } from '../gameObjects/SwingTrail';
 import { WarmupFactory } from './GameScene/ShadersManager/ShadersManager';
@@ -75,5 +76,7 @@ export class TestScene extends GameScene {
     if (firstPlayer) {
       this.camera.follow(firstPlayer);
     }
+
+    this.add(new DungeonDoor(this));
   }
 }

@@ -1,3 +1,6 @@
+import { PlayerActionType } from 'renderer/types';
+
+import { Icon } from './components/Icon/Icon';
 import bannerBg from '../assets/svg/banner.svg?url';
 import ornament from '../assets/svg/ornament.svg?url';
 import logoShort from '../assets/svg/logo-short.svg?url';
@@ -69,3 +72,18 @@ export const FONT_SIZES = {
   xl: { fontSize: 32, lineHeight: 1 },
   xxl: { fontSize: 48, lineHeight: 1 },
 } as const;
+
+export const PLAYER_ACTION_TO_ICON_MAPPING = {
+  KEYBOARD: {
+    [PlayerActionType.ACTION_UP]: <Icon icon="arrowUp" />,
+    [PlayerActionType.ACTION_DOWN]: <Icon icon="arrowDown" />,
+    [PlayerActionType.ACTION_LEFT]: <Icon icon="arrowLeft" />,
+    [PlayerActionType.ACTION_RIGHT]: <Icon icon="arrowRight" />,
+  },
+  GAMEPAD: {
+    [PlayerActionType.ACTION_UP]: 'Y',
+    [PlayerActionType.ACTION_DOWN]: 'A',
+    [PlayerActionType.ACTION_LEFT]: 'X',
+    [PlayerActionType.ACTION_RIGHT]: 'B',
+  },
+};
