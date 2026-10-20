@@ -1,8 +1,11 @@
+import { PlayerInputBinding } from '@tgdf';
+
+import { COLORS } from 'renderer/constants';
 import { PlayerActionType } from 'renderer/types';
 
-import { Icon } from './components/Icon/Icon';
 import bannerBg from '../assets/svg/banner.svg?url';
 import ornament from '../assets/svg/ornament.svg?url';
+import { Icon, IconProps } from './components/Icon/Icon';
 import logoShort from '../assets/svg/logo-short.svg?url';
 import arrowRight from '../assets/svg/arrow-right.svg?url';
 import scrollArrow from '../assets/svg/scroll-arrow.svg?url';
@@ -73,14 +76,22 @@ export const FONT_SIZES = {
   xxl: { fontSize: 48, lineHeight: 1 },
 } as const;
 
-export const PLAYER_ACTION_TO_ICON_MAPPING = {
-  KEYBOARD: {
-    [PlayerActionType.ACTION_UP]: <Icon icon="arrowUp" />,
-    [PlayerActionType.ACTION_DOWN]: <Icon icon="arrowDown" />,
-    [PlayerActionType.ACTION_LEFT]: <Icon icon="arrowLeft" />,
-    [PlayerActionType.ACTION_RIGHT]: <Icon icon="arrowRight" />,
+const DEFAULT_HINT_ICON_PROPS: Partial<IconProps> = {
+  color: COLORS.FONT_COLOR_HIGHLIGHT,
+  scale: 1.3,
+};
+
+export const PLAYER_ACTION_TO_ICON_MAPPING: Record<
+  PlayerInputBinding['type'],
+  Partial<Record<PlayerActionType, React.ReactNode>>
+> = {
+  keyboard: {
+    [PlayerActionType.ACTION_UP]: <Icon icon="arrowUp" {...DEFAULT_HINT_ICON_PROPS} />,
+    [PlayerActionType.ACTION_DOWN]: <Icon icon="arrowDown" {...DEFAULT_HINT_ICON_PROPS} />,
+    [PlayerActionType.ACTION_LEFT]: <Icon icon="arrowLeft" {...DEFAULT_HINT_ICON_PROPS} />,
+    [PlayerActionType.ACTION_RIGHT]: <Icon icon="arrowRight" {...DEFAULT_HINT_ICON_PROPS} />,
   },
-  GAMEPAD: {
+  gamepad: {
     [PlayerActionType.ACTION_UP]: 'Y',
     [PlayerActionType.ACTION_DOWN]: 'A',
     [PlayerActionType.ACTION_LEFT]: 'X',

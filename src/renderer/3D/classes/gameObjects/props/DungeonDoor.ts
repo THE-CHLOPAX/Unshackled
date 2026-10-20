@@ -71,7 +71,7 @@ export class DungeonDoor extends GameObject {
         },
         interactions: {
           [TOGGLE_ACTION]: {
-            hint: { icon: 'A', label: 'Open' },
+            hint: { actionType: TOGGLE_ACTION, label: 'Open' },
             onInteract: () => this.toggle(),
           },
         },

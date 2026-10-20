@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { GameUIOverlay } from 'UI';
 import { TestScene } from '3D/classes/scenes/TestScene';
+import { ViewerContext } from 'UI/contexts/ViewerContext';
 import { useLoadScene } from 'renderer/hooks/useLoadScene';
 import { useIsGameOver } from 'renderer/hooks/useIsGameOver';
 import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
@@ -41,7 +42,13 @@ export function TestView() {
       {!loadingFinished || scene === null ? (
         <LoadingView progress={loadingProgress} onComplete={() => setLoadingFinished(true)} />
       ) : (
-        <>
+        <ViewerContext.Provider
+          value={{
+            player: scene.players[0],
+            inputType: scene.players[0].inputType,
+            camera: scene.camera,
+          }}
+        >
           <ThreeDViewerPixelated
             scene={scene}
             resX={resolution.width}
@@ -52,7 +59,7 @@ export function TestView() {
           />
           <GameUIOverlay emitter={emitter} />
           {isGameOver && <GameOverModal />}
-        </>
+        </ViewerContext.Provider>
       )}
     </BackToViewLayout>
   );
