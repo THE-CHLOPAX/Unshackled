@@ -90,9 +90,13 @@ export class HealthBarRenderer extends BillboardRenderer {
   };
 
   private _fadeHealthBar(): void {
-    const healthBarElement = this.getElement(this._healthBarId);
-    if (!healthBarElement) return;
-    this._healthBarTween = gsap.to(healthBarElement, {
+    const healthBarElements = this.getElements(this._healthBarId);
+    if (healthBarElements.length === 0) {
+      this._removeHealthBar();
+      return;
+    }
+
+    this._healthBarTween = gsap.to(healthBarElements, {
       opacity: 0,
       duration: HEALTH_BAR_FADE_DURATION_S,
       onComplete: () => this._removeHealthBar(),
@@ -110,8 +114,7 @@ export class HealthBarRenderer extends BillboardRenderer {
       this._healthBarTween = null;
     }
 
-    const healthBarElement = this.getElement(this._healthBarId);
-    if (healthBarElement) {
+    if (this._hasElement) {
       this.removeElement(this._healthBarId);
       this._hasElement = false;
     }

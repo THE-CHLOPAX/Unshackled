@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { useGraphicsStore } from '@tgdf';
+import { useCallback, useMemo, useState } from 'react';
 
 import { GameUIOverlay } from 'UI';
 import { TestScene } from '3D/classes/scenes/TestScene';
@@ -9,8 +9,10 @@ import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
 import { useActivePlayersStore } from 'Store/useActivePlayersStore';
 import { assignPlayerProfiles } from 'renderer/utils/assignPlayerProfiles';
 import { ThreeDViewerPixelated } from 'UI/components/ThreeDViewerPixelated';
+import { BillboardLayer } from 'UI/components/BillboardLayer/BillboardLayer';
 import { createNewPlayerProfile } from 'renderer/utils/createNewPlayerProfile';
 import { GameOverModal } from 'UI/components/GameUIOverlay/GameOverModal/GameOverModal';
+import { BillboardView } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardView';
 
 import { LoadingView } from './LoadingView';
 
@@ -28,6 +30,12 @@ export function TestView() {
   const isGameOver = useIsGameOver(emitter);
   const [loadingFinished, setLoadingFinished] = useState(false);
 
+  const billboardView = useMemo(() => scene && new BillboardView(scene.billboards), [scene]);
+
+  const handleAfterRender = useCallback(() => {
+    if (scene) billboardView?.updatePositions(scene.camera);
+  }, [scene, billboardView]);
+
   return (
     <BackToViewLayout backToView="MenuView">
       {!loadingFinished || scene === null ? (
@@ -38,6 +46,8 @@ export function TestView() {
             scene={scene}
             resX={resolution.width}
             resY={resolution.height}
+            overlay={billboardView && <BillboardLayer view={billboardView} />}
+            onAfterRender={handleAfterRender}
             debug
           />
           <GameUIOverlay emitter={emitter} />

@@ -82,13 +82,13 @@ export class StaminaBarRenderer extends BillboardRenderer {
   private _fadeStaminaBar(): void {
     this._hideTimeout = null;
 
-    const staminaBarElement = this.getElement(this._staminaBarId);
-    if (!staminaBarElement) {
+    const staminaBarElements = this.getElements(this._staminaBarId);
+    if (staminaBarElements.length === 0) {
       this._removeStaminaBar();
       return;
     }
 
-    this._fadeTween = gsap.to(staminaBarElement, {
+    this._fadeTween = gsap.to(staminaBarElements, {
       opacity: 0,
       duration: STAMINA_BAR_FADE_DURATION_S,
       onComplete: () => this._removeStaminaBar(),

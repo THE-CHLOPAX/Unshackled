@@ -1,12 +1,11 @@
-import * as THREE from 'three';
-import { GameObject, logger, Scene, worldToScreen } from '@tgdf';
+import { GameObject, logger, Scene } from '@tgdf';
 import { MockCamera } from '@tgdf/internal-3d/testUtils/MockCamera';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { useOverlayStore, overlayElementRefs, overlayContainerSize } from 'Store/useOverlayStore';
+import { BillboardView } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardView';
+import { BillboardRegistry } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardRegistry';
 
 import { BillboardRenderer } from './BillboardRenderer';
-import { BILLBOARD_POSITION_UPDATE_INTERVAL_MS } from './constants';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
@@ -17,11 +16,15 @@ vi.mock('@tgdf', async (importOriginal) => {
   return {
     ...actual,
     logger: vi.fn(),
-    worldToScreen: vi.fn(actual.worldToScreen),
   };
 });
 
 class TestScene extends Scene {
+  camera = new MockCamera();
+  billboards = new BillboardRegistry();
+}
+
+class SceneWithoutRegistry extends Scene {
   camera = new MockCamera();
 }
 
@@ -31,8 +34,7 @@ function TestBar(_props: TestBarProps) {
   return null;
 }
 
-function createBillboardRenderer() {
-  const scene = new TestScene();
+function createBillboardRenderer(scene: Scene = new TestScene()) {
   const gameObject = new GameObject({ scene });
   scene.add(gameObject);
 
@@ -43,73 +45,81 @@ function createBillboardRenderer() {
 }
 
 describe('BillboardRenderer', () => {
+  let scene: TestScene;
+
   beforeEach(() => {
-    vi.useFakeTimers();
-    useOverlayStore.setState({ entries: new Map() });
-    overlayElementRefs.clear();
-    overlayContainerSize.width = 800;
-    overlayContainerSize.height = 600;
+    scene = new TestScene();
   });
 
   afterEach(() => {
-    vi.useRealTimers();
     vi.clearAllMocks();
   });
 
   describe('addElement', () => {
-    it('registers the element in the overlay store', () => {
-      const { billboardRenderer } = createBillboardRenderer();
+    it('registers the element in the scene billboard registry, targeting its GameObject', () => {
+      const { billboardRenderer, gameObject } = createBillboardRenderer(scene);
 
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
 
-      const entry = useOverlayStore.getState().entries.get('boss-hp');
+      const entry = scene.billboards.get('boss-hp');
       expect(entry?.Component).toBe(TestBar);
       expect(entry?.props).toEqual({ progress: 1 });
+      expect(entry?.target).toBe(gameObject);
     });
 
     it('warns and does not overwrite when the id is already tracked', () => {
-      const { billboardRenderer } = createBillboardRenderer();
+      const { billboardRenderer } = createBillboardRenderer(scene);
 
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 0.2 });
 
-      expect(useOverlayStore.getState().entries.get('boss-hp')?.props).toEqual({ progress: 1 });
+      expect(scene.billboards.get('boss-hp')?.props).toEqual({ progress: 1 });
+      expect(logger).toHaveBeenCalledWith(expect.objectContaining({ type: 'warn' }));
+    });
+
+    it('warns and tracks nothing when the scene has no billboard registry', () => {
+      const { billboardRenderer } = createBillboardRenderer(new SceneWithoutRegistry());
+
+      billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
+      vi.mocked(logger).mockClear();
+      billboardRenderer.updateElement('boss-hp', { progress: 0.5 });
+
       expect(logger).toHaveBeenCalledWith(expect.objectContaining({ type: 'warn' }));
     });
   });
 
   describe('updateElement', () => {
-    it('merges props into the tracked element in the overlay store', () => {
-      const { billboardRenderer } = createBillboardRenderer();
+    it('merges props into the tracked element in the registry', () => {
+      const { billboardRenderer } = createBillboardRenderer(scene);
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
 
       billboardRenderer.updateElement('boss-hp', { progress: 0.4 });
 
-      expect(useOverlayStore.getState().entries.get('boss-hp')?.props).toEqual({ progress: 0.4 });
+      expect(scene.billboards.get('boss-hp')?.props).toEqual({ progress: 0.4 });
     });
 
     it('warns and does nothing when the id is not tracked', () => {
-      const { billboardRenderer } = createBillboardRenderer();
+      const { billboardRenderer } = createBillboardRenderer(scene);
 
       billboardRenderer.updateElement('missing', { progress: 1 });
 
-      expect(useOverlayStore.getState().entries.has('missing')).toBe(false);
+      expect(scene.billboards.has('missing')).toBe(false);
       expect(logger).toHaveBeenCalledWith(expect.objectContaining({ type: 'warn' }));
     });
   });
 
   describe('removeElement', () => {
-    it('removes the element from the overlay store', () => {
-      const { billboardRenderer } = createBillboardRenderer();
+    it('removes the element from the registry', () => {
+      const { billboardRenderer } = createBillboardRenderer(scene);
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
 
       billboardRenderer.removeElement('boss-hp');
 
-      expect(useOverlayStore.getState().entries.has('boss-hp')).toBe(false);
+      expect(scene.billboards.has('boss-hp')).toBe(false);
     });
 
     it('warns and does nothing when the id is not tracked', () => {
-      const { billboardRenderer } = createBillboardRenderer();
+      const { billboardRenderer } = createBillboardRenderer(scene);
 
       billboardRenderer.removeElement('missing');
 
@@ -117,145 +127,56 @@ describe('BillboardRenderer', () => {
     });
   });
 
-  describe('getElement', () => {
-    it('returns the DOM node registered for the id', () => {
-      const { billboardRenderer } = createBillboardRenderer();
-      const node = document.createElement('div');
-      overlayElementRefs.set('boss-hp', node);
+  describe('getElements', () => {
+    it('returns the nodes mounted for the id across every attached view', () => {
+      const { billboardRenderer } = createBillboardRenderer(scene);
+      const viewA = new BillboardView(scene.billboards);
+      const viewB = new BillboardView(scene.billboards);
+      viewA.attach();
+      viewB.attach();
+      const nodeA = document.createElement('div');
+      const nodeB = document.createElement('div');
+
+      billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
+      viewA.setNode('boss-hp', nodeA);
+      viewB.setNode('boss-hp', nodeB);
+
+      expect(billboardRenderer.getElements('boss-hp')).toEqual([nodeA, nodeB]);
+    });
+
+    it('returns an empty list before the element has mounted or when it is not tracked', () => {
+      const { billboardRenderer } = createBillboardRenderer(scene);
+      new BillboardView(scene.billboards).attach();
 
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
 
-      expect(billboardRenderer.getElement('boss-hp')).toBe(node);
-    });
-
-    it('returns undefined before the element has mounted or after it has been removed', () => {
-      const { billboardRenderer } = createBillboardRenderer();
-
-      billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
-      expect(billboardRenderer.getElement('boss-hp')).toBeUndefined();
-
-      const node = document.createElement('div');
-      overlayElementRefs.set('boss-hp', node);
-      overlayElementRefs.delete('boss-hp');
-
-      expect(billboardRenderer.getElement('boss-hp')).toBeUndefined();
-    });
-  });
-
-  describe('position updates', () => {
-    it('writes screen position and visibility directly to the DOM node, without touching the entry props in the store', () => {
-      const { gameObject, billboardRenderer } = createBillboardRenderer();
-      const node = document.createElement('div');
-      overlayElementRefs.set('boss-hp', node);
-
-      billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
-      gameObject.position.set(0, 0, -10);
-
-      gameObject.update(0.016);
-
-      expect(node.style.visibility).toBe('visible');
-      expect(node.style.transform).toMatch(/^translate3d\(/);
-      expect(useOverlayStore.getState().entries.get('boss-hp')?.props).toEqual({ progress: 1 });
-    });
-
-    it('hides the element when its GameObject is behind the camera', () => {
-      const { gameObject, billboardRenderer } = createBillboardRenderer();
-      const node = document.createElement('div');
-      overlayElementRefs.set('boss-hp', node);
-
-      billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
-      // Positive Z is behind the default camera, which looks down -Z from the origin.
-      gameObject.position.set(0, 0, 10);
-
-      gameObject.update(0.016);
-
-      expect(node.style.visibility).toBe('hidden');
-    });
-
-    it('applies the configured world-space offset before projecting', () => {
-      const { gameObject, billboardRenderer } = createBillboardRenderer();
-      const node = document.createElement('div');
-      overlayElementRefs.set('boss-hp', node);
-
-      billboardRenderer.addElement(
-        'boss-hp',
-        TestBar,
-        { progress: 1 },
-        { offset: new THREE.Vector3(0, 2, 0) }
-      );
-      gameObject.position.set(0, 0, -10);
-
-      gameObject.update(0.016);
-
-      expect(worldToScreen).toHaveBeenCalledWith(
-        expect.objectContaining({ x: 0, y: 2, z: -10 }),
-        expect.anything(),
-        800,
-        600
-      );
-    });
-
-    it('does nothing while the overlay container has not been measured yet', () => {
-      overlayContainerSize.width = 0;
-      overlayContainerSize.height = 0;
-      const { gameObject, billboardRenderer } = createBillboardRenderer();
-      const node = document.createElement('div');
-      overlayElementRefs.set('boss-hp', node);
-
-      billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
-      gameObject.position.set(0, 0, -10);
-
-      gameObject.update(0.016);
-
-      expect(worldToScreen).not.toHaveBeenCalled();
-      expect(node.style.transform).toBe('');
-    });
-
-    it('throttles recomputation so rapid updates only recompute once per interval', () => {
-      const { gameObject, billboardRenderer } = createBillboardRenderer();
-      const node = document.createElement('div');
-      overlayElementRefs.set('boss-hp', node);
-      billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
-      gameObject.position.set(0, 0, -10);
-
-      gameObject.update(0.001);
-      gameObject.update(0.001);
-      gameObject.update(0.001);
-
-      expect(worldToScreen).toHaveBeenCalledTimes(1);
-
-      // Date.now() truncates to integer ms, so advancing by the exact (fractional)
-      // interval can round back down to "not quite elapsed yet" -- round up to guarantee
-      // the throttle's real-time threshold is actually crossed.
-      vi.advanceTimersByTime(Math.ceil(BILLBOARD_POSITION_UPDATE_INTERVAL_MS));
-      gameObject.update(0.001);
-
-      expect(worldToScreen).toHaveBeenCalledTimes(2);
+      expect(billboardRenderer.getElements('boss-hp')).toEqual([]);
+      expect(billboardRenderer.getElements('missing')).toEqual([]);
     });
   });
 
   describe('onDestroyed', () => {
-    it('removes every element it registered from the overlay store', () => {
-      const { billboardRenderer } = createBillboardRenderer();
+    it('removes every element it registered from the registry', () => {
+      const { billboardRenderer } = createBillboardRenderer(scene);
       billboardRenderer.addElement('a', TestBar, { progress: 1 });
       billboardRenderer.addElement('b', TestBar, { progress: 1 });
 
       billboardRenderer.destroy();
 
-      expect(useOverlayStore.getState().entries.size).toBe(0);
+      expect(scene.billboards.getSnapshot()).toHaveLength(0);
     });
 
     it('does not affect elements registered by other BillboardRenderer instances', () => {
-      const { billboardRenderer: rendererA } = createBillboardRenderer();
-      const { billboardRenderer: rendererB } = createBillboardRenderer();
+      const { billboardRenderer: rendererA } = createBillboardRenderer(scene);
+      const { billboardRenderer: rendererB } = createBillboardRenderer(scene);
 
       rendererA.addElement('a', TestBar, { progress: 1 });
       rendererB.addElement('b', TestBar, { progress: 1 });
 
       rendererA.destroy();
 
-      expect(useOverlayStore.getState().entries.has('a')).toBe(false);
-      expect(useOverlayStore.getState().entries.has('b')).toBe(true);
+      expect(scene.billboards.has('a')).toBe(false);
+      expect(scene.billboards.has('b')).toBe(true);
     });
   });
 });

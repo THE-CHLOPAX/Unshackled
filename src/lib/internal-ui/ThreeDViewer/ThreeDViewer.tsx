@@ -18,6 +18,7 @@ export type ThreeDViewerProps = {
   debug?: boolean;
   postProcessingPasses?: Pass[];
   overlay?: ReactNode;
+  onAfterRender?: () => void;
 };
 
 export function ThreeDViewer({
@@ -30,9 +31,12 @@ export function ThreeDViewer({
   debug,
   postProcessingPasses = [],
   overlay,
+  onAfterRender,
 }: ThreeDViewerProps) {
   const clockRef = useRef<THREE.Clock>(new THREE.Clock());
   const statsRef = useRef<Stats | null>(null);
+  const onAfterRenderRef = useRef(onAfterRender);
+  onAfterRenderRef.current = onAfterRender;
 
   const { antialiasing, resolution } = useGraphicsStore();
 
@@ -75,6 +79,7 @@ export function ThreeDViewer({
     } else if (renderer) {
       renderer.render(scene, scene.camera);
     }
+    onAfterRenderRef.current?.();
   }, [scene, composer, renderer]);
 
   const rendererLoop = useCallback(() => {
