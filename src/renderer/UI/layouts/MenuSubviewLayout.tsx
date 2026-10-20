@@ -1,3 +1,5 @@
+import type { MenuViewProps } from 'Views/MenuView/MenuView';
+
 import { InternalFlex } from '@tgdf';
 import styled from 'styled-components';
 
@@ -11,13 +13,15 @@ import { BackToViewLayout } from '../layouts/BackToViewLayout';
 export const MenuSubviewLayout = ({
   children,
   title,
+  backToMenuProps,
 }: {
   children: React.ReactNode;
   title: string;
+  backToMenuProps?: MenuViewProps;
 }) => {
   return (
     <VersionLayout>
-      <BackToViewLayout backToView="MenuView">
+      <BackToViewLayout backToView="MenuView" backToViewProps={backToMenuProps}>
         <Wrapper direction="column" justify="center" align="center">
           <Header direction="column" justify="center" align="center" gap={20}>
             <Text size="xxl" color={COLORS.FONT_COLOR_HIGHLIGHT}>

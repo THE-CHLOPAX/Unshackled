@@ -59,7 +59,7 @@ export function LevelSession({ progress, onLevelComplete }: LevelSessionProps) {
   ) : (
     <Wrapper>
       {scene.players.slice(0, RENDERED_VIEWERS_LIMIT).map((player) => (
-        <SceneViewer key={player.uuid} scene={scene} player={player} />
+        <SceneViewer key={player.uuid} scene={scene} player={player} isGameOver={isGameOver} />
       ))}
       {isGameOver && (
         <GameOverWrapper>

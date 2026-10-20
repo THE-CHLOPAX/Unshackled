@@ -21,7 +21,6 @@ let billboardView: BillboardView;
 
 class TestScene extends Scene {
   camera = new MockCamera();
-  billboards = registry;
 }
 
 function createHealthBarRenderer(maxHealthPoints = 100, startingHealthPoints?: number) {
@@ -30,7 +29,7 @@ function createHealthBarRenderer(maxHealthPoints = 100, startingHealthPoints?: n
   const gameObject = new GameObject({ scene }) as unknown as Entity;
 
   const healthPointsController = new HealthPointsController(gameObject, { maxHealthPoints });
-  const healthBarRenderer = new HealthBarRenderer(gameObject, healthPointsController);
+  const healthBarRenderer = new HealthBarRenderer(gameObject, registry, healthPointsController);
 
   gameObject.addComponent('HealthPointsController', healthPointsController);
   gameObject.addComponent('HealthBarRenderer', healthBarRenderer);

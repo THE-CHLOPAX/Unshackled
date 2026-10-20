@@ -1,11 +1,12 @@
 import { gsap } from 'gsap';
 import * as THREE from 'three';
-import { assert, GameObject, getModelFromStore, isMesh, RigidBody, Scene } from '@tgdf';
+import { assert, GameObject, getModelFromStore, isMesh, RigidBody } from '@tgdf';
 
 import { PlayerActionType } from 'renderer/types';
 import { MODELS, WORLD_CELL_SIZE } from '3D/constants';
 import { pixelateModelMaterial } from 'renderer/3D/utils/pixelateModelMaterial';
 
+import { GameScene } from '../../scenes/GameScene/GameScene';
 import { HintBillboardRenderer } from '../../gameObjectComponents/HintBillboardRenderer/HintBillboardRenderer';
 import { InteractionController } from '../../gameObjectComponents/InteractionController/InteractionController';
 
@@ -25,7 +26,7 @@ export class DungeonDoor extends GameObject {
   private _isOpen = false;
   private _rotationTween: gsap.core.Tween | null = null;
 
-  constructor(scene: Scene) {
+  constructor(scene: GameScene) {
     super({ scene });
 
     const doorModel = getModelFromStore(MODELS.DUNGEON_DOOR.id);
@@ -58,7 +59,7 @@ export class DungeonDoor extends GameObject {
 
     const hintRenderer = this.addComponent(
       'HintBillboardRenderer',
-      new HintBillboardRenderer(this, { offset: HINT_OFFSET })
+      new HintBillboardRenderer(this, scene.billboards, { offset: HINT_OFFSET })
     );
 
     this._interactionController = this.addComponent(

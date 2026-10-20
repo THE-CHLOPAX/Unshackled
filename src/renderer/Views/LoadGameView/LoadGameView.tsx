@@ -11,7 +11,7 @@ export const LoadGameView = () => {
   const { saveFiles, reload } = useSaveFilesStore();
 
   return (
-    <MenuSubviewLayout title="Load game">
+    <MenuSubviewLayout title="Load game" backToMenuProps={{ reloadSaveFiles: true }}>
       <Wrapper color={COLORS.BG_COLOR_HIGHLIGHTED}>
         <ScrollableWrapper>
           <ItemsWrapper direction="column" gap={15}>

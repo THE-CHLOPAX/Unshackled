@@ -13,9 +13,10 @@ import { BillboardView } from 'renderer/3D/classes/scenes/GameScene/BillboardReg
 type SceneViewerProps = {
   scene: GameScene;
   player: Player;
+  isGameOver: boolean;
 };
 
-export function SceneViewer({ scene, player }: SceneViewerProps) {
+export function SceneViewer({ scene, player, isGameOver }: SceneViewerProps) {
   const { resolution } = useGraphicsStore();
 
   const viewerContextValue = useMemo<ViewerContextValue>(
@@ -44,6 +45,7 @@ export function SceneViewer({ scene, player }: SceneViewerProps) {
           emitter={scene.options.emitter}
           player={player}
           objectiveType={scene.options.objective?.type}
+          isGameOver={isGameOver}
         />
       </Wrapper>
     </ViewerContext.Provider>

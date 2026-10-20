@@ -12,6 +12,7 @@ export type SaveFilesState = {
 };
 
 let pendingReload: Promise<void> | null = null;
+let queuedReload: Promise<void> | null = null;
 
 async function fetchSortedSaveFiles(): Promise<RunIdentifier[]> {
   try {
@@ -25,12 +26,18 @@ async function fetchSortedSaveFiles(): Promise<RunIdentifier[]> {
 
 export const useSaveFilesStore = create<SaveFilesState>()(
   devtools(
-    (set) => ({
+    (set, get) => ({
       saveFiles: [],
       loading: true,
 
       reload: () => {
-        if (pendingReload) return pendingReload;
+        if (pendingReload) {
+          queuedReload ??= pendingReload.then(() => {
+            queuedReload = null;
+            return get().reload();
+          });
+          return queuedReload;
+        }
 
         set({ loading: true });
         pendingReload = fetchSortedSaveFiles()

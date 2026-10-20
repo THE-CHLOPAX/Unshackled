@@ -1,6 +1,7 @@
 import type * as THREE from 'three';
+import type { GameScene } from '3D/classes/scenes/GameScene/GameScene';
 
-import { Emitter, type Scene } from '@tgdf';
+import { Emitter } from '@tgdf';
 
 import { BIOMES } from './constants';
 
@@ -71,7 +72,7 @@ export type InstancedWorldObjectDefinition = WorldObjectDefitionBase & {
 
 export type EntityWorldObjectDefinition = WorldObjectDefitionBase & {
   type: 'entity';
-  object: new (scene: Scene, args: WorldObjectArgs) => THREE.Object3D;
+  object: new (scene: GameScene, args: WorldObjectArgs) => THREE.Object3D;
 };
 
 export type WorldVec2 = { x: number; z: number };

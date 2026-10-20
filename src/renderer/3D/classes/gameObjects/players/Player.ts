@@ -41,7 +41,7 @@ export class Player extends Entity {
 
     this.staminaBarRenderer = this.addComponent(
       'StaminaBarRenderer',
-      new StaminaBarRenderer(this, this.staminaPointsController)
+      new StaminaBarRenderer(this, scene.billboards, this.staminaPointsController)
     );
   }
 

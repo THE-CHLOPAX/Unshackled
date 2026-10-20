@@ -26,7 +26,7 @@ export function GameView() {
   };
 
   return (
-    <BackToViewLayout backToView="MenuView">
+    <BackToViewLayout backToView="MenuView" backToViewProps={{ reloadSaveFiles: true }}>
       <VersionLayout>
         {progress && (
           <LevelSession

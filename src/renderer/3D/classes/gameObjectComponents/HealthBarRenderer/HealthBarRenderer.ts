@@ -6,6 +6,7 @@ import { HealthBar, HealthBarProps } from 'UI';
 import { Entity } from '../../gameObjects/Entity';
 import { HealthPointsController } from '../HealthPointsController';
 import { BillboardRenderer } from '../BillboardRenderer/BillboardRenderer';
+import { BillboardRegistry } from '../../scenes/GameScene/BillboardRegistry/BillboardRegistry';
 import {
   HEALTH_BAR_OFFSET,
   HEALTH_BAR_VISIBLE_DURATION_MS,
@@ -26,10 +27,11 @@ export class HealthBarRenderer extends BillboardRenderer {
 
   constructor(
     public readonly entity: Entity,
+    registry: BillboardRegistry,
     public readonly healthPointsController: HealthPointsController,
     public readonly options: HealthBarRendererOptions = { offset: HEALTH_BAR_OFFSET }
   ) {
-    super(entity);
+    super(entity, registry);
     this._healthBarId = `health-bar-${entity.uuid}`;
   }
 

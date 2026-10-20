@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { InternalFlex } from '@tgdf';
 import styled from 'styled-components';
 
@@ -6,19 +6,20 @@ import { GRADIENTS } from 'renderer/constants';
 import { VersionLayout } from 'UI/layouts/VersionLayout';
 import { useSaveFilesStore } from 'Store/useSaveFilesStore';
 import { Button, Ornament, UI_IMAGE_URLS, withUIClick } from 'UI';
+import { useReloadSaveFiles } from 'renderer/hooks/useReloadSaveFiles';
 
 import { LoadingView } from '../LoadingView';
 import { useButtonsData } from './useButtonsData';
-import { useInitialLoading } from './useInitialLoading';
 
-export function MenuView() {
-  const { saveFiles, loading, reload } = useSaveFilesStore();
-  const { progress, loadingFinished, finishLoading } = useInitialLoading(loading);
+export type MenuViewProps = {
+  reloadSaveFiles?: boolean;
+};
+
+export function MenuView({ reloadSaveFiles = false }: MenuViewProps) {
+  const saveFiles = useSaveFilesStore((state) => state.saveFiles);
   const buttonsData = useButtonsData(saveFiles);
-
-  useEffect(() => {
-    reload();
-  }, [reload]);
+  const saveFilesReloaded = useReloadSaveFiles(reloadSaveFiles);
+  const [loadingFinished, setLoadingFinished] = useState(!reloadSaveFiles);
 
   return loadingFinished ? (
     <VersionLayout>
@@ -42,7 +43,7 @@ export function MenuView() {
       </Wrapper>
     </VersionLayout>
   ) : (
-    <LoadingView progress={progress} onComplete={finishLoading} />
+    <LoadingView progress={saveFilesReloaded ? 1 : 0} onComplete={() => setLoadingFinished(true)} />
   );
 }
 

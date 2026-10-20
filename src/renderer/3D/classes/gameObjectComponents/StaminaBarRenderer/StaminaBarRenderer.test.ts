@@ -25,7 +25,6 @@ let billboardView: BillboardView;
 
 class TestScene extends Scene {
   camera = new MockCamera();
-  billboards = registry;
 }
 
 function createStaminaBarRenderer() {
@@ -36,7 +35,7 @@ function createStaminaBarRenderer() {
     maxLongTermStamina: 300,
     maxShortTermStamina: 100,
   });
-  const staminaBarRenderer = new StaminaBarRenderer(gameObject, staminaPointsController);
+  const staminaBarRenderer = new StaminaBarRenderer(gameObject, registry, staminaPointsController);
 
   gameObject.addComponent('StaminaPointsController', staminaPointsController);
   gameObject.addComponent('StaminaBarRenderer', staminaBarRenderer);

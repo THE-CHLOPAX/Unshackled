@@ -23,7 +23,7 @@ export const GameOverModal = () => {
       <ButtonsSection>
         <ButtonsWrapper>
           <Button label="Restart" />
-          <Button label="Menu" onClick={() => setView('MenuView')} />
+          <Button label="Menu" onClick={() => setView('MenuView', { reloadSaveFiles: true })} />
         </ButtonsWrapper>
       </ButtonsSection>
     </Wrapper>

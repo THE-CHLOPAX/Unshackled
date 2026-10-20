@@ -1,3 +1,5 @@
+import type { ComponentProps } from 'react';
+
 import styled from 'styled-components';
 import {
   useKeyPress,
@@ -5,6 +7,7 @@ import {
   KEYBOARD_MAPPINGS,
   GAMEPAD_MAPPINGS,
   useViewsStore,
+  ViewProps,
 } from '@tgdf';
 
 import * as views from 'Views';
@@ -14,27 +17,33 @@ import { Icon } from '../components/Icon/Icon';
 import { withUIClick } from '../utils/withUIClick';
 import { ButtonIcon } from '../components/ButtonIcon/ButtonIcon';
 
-export type BackToViewLayoutProps = {
-  backToView: keyof typeof views;
+type ViewName = keyof typeof views;
+
+export type BackToViewLayoutProps<V extends ViewName = ViewName> = {
+  backToView: V;
+  backToViewProps?: ComponentProps<(typeof views)[V]>;
   children: React.ReactNode;
   noButton?: boolean;
 };
 
-export function BackToViewLayout({
+export function BackToViewLayout<V extends ViewName>({
   backToView,
+  backToViewProps,
   children,
   noButton = false,
-}: BackToViewLayoutProps) {
+}: BackToViewLayoutProps<V>) {
   const { setView } = useViewsStore();
+
+  const goBackToView = () => setView(backToView, backToViewProps as ViewProps | undefined);
 
   // Listen for Escape key to go back
   useKeyPress(KEYBOARD_MAPPINGS.Escape, () => {
-    setView(backToView);
+    goBackToView();
   });
 
   // Listen for Start button to go back
   useGamepadButtonPress(GAMEPAD_MAPPINGS.START, () => {
-    setView(backToView);
+    goBackToView();
   });
 
   return (
@@ -42,7 +51,7 @@ export function BackToViewLayout({
       {noButton === false && (
         <StyledButtonIcon
           icon={<Icon icon="arrowLeft" scale={2} color={COLORS.FONT_COLOR_DIMMED} />}
-          onClick={withUIClick(() => setView(backToView))}
+          onClick={withUIClick(goBackToView)}
         />
       )}
       {children}

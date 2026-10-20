@@ -1,14 +1,16 @@
 import React from 'react';
-import { useCurrentView } from '@tgdf';
+import { useCurrentView, useCurrentViewProps } from '@tgdf';
 
 type ViewManagerProps = {
   views: {
-    [key: string]: React.ComponentType;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: React.ComponentType<any>;
   };
 };
 
 export function ViewManager({ views }: ViewManagerProps) {
   const currentView = useCurrentView();
+  const currentViewProps = useCurrentViewProps();
 
   // Get the component for the current view
   const ViewComponent = views[currentView];
@@ -30,7 +32,7 @@ export function ViewManager({ views }: ViewManagerProps) {
 
   return (
     <>
-      <ViewComponent />
+      <ViewComponent {...currentViewProps} />
     </>
   );
 }

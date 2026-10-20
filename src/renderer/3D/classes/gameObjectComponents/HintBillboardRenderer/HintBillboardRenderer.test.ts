@@ -19,7 +19,6 @@ let billboardView: BillboardView;
 
 class TestScene extends Scene {
   camera = new MockCamera();
-  billboards = registry;
 }
 
 const OPEN_HINT: HintBillboardHint = { icon: 'A', label: 'Open' };
@@ -33,7 +32,7 @@ function createHintBillboardRenderer(
   const gameObject = new GameObject({ scene });
   scene.add(gameObject);
 
-  const renderer = new HintBillboardRenderer(gameObject, options);
+  const renderer = new HintBillboardRenderer(gameObject, registry, options);
   gameObject.addComponent('HintBillboardRenderer', renderer);
 
   return { gameObject, renderer, hintId: `hint-billboard-${gameObject.uuid}` };

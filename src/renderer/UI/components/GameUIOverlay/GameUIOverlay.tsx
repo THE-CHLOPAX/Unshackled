@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 import { GameEventsEmitter } from 'renderer/types';
-import { useIsGameOver } from 'renderer/hooks/useIsGameOver';
 import { Player } from '3D/classes/gameObjects/players/Player';
 import { ProgressTrackerObjective } from '3D/classes/scenes/GameScene/ProgressTracker/ProgressTracker';
 
@@ -13,11 +12,15 @@ export type GameUIOverlayProps = {
   emitter: GameEventsEmitter;
   player?: Player;
   objectiveType?: ProgressTrackerObjective['type'];
+  isGameOver: boolean;
 };
 
-export const GameUIOverlay = ({ emitter, player, objectiveType }: GameUIOverlayProps) => {
-  const isGameOver = useIsGameOver(emitter);
-
+export const GameUIOverlay = ({
+  emitter,
+  player,
+  objectiveType,
+  isGameOver,
+}: GameUIOverlayProps) => {
   return (
     <Wrapper>
       {!isGameOver && objectiveType && (

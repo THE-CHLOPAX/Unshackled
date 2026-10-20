@@ -64,17 +64,44 @@ describe('useSaveFilesStore', () => {
     expect(useSaveFilesStore.getState()).toMatchObject({ saveFiles: fresh, loading: false });
   });
 
-  it('shares a single request between concurrent reloads', async () => {
-    const request = deferred<RunIdentifier[]>();
-    vi.mocked(loadSaveFiles).mockReturnValue(request.promise);
+  it('runs a follow-up request when a reload is requested while one is running', async () => {
+    const staleRequest = deferred<RunIdentifier[]>();
+    const freshRequest = deferred<RunIdentifier[]>();
+    const stale = [createRun('stale', 1)];
+    const fresh = [createRun('fresh', 2)];
+    vi.mocked(loadSaveFiles)
+      .mockReturnValueOnce(staleRequest.promise)
+      .mockReturnValueOnce(freshRequest.promise);
 
     const first = useSaveFilesStore.getState().reload();
     const second = useSaveFilesStore.getState().reload();
-    request.resolve([]);
-    await Promise.all([first, second]);
 
-    expect(first).toBe(second);
-    expect(loadSaveFiles).toHaveBeenCalledOnce();
+    staleRequest.resolve(stale);
+    await first;
+
+    expect(useSaveFilesStore.getState().saveFiles).toEqual(stale);
+    expect(loadSaveFiles).toHaveBeenCalledTimes(2);
+
+    freshRequest.resolve(fresh);
+    await second;
+
+    expect(useSaveFilesStore.getState()).toMatchObject({ saveFiles: fresh, loading: false });
+  });
+
+  it('collapses every reload requested while one is running into a single follow-up', async () => {
+    const firstRequest = deferred<RunIdentifier[]>();
+    vi.mocked(loadSaveFiles).mockReturnValueOnce(firstRequest.promise).mockResolvedValue([]);
+
+    const first = useSaveFilesStore.getState().reload();
+    const second = useSaveFilesStore.getState().reload();
+    const third = useSaveFilesStore.getState().reload();
+
+    firstRequest.resolve([]);
+    await Promise.all([first, second, third]);
+
+    expect(second).toBe(third);
+    expect(second).not.toBe(first);
+    expect(loadSaveFiles).toHaveBeenCalledTimes(2);
   });
 
   it('sends a new request once the previous reload has finished', async () => {

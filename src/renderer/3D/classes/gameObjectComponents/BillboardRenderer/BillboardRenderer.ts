@@ -1,9 +1,8 @@
 import type { ComponentType } from 'react';
 
 import * as THREE from 'three';
-import { GameObjectComponent, logger } from '@tgdf';
+import { GameObject, GameObjectComponent, logger } from '@tgdf';
 
-import { hasBillboardRegistry } from '3D/utils/hasBillboardRegistry';
 import { BillboardRegistry } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardRegistry';
 
 import { BILLBOARD_RENDERER_MESSAGES } from './constants';
@@ -14,6 +13,13 @@ export type BillboardElementOptions = {
 
 export class BillboardRenderer extends GameObjectComponent {
   private _elementIds = new Set<string>();
+
+  constructor(
+    gameObject: GameObject,
+    private readonly _registry: BillboardRegistry
+  ) {
+    super(gameObject);
+  }
 
   public addElement<P extends object>(
     id: string,
@@ -26,14 +32,8 @@ export class BillboardRenderer extends GameObjectComponent {
       return;
     }
 
-    const registry = this._getRegistry();
-    if (!registry) {
-      logger({ message: BILLBOARD_RENDERER_MESSAGES.REGISTRY_NOT_FOUND(id), type: 'warn' });
-      return;
-    }
-
     this._elementIds.add(id);
-    registry.add(id, Component, props, {
+    this._registry.add(id, Component, props, {
       target: this.gameObject,
       offset: options?.offset ?? new THREE.Vector3(),
     });
@@ -45,12 +45,12 @@ export class BillboardRenderer extends GameObjectComponent {
       return;
     }
 
-    this._getRegistry()?.update(id, props);
+    this._registry.update(id, props);
   }
 
   public getElements(id: string): HTMLDivElement[] {
     if (!this._elementIds.has(id)) return [];
-    return this._getRegistry()?.getElements(id) ?? [];
+    return this._registry.getElements(id);
   }
 
   public removeElement(id: string): void {
@@ -60,19 +60,13 @@ export class BillboardRenderer extends GameObjectComponent {
     }
 
     this._elementIds.delete(id);
-    this._getRegistry()?.remove(id);
+    this._registry.remove(id);
   }
 
   protected override onDestroyed(): void {
     super.onDestroyed();
 
-    const registry = this._getRegistry();
-    this._elementIds.forEach((id) => registry?.remove(id));
+    this._elementIds.forEach((id) => this._registry.remove(id));
     this._elementIds.clear();
-  }
-
-  private _getRegistry(): BillboardRegistry | undefined {
-    const { scene } = this;
-    return hasBillboardRegistry(scene) ? scene.billboards : undefined;
   }
 }

@@ -21,11 +21,6 @@ vi.mock('@tgdf', async (importOriginal) => {
 
 class TestScene extends Scene {
   camera = new MockCamera();
-  billboards = new BillboardRegistry();
-}
-
-class SceneWithoutRegistry extends Scene {
-  camera = new MockCamera();
 }
 
 type TestBarProps = { progress: number };
@@ -34,21 +29,22 @@ function TestBar(_props: TestBarProps) {
   return null;
 }
 
-function createBillboardRenderer(scene: Scene = new TestScene()) {
+function createBillboardRenderer(registry: BillboardRegistry) {
+  const scene = new TestScene();
   const gameObject = new GameObject({ scene });
   scene.add(gameObject);
 
-  const billboardRenderer = new BillboardRenderer(gameObject);
+  const billboardRenderer = new BillboardRenderer(gameObject, registry);
   gameObject.addComponent('BillboardRenderer', billboardRenderer);
 
   return { scene, gameObject, billboardRenderer };
 }
 
 describe('BillboardRenderer', () => {
-  let scene: TestScene;
+  let registry: BillboardRegistry;
 
   beforeEach(() => {
-    scene = new TestScene();
+    registry = new BillboardRegistry();
   });
 
   afterEach(() => {
@@ -56,70 +52,60 @@ describe('BillboardRenderer', () => {
   });
 
   describe('addElement', () => {
-    it('registers the element in the scene billboard registry, targeting its GameObject', () => {
-      const { billboardRenderer, gameObject } = createBillboardRenderer(scene);
+    it('registers the element in its billboard registry, targeting its GameObject', () => {
+      const { billboardRenderer, gameObject } = createBillboardRenderer(registry);
 
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
 
-      const entry = scene.billboards.get('boss-hp');
+      const entry = registry.get('boss-hp');
       expect(entry?.Component).toBe(TestBar);
       expect(entry?.props).toEqual({ progress: 1 });
       expect(entry?.target).toBe(gameObject);
     });
 
     it('warns and does not overwrite when the id is already tracked', () => {
-      const { billboardRenderer } = createBillboardRenderer(scene);
+      const { billboardRenderer } = createBillboardRenderer(registry);
 
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 0.2 });
 
-      expect(scene.billboards.get('boss-hp')?.props).toEqual({ progress: 1 });
-      expect(logger).toHaveBeenCalledWith(expect.objectContaining({ type: 'warn' }));
-    });
-
-    it('warns and tracks nothing when the scene has no billboard registry', () => {
-      const { billboardRenderer } = createBillboardRenderer(new SceneWithoutRegistry());
-
-      billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
-      vi.mocked(logger).mockClear();
-      billboardRenderer.updateElement('boss-hp', { progress: 0.5 });
-
+      expect(registry.get('boss-hp')?.props).toEqual({ progress: 1 });
       expect(logger).toHaveBeenCalledWith(expect.objectContaining({ type: 'warn' }));
     });
   });
 
   describe('updateElement', () => {
     it('merges props into the tracked element in the registry', () => {
-      const { billboardRenderer } = createBillboardRenderer(scene);
+      const { billboardRenderer } = createBillboardRenderer(registry);
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
 
       billboardRenderer.updateElement('boss-hp', { progress: 0.4 });
 
-      expect(scene.billboards.get('boss-hp')?.props).toEqual({ progress: 0.4 });
+      expect(registry.get('boss-hp')?.props).toEqual({ progress: 0.4 });
     });
 
     it('warns and does nothing when the id is not tracked', () => {
-      const { billboardRenderer } = createBillboardRenderer(scene);
+      const { billboardRenderer } = createBillboardRenderer(registry);
 
       billboardRenderer.updateElement('missing', { progress: 1 });
 
-      expect(scene.billboards.has('missing')).toBe(false);
+      expect(registry.has('missing')).toBe(false);
       expect(logger).toHaveBeenCalledWith(expect.objectContaining({ type: 'warn' }));
     });
   });
 
   describe('removeElement', () => {
     it('removes the element from the registry', () => {
-      const { billboardRenderer } = createBillboardRenderer(scene);
+      const { billboardRenderer } = createBillboardRenderer(registry);
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
 
       billboardRenderer.removeElement('boss-hp');
 
-      expect(scene.billboards.has('boss-hp')).toBe(false);
+      expect(registry.has('boss-hp')).toBe(false);
     });
 
     it('warns and does nothing when the id is not tracked', () => {
-      const { billboardRenderer } = createBillboardRenderer(scene);
+      const { billboardRenderer } = createBillboardRenderer(registry);
 
       billboardRenderer.removeElement('missing');
 
@@ -129,9 +115,9 @@ describe('BillboardRenderer', () => {
 
   describe('getElements', () => {
     it('returns the nodes mounted for the id across every attached view', () => {
-      const { billboardRenderer } = createBillboardRenderer(scene);
-      const viewA = new BillboardView(scene.billboards);
-      const viewB = new BillboardView(scene.billboards);
+      const { billboardRenderer } = createBillboardRenderer(registry);
+      const viewA = new BillboardView(registry);
+      const viewB = new BillboardView(registry);
       viewA.attach();
       viewB.attach();
       const nodeA = document.createElement('div');
@@ -145,8 +131,8 @@ describe('BillboardRenderer', () => {
     });
 
     it('returns an empty list before the element has mounted or when it is not tracked', () => {
-      const { billboardRenderer } = createBillboardRenderer(scene);
-      new BillboardView(scene.billboards).attach();
+      const { billboardRenderer } = createBillboardRenderer(registry);
+      new BillboardView(registry).attach();
 
       billboardRenderer.addElement('boss-hp', TestBar, { progress: 1 });
 
@@ -157,26 +143,26 @@ describe('BillboardRenderer', () => {
 
   describe('onDestroyed', () => {
     it('removes every element it registered from the registry', () => {
-      const { billboardRenderer } = createBillboardRenderer(scene);
+      const { billboardRenderer } = createBillboardRenderer(registry);
       billboardRenderer.addElement('a', TestBar, { progress: 1 });
       billboardRenderer.addElement('b', TestBar, { progress: 1 });
 
       billboardRenderer.destroy();
 
-      expect(scene.billboards.getSnapshot()).toHaveLength(0);
+      expect(registry.getSnapshot()).toHaveLength(0);
     });
 
     it('does not affect elements registered by other BillboardRenderer instances', () => {
-      const { billboardRenderer: rendererA } = createBillboardRenderer(scene);
-      const { billboardRenderer: rendererB } = createBillboardRenderer(scene);
+      const { billboardRenderer: rendererA } = createBillboardRenderer(registry);
+      const { billboardRenderer: rendererB } = createBillboardRenderer(registry);
 
       rendererA.addElement('a', TestBar, { progress: 1 });
       rendererB.addElement('b', TestBar, { progress: 1 });
 
       rendererA.destroy();
 
-      expect(scene.billboards.has('a')).toBe(false);
-      expect(scene.billboards.has('b')).toBe(true);
+      expect(registry.has('a')).toBe(false);
+      expect(registry.has('b')).toBe(true);
     });
   });
 });

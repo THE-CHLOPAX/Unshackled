@@ -5,6 +5,7 @@ import { HintBillboard, HintBillboardHint, HintBillboardProps } from 'UI';
 
 import { HINT_BILLBOARD_OFFSET } from './constants';
 import { BillboardRenderer } from '../BillboardRenderer/BillboardRenderer';
+import { BillboardRegistry } from '../../scenes/GameScene/BillboardRegistry/BillboardRegistry';
 
 export type HintBillboardRendererOptions = {
   title?: string;
@@ -21,8 +22,12 @@ export class HintBillboardRenderer extends BillboardRenderer {
   private _areHintsVisible = false;
   private _isRendered = false;
 
-  constructor(gameObject: GameObject, options: HintBillboardRendererOptions = {}) {
-    super(gameObject);
+  constructor(
+    gameObject: GameObject,
+    registry: BillboardRegistry,
+    options: HintBillboardRendererOptions = {}
+  ) {
+    super(gameObject, registry);
     this._hintId = `hint-billboard-${gameObject.uuid}`;
     this._offset = options.offset ?? HINT_BILLBOARD_OFFSET;
     this._title = options.title;

@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+export type ViewProps = Record<string, unknown>;
+
 export type ViewsState = {
   currentView: string;
+  currentViewProps: ViewProps;
   viewHistory: string[];
   viewPaused: boolean;
   goBack: () => void;
-  setView: (view: string) => void;
+  setView: (view: string, props?: ViewProps) => void;
   setViewPaused: (paused: boolean) => void;
   registerView: (id: string, element: React.JSX.Element) => void;
   clearHistory: () => void;
@@ -14,15 +17,20 @@ export type ViewsState = {
 
 const MAX_HISTORY_SIZE = 5;
 
+export const DEFAULT_VIEW = 'InitialLoadView';
+
+const EMPTY_VIEW_PROPS: ViewProps = {};
+
 export const useViewsStore = create<ViewsState>()(
   devtools(
     (set, get) => ({
-      currentView: 'MenuView',
-      viewHistory: new Set<string>(['MenuView']),
+      currentView: DEFAULT_VIEW,
+      currentViewProps: EMPTY_VIEW_PROPS,
+      viewHistory: [DEFAULT_VIEW],
       viewPaused: false,
       views: [],
 
-      setView: (id: string) => {
+      setView: (id: string, props: ViewProps = EMPTY_VIEW_PROPS) => {
         const { currentView, viewHistory } = get();
         // Don't change if already on this view
         if (currentView === id) return;
@@ -36,6 +44,7 @@ export const useViewsStore = create<ViewsState>()(
 
         set({
           currentView: id,
+          currentViewProps: props,
           viewHistory: newHistory,
         });
       },
@@ -58,6 +67,7 @@ export const useViewsStore = create<ViewsState>()(
 
         set({
           currentView: previousView,
+          currentViewProps: EMPTY_VIEW_PROPS,
           viewHistory: newHistory,
         });
       },
@@ -69,4 +79,5 @@ export const useViewsStore = create<ViewsState>()(
 );
 
 export const useCurrentView = () => useViewsStore((state) => state.currentView);
+export const useCurrentViewProps = () => useViewsStore((state) => state.currentViewProps);
 export const useViewHistory = () => useViewsStore((state) => state.viewHistory);

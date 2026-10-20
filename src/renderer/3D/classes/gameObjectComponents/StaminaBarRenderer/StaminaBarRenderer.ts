@@ -6,6 +6,7 @@ import { StaminaBar, StaminaBarProps } from 'UI/components/StaminaBar/StaminaBar
 import { Entity } from '../../gameObjects/Entity';
 import { StaminaPointsController } from '../StaminaPointsController';
 import { BillboardRenderer } from '../BillboardRenderer/BillboardRenderer';
+import { BillboardRegistry } from '../../scenes/GameScene/BillboardRegistry/BillboardRegistry';
 import {
   STAMINA_BAR_OFFSET,
   STAMINA_BAR_HIDE_DELAY_MS,
@@ -23,10 +24,11 @@ export class StaminaBarRenderer extends BillboardRenderer {
 
   constructor(
     public readonly entity: Entity,
+    registry: BillboardRegistry,
     public readonly staminaPointsController: StaminaPointsController,
     public readonly offset: THREE.Vector3 = STAMINA_BAR_OFFSET
   ) {
-    super(entity);
+    super(entity, registry);
     this._staminaBarId = `stamina-bar-${entity.uuid}`;
   }
 
