@@ -19,9 +19,18 @@ export type UseFMODAudioProps = {
 export const useFMODAudioInitialization = ({
   preloadBankUrls,
 }: UseFMODAudioProps): UseFMODAudioResult => {
-  const [instance, setInstance] = useState<FMODAudio | null>(null);
-  const [isReady, setIsReady] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAlreadyReady] = useState(() => {
+    const audioInstance = FMODAudio.getInstance();
+    return (
+      audioInstance.isInitialized &&
+      preloadBankUrls.every((bankUrl) => audioInstance.isBankLoaded(bankUrl))
+    );
+  });
+  const [instance, setInstance] = useState<FMODAudio | null>(() =>
+    isAlreadyReady ? FMODAudio.getInstance() : null
+  );
+  const [isReady, setIsReady] = useState(isAlreadyReady);
+  const [isLoading, setIsLoading] = useState(!isAlreadyReady);
   const [isError, setIsError] = useState(false);
 
   const loadBanks = async (audioInstance: FMODAudio) => {
@@ -55,6 +64,8 @@ export const useFMODAudioInitialization = ({
   };
 
   useEffect(() => {
+    if (isAlreadyReady) return;
+
     const audioInstance = FMODAudio.getInstance();
     setInstance(audioInstance);
 

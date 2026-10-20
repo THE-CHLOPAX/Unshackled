@@ -63,6 +63,14 @@ export class FMODAudio {
     this._system = dependencies.system;
   }
 
+  public get isInitialized(): boolean {
+    return this._initialized;
+  }
+
+  public isBankLoaded(url: string): boolean {
+    return this._banks.has(this._getBankName(url));
+  }
+
   /**
    * Loads and initialises the FMOD Studio Emscripten runtime.
    * Resolves true on success, false if anything goes wrong.
@@ -114,7 +122,7 @@ export class FMODAudio {
     if (!this._initialized || this._system === null) {
       throw new Error(MESSAGES.SYSTEM_NOT_INITIALIZED);
     }
-    const bankName = url.split('/').pop() ?? url;
+    const bankName = this._getBankName(url);
 
     if (this._banks.has(bankName)) {
       logger({ message: MESSAGES.BANK_ALREADY_LOADED(bankName), type: 'warn' });
@@ -453,5 +461,9 @@ export class FMODAudio {
       this._channelSubscriptions.delete(getInstancePointer(instance));
     }
     instance.release();
+  }
+
+  private _getBankName(url: string): string {
+    return url.split('/').pop() ?? url;
   }
 }
