@@ -3,8 +3,6 @@ import { ThreeDViewer, ThreeDViewerProps } from '@tgdf';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
 import { RenderPixelatedPass } from 'three/examples/jsm/postprocessing/RenderPixelatedPass';
 
-import { BillboardOverlay } from './BillboardOverlay/BillboardOverlay';
-
 const PIXEL_SIZE = 4;
 
 export function ThreeDViewerPixelated({
@@ -13,6 +11,8 @@ export function ThreeDViewerPixelated({
   resY,
   debug,
   isPaused,
+  overlay,
+  onAfterRender,
 }: ThreeDViewerProps & {
   resX: number;
   resY: number;
@@ -34,7 +34,8 @@ export function ThreeDViewerPixelated({
       resY={resY}
       isPaused={isPaused}
       postProcessingPasses={postProcessingPassesMemo}
-      overlay={<BillboardOverlay />}
+      overlay={overlay}
+      onAfterRender={onAfterRender}
     />
   );
 }

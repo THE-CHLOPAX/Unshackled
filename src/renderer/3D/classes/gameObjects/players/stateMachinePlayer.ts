@@ -2,9 +2,10 @@ import type { Player } from '3D/classes/gameObjects/players/Player';
 
 import { FMOD_EVENTS } from 'renderer/FMOD';
 import { flashRed } from '3D/utils/flashRed';
+import { PlayerActionType } from 'renderer/types';
 import { ANIMATION_CLIP_NAMES } from '3D/constants';
+import { ChainedAction, Interactable, StateMachine, StateNode } from '3D/types';
 import { getInputBasedStateNode } from '3D/classes/states/utils/getInputBasedStateNode';
-import { ChainedAction, Interactable, PlayerActionType, StateMachine, StateNode } from '3D/types';
 import {
   AimingState,
   AttackState,

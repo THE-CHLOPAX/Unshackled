@@ -2,9 +2,11 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { InternalFlex, InternalText } from '@tgdf';
 
+import { PlayerActionType } from 'renderer/types';
 import { COLORS, GRADIENTS } from 'renderer/constants';
 import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
 import { HintBillboard } from 'UI/components/HintBilboard/HintBillboard';
+import { ViewerContext, ViewerContextMockValue } from 'renderer/UI/contexts/ViewerContext';
 import {
   Button,
   ButtonIcon,
@@ -248,13 +250,15 @@ export function ComponentsView() {
           </ComponentSection>
 
           <ComponentSection title="HintBillboard">
-            <HintBillboard
-              title="Dungeon door"
-              hints={[
-                { icon: 'A', label: 'Open' },
-                { icon: 'X', label: 'Lock' },
-              ]}
-            />
+            <ViewerContext.Provider value={ViewerContextMockValue}>
+              <HintBillboard
+                title="Dungeon door"
+                hints={[
+                  { actionType: PlayerActionType.ACTION_UP, label: 'Open' },
+                  { icon: 'X', label: 'Lock' },
+                ]}
+              />
+            </ViewerContext.Provider>
           </ComponentSection>
 
           <ComponentSection title="Text">

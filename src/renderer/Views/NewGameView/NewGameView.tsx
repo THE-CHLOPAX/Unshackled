@@ -41,7 +41,7 @@ export const NewGameView = () => {
           message: 'Failed to save new run: ' + error.message,
           type: 'error',
         });
-        setView('MenuView');
+        setView('MenuView', { reloadSaveFiles: true });
       });
   };
 

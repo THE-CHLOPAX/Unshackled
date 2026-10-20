@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { assert, Scene } from '@tgdf';
+import { assert } from '@tgdf';
 
 import { WorldCell, WorldOutputData } from 'renderer/types';
 import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from 'WorldEditor/worldDefinitions';
@@ -88,7 +88,7 @@ function getChunkedCells(
 }
 
 function buildChunk(
-  scene: Scene,
+  scene: GameScene,
   chunkCells: ChunkCell[],
   floorGroup: THREE.Group,
   floorGeometries: ColliderGeometryEntry[]

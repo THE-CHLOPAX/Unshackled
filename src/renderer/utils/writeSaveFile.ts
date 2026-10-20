@@ -1,4 +1,4 @@
-import { ipc, isDev } from '@tgdf';
+import { ipc, isDev, isElectron } from '@tgdf';
 
 import { RunIdentifier } from 'renderer/types';
 import { SAVE_FILES_LOCATION, SAVE_FILES_LOCATION_DEV } from 'renderer/constants';
@@ -8,6 +8,11 @@ export async function writeSaveFile(run: RunIdentifier): Promise<RunIdentifier> 
     const updatedAt = Date.now();
 
     const updatedRun = { ...run, updatedAt };
+
+    if (!isElectron) {
+      resolve(updatedRun);
+      return;
+    }
 
     ipc.once('save-file-response', (response) => {
       if (response.ok) {

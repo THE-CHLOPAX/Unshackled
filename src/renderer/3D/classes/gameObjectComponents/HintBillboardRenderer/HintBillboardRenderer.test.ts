@@ -4,7 +4,8 @@ import { MockCamera } from '@tgdf/internal-3d/testUtils/MockCamera';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { HintBillboard, HintBillboardHint } from 'UI';
-import { useOverlayStore, overlayElementRefs } from 'Store/useOverlayStore';
+import { BillboardView } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardView';
+import { BillboardRegistry } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardRegistry';
 
 import { HINT_BILLBOARD_OFFSET } from './constants';
 import { HintBillboardRenderer, HintBillboardRendererOptions } from './HintBillboardRenderer';
@@ -12,6 +13,9 @@ import { HintBillboardRenderer, HintBillboardRendererOptions } from './HintBillb
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
 }));
+
+let registry: BillboardRegistry;
+let billboardView: BillboardView;
 
 class TestScene extends Scene {
   camera = new MockCamera();
@@ -28,20 +32,21 @@ function createHintBillboardRenderer(
   const gameObject = new GameObject({ scene });
   scene.add(gameObject);
 
-  const renderer = new HintBillboardRenderer(gameObject, options);
+  const renderer = new HintBillboardRenderer(gameObject, registry, options);
   gameObject.addComponent('HintBillboardRenderer', renderer);
 
   return { gameObject, renderer, hintId: `hint-billboard-${gameObject.uuid}` };
 }
 
 function getEntry(id: string) {
-  return useOverlayStore.getState().entries.get(id);
+  return registry.get(id);
 }
 
 describe('HintBillboardRenderer', () => {
   beforeEach(() => {
-    useOverlayStore.setState({ entries: new Map() });
-    overlayElementRefs.clear();
+    registry = new BillboardRegistry();
+    billboardView = new BillboardView(registry);
+    billboardView.attach();
   });
 
   afterEach(() => {
@@ -135,7 +140,7 @@ describe('HintBillboardRenderer', () => {
     renderer.show();
 
     expect(addElementSpy).toHaveBeenCalledOnce();
-    expect(useOverlayStore.getState().entries.size).toBe(1);
+    expect(registry.getSnapshot().length).toBe(1);
   });
 
   it('uses the default offset when none is provided', () => {

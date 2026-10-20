@@ -1,12 +1,10 @@
 import styled from 'styled-components';
-import { useState, useEffect } from 'react';
 
 import { GameEventsEmitter } from 'renderer/types';
 import { Player } from '3D/classes/gameObjects/players/Player';
 import { ProgressTrackerObjective } from '3D/classes/scenes/GameScene/ProgressTracker/ProgressTracker';
 
 import { PlayerStats } from './PlayerStats/PlayerStats';
-import { GameOverModal } from './GameOverModal/GameOverModal';
 import { ObjectivesPanel } from './ObjectivesPanel/ObjectivesPanel';
 import { DamageIndicator } from './DamageIndicator/DamageIndicator';
 
@@ -14,22 +12,15 @@ export type GameUIOverlayProps = {
   emitter: GameEventsEmitter;
   player?: Player;
   objectiveType?: ProgressTrackerObjective['type'];
+  isGameOver: boolean;
 };
 
-export const GameUIOverlay = ({ emitter, player, objectiveType }: GameUIOverlayProps) => {
-  const [isGameOver, setIsGameOver] = useState(false);
-
-  useEffect(() => {
-    const handleGameOver = () => {
-      setIsGameOver(true);
-    };
-    emitter.once('game-over', handleGameOver);
-
-    return () => {
-      emitter.off('game-over', handleGameOver);
-    };
-  }, [emitter]);
-
+export const GameUIOverlay = ({
+  emitter,
+  player,
+  objectiveType,
+  isGameOver,
+}: GameUIOverlayProps) => {
   return (
     <Wrapper>
       {!isGameOver && objectiveType && (
@@ -44,15 +35,13 @@ export const GameUIOverlay = ({ emitter, player, objectiveType }: GameUIOverlayP
       )}
       <Vignette />
       <DamageIndicator emitter={emitter} />
-      {isGameOver && <GameOverModal />}
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
-  position: relative;
-  width: 100vw;
-  height: 100vh;
+  position: absolute;
+  inset: 0;
 `;
 
 const ObjectivesWrapper = styled.div`

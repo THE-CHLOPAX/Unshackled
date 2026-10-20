@@ -3,7 +3,7 @@ import { InputState, useAssetStore } from '@tgdf';
 
 import { COLORS } from 'renderer/constants';
 import { FMOD_EVENTS } from 'renderer/FMOD';
-import { PlayerActionType } from 'renderer/3D/types';
+import { PlayerActionType } from 'renderer/types';
 import { pixelateTexture } from 'renderer/3D/utils/pixelateTexture';
 
 import { State } from '..';

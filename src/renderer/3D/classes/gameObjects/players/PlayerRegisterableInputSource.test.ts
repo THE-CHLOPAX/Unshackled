@@ -5,7 +5,8 @@ vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
 }));
 
-import { PlayerActionType } from '../../../types';
+import { PlayerActionType } from 'renderer/types';
+
 import { PlayerActionEvent, PlayerRegisterableInputSource } from './PlayerRegisterableInputSource';
 
 class FakeInputSource implements RegisterableInputSource {

@@ -3,7 +3,8 @@ import { Emitter, GameObject, Scene } from '@tgdf';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MockCamera } from '@tgdf/internal-3d/testUtils/MockCamera';
 
-import { Interactable, PlayerActionType } from '3D/types';
+import { Interactable } from '3D/types';
+import { PlayerActionType } from 'renderer/types';
 
 import { Entity } from '../../gameObjects/Entity';
 import { Player } from '../../gameObjects/players/Player';

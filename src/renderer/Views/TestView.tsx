@@ -1,19 +1,19 @@
 import { useState } from 'react';
-import { useGraphicsStore } from '@tgdf';
+import styled from 'styled-components';
 
-import { GameUIOverlay } from 'UI';
 import { TestScene } from '3D/classes/scenes/TestScene';
 import { useLoadScene } from 'renderer/hooks/useLoadScene';
+import { useIsGameOver } from 'renderer/hooks/useIsGameOver';
 import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
 import { useActivePlayersStore } from 'Store/useActivePlayersStore';
 import { assignPlayerProfiles } from 'renderer/utils/assignPlayerProfiles';
-import { ThreeDViewerPixelated } from 'UI/components/ThreeDViewerPixelated';
 import { createNewPlayerProfile } from 'renderer/utils/createNewPlayerProfile';
+import { GameOverModal } from 'UI/components/GameUIOverlay/GameOverModal/GameOverModal';
 
 import { LoadingView } from './LoadingView';
+import { SceneViewer } from './GameView/SceneViewer';
 
 export function TestView() {
-  const { resolution } = useGraphicsStore();
   const { scene, loadingProgress, emitter } = useLoadScene((emitter) => {
     const mockProfile = createNewPlayerProfile('test-player', 'Test player');
     const players = assignPlayerProfiles(
@@ -23,7 +23,10 @@ export function TestView() {
     return new TestScene(emitter, players);
   });
 
+  const isGameOver = useIsGameOver(emitter);
   const [loadingFinished, setLoadingFinished] = useState(false);
+
+  const player = scene?.players[0];
 
   return (
     <BackToViewLayout backToView="MenuView">
@@ -31,15 +34,17 @@ export function TestView() {
         <LoadingView progress={loadingProgress} onComplete={() => setLoadingFinished(true)} />
       ) : (
         <>
-          <ThreeDViewerPixelated
-            scene={scene}
-            resX={resolution.width}
-            resY={resolution.height}
-            debug
-          />
-          <GameUIOverlay emitter={emitter} />
+          <Wrapper>
+            {player && <SceneViewer scene={scene} player={player} isGameOver={isGameOver} />}
+          </Wrapper>
+          {isGameOver && <GameOverModal />}
         </>
       )}
     </BackToViewLayout>
   );
 }
+
+const Wrapper = styled.div`
+  position: absolute;
+  inset: 0;
+`;

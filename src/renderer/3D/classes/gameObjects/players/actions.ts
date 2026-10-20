@@ -2,12 +2,13 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 
 import { FMOD_EVENTS } from 'renderer/FMOD';
+import { PlayerActionType } from 'renderer/types';
 import { ANIMATION_CLIP_NAMES } from '3D/constants';
 import { spawnSwingTrail } from '3D/utils/spawnSwingTrail';
 
 import { Player } from './Player';
 import { Entity } from '../Entity';
-import { PlayerAction, ChainedAction, PlayerActionType } from '../../../types';
+import { PlayerAction, ChainedAction } from '../../../types';
 
 const PUNCH_CHAIN_WINDOW_DELAY_MS = 150;
 const PUNCH_CHAIN_WINDOW_DURATION_MS = 300;

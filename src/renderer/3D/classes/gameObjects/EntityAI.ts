@@ -47,7 +47,12 @@ export class EntityAI extends Entity {
 
     this._healthBarRenderer = this.addComponent(
       'HealthBarRenderer',
-      new HealthBarRenderer(this, this.healthPointsController, options.healthBarOptions)
+      new HealthBarRenderer(
+        this,
+        scene.billboards,
+        this.healthPointsController,
+        options.healthBarOptions
+      )
     );
 
     this.onInit();

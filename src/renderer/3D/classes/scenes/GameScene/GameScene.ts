@@ -11,6 +11,7 @@ import { GAME_GRAVITY, LEVEL_CHUNK_SIZE, MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } f
 
 import { loadAssetRecord } from './loadAssetRecord';
 import { Player } from '../../gameObjects/players/Player';
+import { BillboardRegistry } from './BillboardRegistry/BillboardRegistry';
 import { ShadersManager, WarmupFactory } from './ShadersManager/ShadersManager';
 import { getDefaultWarmupMaterialFactories } from './getDefaultWarmupMaterialFactories';
 import { OrtographicCamera, OrtographicCameraOptions } from '../../cameras/OrtographicCamera';
@@ -27,6 +28,7 @@ export type GameSceneOptions = {
 
 export abstract class GameScene extends Scene {
   public camera: OrtographicCamera;
+  public readonly billboards = new BillboardRegistry();
 
   public abstract readonly preloadedAssets: AssetRecord[];
 
@@ -88,6 +90,11 @@ export abstract class GameScene extends Scene {
 
       return player;
     });
+  }
+
+  public override dispose(): void {
+    super.dispose();
+    this.billboards.clear();
   }
 
   public async initializePhysics(): Promise<void> {

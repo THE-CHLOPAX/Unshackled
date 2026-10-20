@@ -1,15 +1,18 @@
-import type { ReactNode } from 'react';
-
+import { ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { COLORS } from 'renderer/constants';
+import { PlayerActionType } from 'renderer/types';
+import { useViewerContext } from 'renderer/UI/contexts/ViewerContext';
 import { getRadialGradient } from 'renderer/UI/utils/getBgRadialGradient';
+import { getInputDependentActionIcon } from 'UI/utils/getInputDependentActionIcon';
 
 import { Text } from '../Text/Text';
 import { SmallPanel } from '../SmallPanel/SmallPanel';
 
 export type HintBillboardHint = {
-  icon: ReactNode;
+  icon?: ReactNode;
+  actionType?: PlayerActionType;
   label: string;
 };
 
@@ -19,6 +22,8 @@ export type HintBillboardProps = {
 };
 
 export const HintBillboard = ({ title, hints }: HintBillboardProps) => {
+  const { inputType } = useViewerContext();
+
   return (
     <Wrapper>
       {title !== undefined && (
@@ -26,18 +31,32 @@ export const HintBillboard = ({ title, hints }: HintBillboardProps) => {
           - {title} -
         </Text>
       )}
-      {hints.map(({ icon, label }) => (
-        <HintRow key={label}>
-          <HintSmallPanel scale={2}>
-            {typeof icon === 'string' || typeof icon === 'number' ? (
-              <Text color={COLORS.FONT_COLOR_HIGHLIGHT}>{icon}</Text>
-            ) : (
-              icon
-            )}
-          </HintSmallPanel>
-          <Text size="md">{label}</Text>
-        </HintRow>
-      ))}
+      {hints.map((hint) => {
+        let icon: ReactNode = '-';
+
+        if (hint.actionType !== undefined) {
+          icon = getInputDependentActionIcon(hint.actionType, inputType) ?? icon;
+        }
+
+        if (hint.icon !== undefined) {
+          icon = hint.icon;
+        }
+
+        const label = hint.label;
+
+        return (
+          <HintRow key={label}>
+            <HintSmallPanel scale={2}>
+              {typeof icon === 'string' || typeof icon === 'number' ? (
+                <Text color={COLORS.FONT_COLOR_HIGHLIGHT}>{icon}</Text>
+              ) : (
+                icon
+              )}
+            </HintSmallPanel>
+            <Text size="md">{label}</Text>
+          </HintRow>
+        );
+      })}
     </Wrapper>
   );
 };

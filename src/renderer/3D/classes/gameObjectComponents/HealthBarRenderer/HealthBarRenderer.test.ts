@@ -5,7 +5,8 @@ import { GameObject, Scene } from '@tgdf';
 import { MockCamera } from '@tgdf/internal-3d/testUtils/MockCamera';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { useOverlayStore, overlayElementRefs } from 'Store/useOverlayStore';
+import { BillboardView } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardView';
+import { BillboardRegistry } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardRegistry';
 
 import { HealthBarRenderer } from './HealthBarRenderer';
 import { HealthPointsController } from '../HealthPointsController';
@@ -14,6 +15,9 @@ import { HEALTH_BAR_VISIBLE_DURATION_MS, HEALTH_BAR_FADE_DURATION_S } from './co
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
 }));
+
+let registry: BillboardRegistry;
+let billboardView: BillboardView;
 
 class TestScene extends Scene {
   camera = new MockCamera();
@@ -25,7 +29,7 @@ function createHealthBarRenderer(maxHealthPoints = 100, startingHealthPoints?: n
   const gameObject = new GameObject({ scene }) as unknown as Entity;
 
   const healthPointsController = new HealthPointsController(gameObject, { maxHealthPoints });
-  const healthBarRenderer = new HealthBarRenderer(gameObject, healthPointsController);
+  const healthBarRenderer = new HealthBarRenderer(gameObject, registry, healthPointsController);
 
   gameObject.addComponent('HealthPointsController', healthPointsController);
   gameObject.addComponent('HealthBarRenderer', healthBarRenderer);
@@ -45,8 +49,9 @@ function createHealthBarRenderer(maxHealthPoints = 100, startingHealthPoints?: n
 describe('HealthBarRenderer', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    useOverlayStore.setState({ entries: new Map() });
-    overlayElementRefs.clear();
+    registry = new BillboardRegistry();
+    billboardView = new BillboardView(registry);
+    billboardView.attach();
     vi.spyOn(gsap, 'to').mockReturnValue({
       kill: vi.fn(),
       revert: vi.fn(),
@@ -63,7 +68,7 @@ describe('HealthBarRenderer', () => {
 
     healthPointsController.inflictDamage(30);
 
-    const entry = useOverlayStore.getState().entries.get(barId);
+    const entry = registry.get(barId);
     expect(entry?.props).toEqual({
       entity: gameObject,
       progress: 0.7,
@@ -76,7 +81,7 @@ describe('HealthBarRenderer', () => {
 
     healthPointsController.inflictDamage(10);
 
-    const entry = useOverlayStore.getState().entries.get(barId);
+    const entry = registry.get(barId);
     expect(entry?.props).toMatchObject({
       progress: expect.closeTo(0.3),
       initialProgress: expect.closeTo(0.4),
@@ -89,7 +94,7 @@ describe('HealthBarRenderer', () => {
     healthPointsController.inflictDamage(50);
     healthPointsController.healDamage(20);
 
-    const entry = useOverlayStore.getState().entries.get(barId);
+    const entry = registry.get(barId);
     expect(entry?.props).toEqual({
       entity: gameObject,
       progress: 0.7,
@@ -102,13 +107,13 @@ describe('HealthBarRenderer', () => {
     const addSpy = vi.spyOn(healthBarRenderer, 'addElement');
     const updateSpy = vi.spyOn(healthBarRenderer, 'updateElement');
 
-    // Not mounted yet (overlayElementRefs empty) -> add path.
+    // Not mounted yet (no view has a node) -> add path.
     healthPointsController.inflictDamage(10);
     expect(addSpy).toHaveBeenCalledTimes(1);
     expect(updateSpy).not.toHaveBeenCalled();
 
-    // Simulate BillboardOverlay having mounted the element by now.
-    overlayElementRefs.set(barId, document.createElement('div'));
+    // Simulate BillboardLayer having mounted the element by now.
+    billboardView.setNode(barId, document.createElement('div'));
 
     // Mounted -> update path, not another add.
     healthPointsController.inflictDamage(10);
@@ -124,7 +129,7 @@ describe('HealthBarRenderer', () => {
     healthPointsController.inflictDamage(10);
     expect(clearTimeoutSpy).not.toHaveBeenCalled();
 
-    overlayElementRefs.set(barId, document.createElement('div'));
+    billboardView.setNode(barId, document.createElement('div'));
 
     vi.advanceTimersByTime(HEALTH_BAR_VISIBLE_DURATION_MS - 500);
     healthPointsController.inflictDamage(10);
@@ -144,15 +149,15 @@ describe('HealthBarRenderer', () => {
     const { healthPointsController, barId } = createHealthBarRenderer(100);
 
     healthPointsController.inflictDamage(10);
-    expect(useOverlayStore.getState().entries.has(barId)).toBe(true);
+    expect(registry.has(barId)).toBe(true);
 
     // Simulate mount so _fadeHealthBar has an element to animate.
-    overlayElementRefs.set(barId, document.createElement('div'));
+    billboardView.setNode(barId, document.createElement('div'));
 
     vi.advanceTimersByTime(HEALTH_BAR_VISIBLE_DURATION_MS);
 
     expect(gsap.to).toHaveBeenCalledWith(
-      expect.any(HTMLDivElement),
+      [expect.any(HTMLDivElement)],
       expect.objectContaining({ opacity: 0, duration: HEALTH_BAR_FADE_DURATION_S })
     );
 
@@ -160,7 +165,17 @@ describe('HealthBarRenderer', () => {
     const [, vars] = vi.mocked(gsap.to).mock.calls[0];
     vars.onComplete?.();
 
-    expect(useOverlayStore.getState().entries.has(barId)).toBe(false);
+    expect(registry.has(barId)).toBe(false);
+  });
+
+  it('removes the bar without fading when no view has mounted it', () => {
+    const { healthPointsController, barId } = createHealthBarRenderer(100);
+
+    healthPointsController.inflictDamage(10);
+    vi.advanceTimersByTime(HEALTH_BAR_VISIBLE_DURATION_MS);
+
+    expect(gsap.to).not.toHaveBeenCalled();
+    expect(registry.has(barId)).toBe(false);
   });
 
   it('stops reacting to damage/heal events and removes the bar once destroyed', () => {
@@ -168,17 +183,17 @@ describe('HealthBarRenderer', () => {
     const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
 
     healthPointsController.inflictDamage(10);
-    overlayElementRefs.set(barId, document.createElement('div'));
-    expect(useOverlayStore.getState().entries.has(barId)).toBe(true);
+    billboardView.setNode(barId, document.createElement('div'));
+    expect(registry.has(barId)).toBe(true);
 
     healthBarRenderer.destroy();
 
     expect(clearTimeoutSpy).toHaveBeenCalled();
-    expect(useOverlayStore.getState().entries.has(barId)).toBe(false);
+    expect(registry.has(barId)).toBe(false);
 
     // No longer subscribed: further damage doesn't resurrect the bar.
     healthPointsController.inflictDamage(10);
-    expect(useOverlayStore.getState().entries.has(barId)).toBe(false);
+    expect(registry.has(barId)).toBe(false);
   });
 
   it('destroying without ever having taken damage does not throw', () => {
@@ -192,7 +207,7 @@ describe('HealthBarRenderer', () => {
 
     healthPointsController.inflictDamage(10);
 
-    overlayElementRefs.set(barId, document.createElement('div'));
+    billboardView.setNode(barId, document.createElement('div'));
 
     // Fade tween still in progress
     vi.advanceTimersByTime(HEALTH_BAR_VISIBLE_DURATION_MS);
@@ -206,7 +221,7 @@ describe('HealthBarRenderer', () => {
     expect(activeTween?.kill).toHaveBeenCalledOnce();
 
     vi.advanceTimersByTime((HEALTH_BAR_FADE_DURATION_S * 1000) / 2);
-    expect(useOverlayStore.getState().entries.has(barId)).toBe(true);
+    expect(registry.has(barId)).toBe(true);
   });
 
   it('doesnt discard subsequent rapid update - calls update with new value correctly', () => {
@@ -222,7 +237,7 @@ describe('HealthBarRenderer', () => {
     expect(addSpy).toHaveBeenCalledTimes(1);
     expect(updateSpy).toHaveBeenCalledTimes(1);
 
-    const entry = useOverlayStore.getState().entries.get(barId);
+    const entry = registry.get(barId);
     expect(entry?.props).toEqual({
       entity: gameObject,
       progress: 0.8,
@@ -234,15 +249,15 @@ describe('HealthBarRenderer', () => {
     const { healthPointsController, barId } = createHealthBarRenderer(100);
 
     healthPointsController.inflictDamage(30);
-    overlayElementRefs.set(barId, document.createElement('div'));
+    billboardView.setNode(barId, document.createElement('div'));
     vi.advanceTimersByTime(HEALTH_BAR_VISIBLE_DURATION_MS);
     const [, vars] = vi.mocked(gsap.to).mock.calls[0];
     vars.onComplete?.();
-    expect(useOverlayStore.getState().entries.has(barId)).toBe(false);
+    expect(registry.has(barId)).toBe(false);
 
     healthPointsController.inflictDamage(20);
 
-    const entry = useOverlayStore.getState().entries.get(barId);
+    const entry = registry.get(barId);
     expect(entry?.props).toMatchObject({
       progress: expect.closeTo(0.5),
       initialProgress: expect.closeTo(0.7),

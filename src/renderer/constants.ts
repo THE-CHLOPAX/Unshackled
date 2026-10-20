@@ -58,9 +58,6 @@ export const SAVE_FILES_LOCATION_DEV: NativeFileLocation = {
   directory: 'saveFilesDebug',
 };
 
-// BILLBOARD DOM
-export const BILLBOARD_OVERLAY_ELEMENT_ID = 'billboard-overlay';
-
 export const OBJECTIVE_LABELS: Record<
   typeof OBJECTIVE_ENTITIES_KILLED | typeof OBJECTIVE_SURVIVED_TIME,
   string

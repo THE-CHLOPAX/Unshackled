@@ -1,6 +1,7 @@
-export { GameView } from './GameView';
+export { GameView } from './GameView/GameView';
 export { TestView } from './TestView';
-export { MenuView } from './MenuView';
+export { MenuView } from './MenuView/MenuView';
+export { InitialLoadView } from './InitialLoadView';
 export { PlayersView } from './PlayersView';
 export { SettingsView } from './SettingsView';
 export { WorldEditorView } from './WorldEditorView';

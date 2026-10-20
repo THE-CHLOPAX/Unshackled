@@ -1,4 +1,4 @@
-import { Input, PlayerInput } from '@tgdf';
+import { Input, PlayerInput, PlayerInputBinding } from '@tgdf';
 
 import { playerConfig } from './config';
 import { Entity, EntityOptions } from '../Entity';
@@ -41,12 +41,16 @@ export class Player extends Entity {
 
     this.staminaBarRenderer = this.addComponent(
       'StaminaBarRenderer',
-      new StaminaBarRenderer(this, this.staminaPointsController)
+      new StaminaBarRenderer(this, scene.billboards, this.staminaPointsController)
     );
   }
 
   public get playerProfileId(): string {
     return this.playerOptions.playerProfileId;
+  }
+
+  public get inputType(): PlayerInputBinding['type'] {
+    return this.playerOptions.inputSource?.binding.type ?? 'keyboard';
   }
 
   public override get inputSource(): PlayerRegisterableInputSource {

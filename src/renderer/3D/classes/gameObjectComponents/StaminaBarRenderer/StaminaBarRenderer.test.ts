@@ -5,7 +5,8 @@ import { GameObject, Scene } from '@tgdf';
 import { MockCamera } from '@tgdf/internal-3d/testUtils/MockCamera';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { useOverlayStore, overlayElementRefs } from 'Store/useOverlayStore';
+import { BillboardView } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardView';
+import { BillboardRegistry } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardRegistry';
 
 import { StaminaBarRenderer } from './StaminaBarRenderer';
 import { GENERAL_REPLENISH_RATE_PER_S, StaminaPointsController } from '../StaminaPointsController';
@@ -19,6 +20,9 @@ vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
 }));
 
+let registry: BillboardRegistry;
+let billboardView: BillboardView;
+
 class TestScene extends Scene {
   camera = new MockCamera();
 }
@@ -31,7 +35,7 @@ function createStaminaBarRenderer() {
     maxLongTermStamina: 300,
     maxShortTermStamina: 100,
   });
-  const staminaBarRenderer = new StaminaBarRenderer(gameObject, staminaPointsController);
+  const staminaBarRenderer = new StaminaBarRenderer(gameObject, registry, staminaPointsController);
 
   gameObject.addComponent('StaminaPointsController', staminaPointsController);
   gameObject.addComponent('StaminaBarRenderer', staminaBarRenderer);
@@ -47,14 +51,15 @@ function createStaminaBarRenderer() {
 const PROGRESS_AFTER_REPLENISH_STEP = (50 + GENERAL_REPLENISH_RATE_PER_S * 0.2) / 100;
 
 function getEntry(barId: string) {
-  return useOverlayStore.getState().entries.get(barId);
+  return registry.get(barId);
 }
 
 describe('StaminaBarRenderer', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    useOverlayStore.setState({ entries: new Map() });
-    overlayElementRefs.clear();
+    registry = new BillboardRegistry();
+    billboardView = new BillboardView(registry);
+    billboardView.attach();
     vi.spyOn(gsap, 'to').mockReturnValue({
       kill: vi.fn(),
       revert: vi.fn(),
@@ -119,7 +124,7 @@ describe('StaminaBarRenderer', () => {
   it('fades out and removes the bar once short-term stamina is full again', () => {
     const { gameObject, staminaPointsController, barId } = createStaminaBarRenderer();
     staminaPointsController.drainShortTermStamina(10);
-    overlayElementRefs.set(barId, document.createElement('div'));
+    billboardView.setNode(barId, document.createElement('div'));
 
     gameObject.update(1);
     gameObject.update(1);
@@ -127,7 +132,7 @@ describe('StaminaBarRenderer', () => {
 
     vi.advanceTimersByTime(STAMINA_BAR_HIDE_DELAY_MS);
     expect(gsap.to).toHaveBeenCalledWith(
-      expect.any(HTMLDivElement),
+      [expect.any(HTMLDivElement)],
       expect.objectContaining({ opacity: 0, duration: STAMINA_BAR_FADE_DURATION_S })
     );
 
@@ -140,7 +145,7 @@ describe('StaminaBarRenderer', () => {
   it('cancels hiding when stamina is drained again before the bar fades', () => {
     const { gameObject, staminaPointsController, barId } = createStaminaBarRenderer();
     staminaPointsController.drainShortTermStamina(10);
-    overlayElementRefs.set(barId, document.createElement('div'));
+    billboardView.setNode(barId, document.createElement('div'));
     gameObject.update(1);
     gameObject.update(1);
 
@@ -155,7 +160,7 @@ describe('StaminaBarRenderer', () => {
     const { gameObject, staminaPointsController, barId } = createStaminaBarRenderer();
     staminaPointsController.drainLongTermStamina(300);
     staminaPointsController.drainShortTermStamina(100);
-    overlayElementRefs.set(barId, document.createElement('div'));
+    billboardView.setNode(barId, document.createElement('div'));
 
     gameObject.update(5);
     vi.advanceTimersByTime(STAMINA_BAR_IDLE_HIDE_DELAY_MS - 1);
@@ -172,7 +177,7 @@ describe('StaminaBarRenderer', () => {
   it('keeps the bar during the pause before replenishing starts', () => {
     const { gameObject, staminaPointsController, barId } = createStaminaBarRenderer();
     staminaPointsController.drainShortTermStamina(50);
-    overlayElementRefs.set(barId, document.createElement('div'));
+    billboardView.setNode(barId, document.createElement('div'));
 
     vi.advanceTimersByTime(900);
     gameObject.update(1);

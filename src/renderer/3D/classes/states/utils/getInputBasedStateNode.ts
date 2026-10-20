@@ -1,4 +1,5 @@
-import { PlayerActionType, StateNode } from 'renderer/3D/types';
+import { StateNode } from 'renderer/3D/types';
+import { PlayerActionType } from 'renderer/types';
 import { PlayerActionEvent } from 'renderer/3D/classes/gameObjects/players/PlayerRegisterableInputSource';
 
 export type StateTransition =

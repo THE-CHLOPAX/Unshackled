@@ -6,6 +6,7 @@ import { HealthBar, HealthBarProps } from 'UI';
 import { Entity } from '../../gameObjects/Entity';
 import { HealthPointsController } from '../HealthPointsController';
 import { BillboardRenderer } from '../BillboardRenderer/BillboardRenderer';
+import { BillboardRegistry } from '../../scenes/GameScene/BillboardRegistry/BillboardRegistry';
 import {
   HEALTH_BAR_OFFSET,
   HEALTH_BAR_VISIBLE_DURATION_MS,
@@ -26,10 +27,11 @@ export class HealthBarRenderer extends BillboardRenderer {
 
   constructor(
     public readonly entity: Entity,
+    registry: BillboardRegistry,
     public readonly healthPointsController: HealthPointsController,
     public readonly options: HealthBarRendererOptions = { offset: HEALTH_BAR_OFFSET }
   ) {
-    super(entity);
+    super(entity, registry);
     this._healthBarId = `health-bar-${entity.uuid}`;
   }
 
@@ -90,9 +92,13 @@ export class HealthBarRenderer extends BillboardRenderer {
   };
 
   private _fadeHealthBar(): void {
-    const healthBarElement = this.getElement(this._healthBarId);
-    if (!healthBarElement) return;
-    this._healthBarTween = gsap.to(healthBarElement, {
+    const healthBarElements = this.getElements(this._healthBarId);
+    if (healthBarElements.length === 0) {
+      this._removeHealthBar();
+      return;
+    }
+
+    this._healthBarTween = gsap.to(healthBarElements, {
       opacity: 0,
       duration: HEALTH_BAR_FADE_DURATION_S,
       onComplete: () => this._removeHealthBar(),
@@ -110,8 +116,7 @@ export class HealthBarRenderer extends BillboardRenderer {
       this._healthBarTween = null;
     }
 
-    const healthBarElement = this.getElement(this._healthBarId);
-    if (healthBarElement) {
+    if (this._hasElement) {
       this.removeElement(this._healthBarId);
       this._hasElement = false;
     }
