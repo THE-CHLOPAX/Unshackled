@@ -1,11 +1,11 @@
 import gsap from 'gsap';
 import * as THREE from 'three';
 
-import { Entity } from '3D/classes/gameObjects/Entity';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 import { StaminaBar, StaminaBarProps } from 'UI/components/StaminaBar/StaminaBar';
-import { StaminaPointsController } from '3D/classes/gameObjectComponents/StaminaPointsController';
 import { BillboardRegistry } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardRegistry';
 import { BillboardRenderer } from '3D/classes/gameObjectComponents/BillboardRenderer/BillboardRenderer';
+import { StaminaPointsController } from '3D/classes/gameObjectComponents/StaminaPointsController/StaminaPointsController';
 import {
   STAMINA_BAR_OFFSET,
   STAMINA_BAR_HIDE_DELAY_MS,

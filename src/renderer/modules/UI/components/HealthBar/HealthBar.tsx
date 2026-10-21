@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Text } from 'UI';
 import { COLORS } from 'renderer/constants';
-import { Entity } from '3D/classes/gameObjects/Entity';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 import { formatNameBillboard } from 'UI/utils/formatNameBillboard';
 import { BarAnimated } from 'UI/components/BarAnimated/BarAnimated';
 import { useRecentProgressChange } from 'UI/components/BarAnimated/useRecentProgressChange';

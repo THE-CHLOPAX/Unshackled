@@ -1,8 +1,8 @@
 import { createContext, useContext } from 'react';
 import { assert, type PlayerInputBinding } from '@tgdf';
 
-import { Player } from '3D/classes/gameObjects/players/Player';
-import { OrtographicCamera } from '3D/classes/cameras/OrtographicCamera';
+import { Player } from '3D/classes/gameObjects/Player/Player';
+import { OrtographicCamera } from '3D/classes/cameras/OrtographicCamera/OrtographicCamera';
 
 export type ViewerContextValue = {
   player: Player;

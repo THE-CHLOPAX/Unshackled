@@ -3,11 +3,11 @@ import { describe, it, expect, vi } from 'vitest';
 import { Emitter, GameObjectEventMap } from '@tgdf';
 import { act, renderHook } from '@testing-library/react';
 
-import { Entity } from '3D/classes/gameObjects/Entity';
 import { usePlayerStats } from '3D/hooks/usePlayerStats';
-import { Player } from '3D/classes/gameObjects/players/Player';
-import { HealthPointsController } from '3D/classes/gameObjectComponents/HealthPointsController';
-import { StaminaPointsController } from '3D/classes/gameObjectComponents/StaminaPointsController';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
+import { Player } from '3D/classes/gameObjects/Player/Player';
+import { HealthPointsController } from '3D/classes/gameObjectComponents/HealthPointsController/HealthPointsController';
+import { StaminaPointsController } from '3D/classes/gameObjectComponents/StaminaPointsController/StaminaPointsController';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },

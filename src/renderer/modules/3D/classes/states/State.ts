@@ -1,6 +1,6 @@
 import { InputState } from '@tgdf';
 
-import { Entity } from '3D/classes/gameObjects/Entity';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 
 export abstract class State {
   constructor(public entity: Entity) {}

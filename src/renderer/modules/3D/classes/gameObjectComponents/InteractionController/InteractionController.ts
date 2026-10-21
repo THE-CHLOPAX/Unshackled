@@ -4,10 +4,10 @@ import { GameObject, GameObjectComponent } from '@tgdf';
 import { HintBillboardHint } from 'UI';
 import { Interactable } from '3D/types';
 import { PlayerActionType } from 'renderer/types';
-import { Entity } from '3D/classes/gameObjects/Entity';
-import { Player } from '3D/classes/gameObjects/players/Player';
-import { PlayerDetectionZone } from '3D/classes/gameObjects/PlayerDetectionZone';
-import { PlayerActionEvent } from '3D/classes/gameObjects/players/PlayerRegisterableInputSource';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
+import { Player } from '3D/classes/gameObjects/Player/Player';
+import { PlayerActionEvent } from '3D/classes/gameObjects/Player/PlayerRegisterableInputSource';
+import { PlayerDetectionZone } from '3D/classes/gameObjects/PlayerDetectionZone/PlayerDetectionZone';
 import { HintBillboardRenderer } from '3D/classes/gameObjectComponents/HintBillboardRenderer/HintBillboardRenderer';
 
 export type InteractionDefinition = {

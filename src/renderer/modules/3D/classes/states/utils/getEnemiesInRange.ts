@@ -1,7 +1,7 @@
 import { assert } from '@tgdf';
 
-import { Entity } from '3D/classes/gameObjects/Entity';
-import { EntityAI } from '3D/classes/gameObjects/EntityAI';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
+import { EntityAI } from '3D/classes/gameObjects/EntityAI/EntityAI';
 import { getEntitiesWithinRadius } from '3D/utils/getEntitiesWithinRadius';
 
 export function getEnemiesInRange(entity: EntityAI): Entity[] {

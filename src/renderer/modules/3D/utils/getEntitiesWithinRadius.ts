@@ -1,4 +1,4 @@
-import { Entity } from '3D/classes/gameObjects/Entity';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 
 export function getEntitiesWithinRadius(entity: Entity, radius: number): Entity[] {
   if (!entity.scene) {

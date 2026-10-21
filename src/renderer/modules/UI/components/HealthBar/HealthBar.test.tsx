@@ -1,7 +1,7 @@
 import { act, render } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { Entity } from '3D/classes/gameObjects/Entity';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 import { HealthBar } from 'UI/components/HealthBar/HealthBar';
 
 vi.mock('electron', () => ({

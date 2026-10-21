@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { GameEventsEmitter } from 'renderer/types';
-import { Player } from '3D/classes/gameObjects/players/Player';
+import { Player } from '3D/classes/gameObjects/Player/Player';
 import { PlayerStats } from 'UI/components/GameUIOverlay/PlayerStats/PlayerStats';
 import { ObjectivesPanel } from 'UI/components/GameUIOverlay/ObjectivesPanel/ObjectivesPanel';
 import { DamageIndicator } from 'UI/components/GameUIOverlay/DamageIndicator/DamageIndicator';

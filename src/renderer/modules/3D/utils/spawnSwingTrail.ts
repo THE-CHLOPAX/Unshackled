@@ -1,5 +1,5 @@
-import { Entity } from '3D/classes/gameObjects/Entity';
-import { SwingTrail, SwingTrailOptions } from '3D/classes/gameObjects/SwingTrail';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
+import { SwingTrail, SwingTrailOptions } from '3D/classes/gameObjects/SwingTrail/SwingTrail';
 
 export function spawnSwingTrail(
   entity: Entity,

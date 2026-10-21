@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { Mock, IMock } from 'moq.ts';
 import { describe, it, expect, vi, assert } from 'vitest';
 
-import { Entity } from '3D/classes/gameObjects/Entity';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 import { flashMaterial, flashEmissive } from '3D/utils/flashMaterial';
 import { ModelRenderer } from '3D/classes/gameObjectComponents/ModelRenderer/ModelRenderer';
 

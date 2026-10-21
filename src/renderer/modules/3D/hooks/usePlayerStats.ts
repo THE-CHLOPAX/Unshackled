@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
 import { PlayerStatistics } from 'renderer/types';
-import { Player } from '3D/classes/gameObjects/players/Player';
+import { Player } from '3D/classes/gameObjects/Player/Player';
 
 export type UsePlayerStatsParams = {
   player?: Player;

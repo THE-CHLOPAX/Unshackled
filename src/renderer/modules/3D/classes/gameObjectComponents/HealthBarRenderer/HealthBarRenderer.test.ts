@@ -1,4 +1,4 @@
-import type { Entity } from '3D/classes/gameObjects/Entity';
+import type { Entity } from '3D/classes/gameObjects/Entity/Entity';
 
 import gsap from 'gsap';
 import { GameObject, Scene } from '@tgdf';
@@ -6,9 +6,9 @@ import { MockCamera } from '@tgdf/internal-3d/testUtils/MockCamera';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { BillboardView } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardView';
-import { HealthPointsController } from '3D/classes/gameObjectComponents/HealthPointsController';
 import { BillboardRegistry } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardRegistry';
 import { HealthBarRenderer } from '3D/classes/gameObjectComponents/HealthBarRenderer/HealthBarRenderer';
+import { HealthPointsController } from '3D/classes/gameObjectComponents/HealthPointsController/HealthPointsController';
 import {
   HEALTH_BAR_VISIBLE_DURATION_MS,
   HEALTH_BAR_FADE_DURATION_S,

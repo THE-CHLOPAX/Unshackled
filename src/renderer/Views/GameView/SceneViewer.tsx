@@ -3,7 +3,7 @@ import { useGraphicsStore } from '@tgdf';
 import { useCallback, useMemo } from 'react';
 
 import { GameUIOverlay } from 'UI';
-import { Player } from '3D/classes/gameObjects/players/Player';
+import { Player } from '3D/classes/gameObjects/Player/Player';
 import { GameScene } from '3D/classes/scenes/GameScene/GameScene';
 import { ThreeDViewerPixelated } from 'UI/components/ThreeDViewerPixelated';
 import { BillboardLayer } from 'UI/components/BillboardLayer/BillboardLayer';

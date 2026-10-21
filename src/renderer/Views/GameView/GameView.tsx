@@ -5,7 +5,7 @@ import { LevelSession } from 'Views/GameView/LevelSession';
 import { VersionLayout } from 'Views/layouts/VersionLayout';
 import { writeSaveFile } from 'renderer/utils/writeSaveFile';
 import { getUpdatedRun } from 'renderer/utils/getUpdatedRun';
-import { Player } from '3D/classes/gameObjects/players/Player';
+import { Player } from '3D/classes/gameObjects/Player/Player';
 import { BackToViewLayout } from 'Views/layouts/BackToViewLayout';
 
 export function GameView() {

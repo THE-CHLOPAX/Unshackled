@@ -1,8 +1,8 @@
-import { Flame } from '3D/classes/gameObjects/props/Flame';
-import { SpawnMarker } from '3D/classes/gameObjects/props/SpawnMarker';
+import { Flame } from '3D/classes/gameObjects/Flame';
 import { WorldObjectDefinition, WorldTileCodes } from 'renderer/types';
-import { SkeletonSpawner } from '3D/classes/gameObjects/SkeletonSpawner';
-import { LevelEndMarker } from '3D/classes/gameObjects/props/LevelEndMarker';
+import { SpawnMarker } from '3D/classes/gameObjects/SpawnMarker/SpawnMarker';
+import { LevelEndMarker } from '3D/classes/gameObjects/LevelEndMarker/LevelEndMarker';
+import { SkeletonSpawner } from '3D/classes/gameObjects/SkeletonSpawner/SkeletonSpawner';
 
 export const WORLD_TILE_DEFINITIONS_SHARED: WorldObjectDefinition[] = [];
 

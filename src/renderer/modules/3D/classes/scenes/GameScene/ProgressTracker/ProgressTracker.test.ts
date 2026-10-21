@@ -1,8 +1,8 @@
 import { Emitter, GameObject } from '@tgdf';
 import { describe, it, expect, vi } from 'vitest';
 
-import { Entity } from '3D/classes/gameObjects/Entity';
-import { Player } from '3D/classes/gameObjects/players/Player';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
+import { Player } from '3D/classes/gameObjects/Player/Player';
 import { MockGameScene } from '3D/classes/scenes/GameScene/MockGameScene';
 import {
   ProgressTracker,

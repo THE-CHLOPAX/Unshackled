@@ -1,4 +1,4 @@
-import type { Player } from '3D/classes/gameObjects/players/Player';
+import type { Player } from '3D/classes/gameObjects/Player/Player';
 
 import { describe, it, expect, vi } from 'vitest';
 

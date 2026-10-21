@@ -5,13 +5,13 @@ import { MockCamera } from '@tgdf/internal-3d/testUtils/MockCamera';
 
 import { Interactable } from '3D/types';
 import { PlayerActionType } from 'renderer/types';
-import { Entity } from '3D/classes/gameObjects/Entity';
-import { Player } from '3D/classes/gameObjects/players/Player';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
+import { Player } from '3D/classes/gameObjects/Player/Player';
 import { HintBillboardRenderer } from '3D/classes/gameObjectComponents/HintBillboardRenderer/HintBillboardRenderer';
 import {
   PlayerDetectionZoneEventMap,
   PlayerDetectionZoneOptions,
-} from '3D/classes/gameObjects/PlayerDetectionZone';
+} from '3D/classes/gameObjects/PlayerDetectionZone/PlayerDetectionZone';
 import {
   InteractionController,
   InteractionControllerOptions,
@@ -34,7 +34,7 @@ type FakeZone = THREE.Object3D & {
   destroy: ReturnType<typeof vi.fn>;
 };
 
-vi.mock('3D/classes/gameObjects/PlayerDetectionZone', async () => {
+vi.mock('3D/classes/gameObjects/PlayerDetectionZone/PlayerDetectionZone', async () => {
   const { Object3D } = await import('three');
   const { Emitter: ZoneEmitter } = await import('@tgdf');
 

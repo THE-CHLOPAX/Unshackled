@@ -1,5 +1,5 @@
 import { PlayerProfile } from 'renderer/types';
-import { playerConfig } from '3D/classes/gameObjects/players/config';
+import { playerConfig } from '3D/classes/gameObjects/Player/config';
 
 export function createNewPlayerProfile(id: string, name: string): PlayerProfile {
   const { maxHealthPoints } = playerConfig.healthOptions;

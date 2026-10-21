@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { assert, AssetRecord, isDev, Scene } from '@tgdf';
 
 import { loadWorldMap } from 'renderer/utils/loadWorldMap';
-import { Player } from '3D/classes/gameObjects/players/Player';
+import { Player } from '3D/classes/gameObjects/Player/Player';
 import { applyPlayerProfile } from '3D/utils/applyPlayerProfile';
 import { GameEventsEmitter, LevelIdentifier } from 'renderer/types';
 import { generateChunkedLevel } from '3D/utils/generateChunkedLevel';
@@ -10,13 +10,16 @@ import { ActivePlayerWithProfile } from 'renderer/utils/assignPlayerProfiles';
 import { loadAssetRecord } from '3D/classes/scenes/GameScene/loadAssetRecord';
 import { createActivePlayerInput } from 'renderer/utils/createActivePlayerInput';
 import { GAME_GRAVITY, LEVEL_CHUNK_SIZE, MAIN_CROWD_ID, NAVMESH_AGENT_RADIUS } from '3D/constants';
-import { OrtographicCamera, OrtographicCameraOptions } from '3D/classes/cameras/OrtographicCamera';
 import { BillboardRegistry } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardRegistry';
 import {
   ShadersManager,
   WarmupFactory,
 } from '3D/classes/scenes/GameScene/ShadersManager/ShadersManager';
 import { getDefaultWarmupMaterialFactories } from '3D/classes/scenes/GameScene/getDefaultWarmupMaterialFactories';
+import {
+  OrtographicCamera,
+  OrtographicCameraOptions,
+} from '3D/classes/cameras/OrtographicCamera/OrtographicCamera';
 import {
   ProgressTracker,
   ProgressTrackerObjective,

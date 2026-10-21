@@ -1,4 +1,4 @@
-import type { Entity } from '3D/classes/gameObjects/Entity';
+import type { Entity } from '3D/classes/gameObjects/Entity/Entity';
 
 import gsap from 'gsap';
 import { GameObject, Scene } from '@tgdf';
@@ -11,7 +11,7 @@ import { StaminaBarRenderer } from '3D/classes/gameObjectComponents/StaminaBarRe
 import {
   GENERAL_REPLENISH_RATE_PER_S,
   StaminaPointsController,
-} from '3D/classes/gameObjectComponents/StaminaPointsController';
+} from '3D/classes/gameObjectComponents/StaminaPointsController/StaminaPointsController';
 import {
   STAMINA_BAR_HIDE_DELAY_MS,
   STAMINA_BAR_FADE_DURATION_S,

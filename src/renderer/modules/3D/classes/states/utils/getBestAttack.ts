@@ -1,6 +1,6 @@
 import { AIAttackAction } from '3D/types';
-import { Entity } from '3D/classes/gameObjects/Entity';
-import { EntityAI } from '3D/classes/gameObjects/EntityAI';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
+import { EntityAI } from '3D/classes/gameObjects/EntityAI/EntityAI';
 
 export function getBestAttack(entity: EntityAI, target: Entity): AIAttackAction | null {
   if (!entity.attackOptions) return null;

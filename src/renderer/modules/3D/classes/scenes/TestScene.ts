@@ -5,11 +5,11 @@ import { GameEventsEmitter } from 'renderer/types';
 import { getModelClone } from '3D/utils/getModelClone';
 import { pixelateTexture } from '3D/utils/pixelateTexture';
 import { GameScene } from '3D/classes/scenes/GameScene/GameScene';
-import { RigidStaticObject } from '3D/classes/gameObjects/RigidStaticObject';
 import { ActivePlayerWithProfile } from 'renderer/utils/assignPlayerProfiles';
-import { createSwingTrailWarmupMesh } from '3D/classes/gameObjects/SwingTrail';
+import { createSwingTrailWarmupMesh } from '3D/classes/gameObjects/SwingTrail/SwingTrail';
 import { WarmupFactory } from '3D/classes/scenes/GameScene/ShadersManager/ShadersManager';
 import { CHECKERBOARD_TEXTURE, FLOOR_OBJECT_MESH_NAME, MODELS, TEXTURES } from '3D/constants';
+import { RigidStaticObject } from '3D/classes/gameObjects/RigidStaticObject/RigidStaticObject';
 
 const TEST_PLANE_SIZE = 30;
 const TEST_PLANE_CHECKERBOARD_REPEAT = 10;

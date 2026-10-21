@@ -1,4 +1,4 @@
-import type { Player } from '3D/classes/gameObjects/players/Player';
+import type { Player } from '3D/classes/gameObjects/Player/Player';
 
 import { CAMPAIGN } from 'renderer/constants';
 import { PlayerProfile, RunIdentifier, RunProgress } from 'renderer/types';

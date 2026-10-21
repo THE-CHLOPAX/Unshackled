@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { InputState, SceneCamera } from '@tgdf';
 
 import { State } from '3D/classes/states';
-import { Entity } from '3D/classes/gameObjects/Entity';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 
 export type { ModelRecord, TextureRecord, AssetRecord } from '@tgdf';
 

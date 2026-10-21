@@ -2,10 +2,10 @@ import gsap from 'gsap';
 import * as THREE from 'three';
 
 import { HealthBar, HealthBarProps } from 'UI';
-import { Entity } from '3D/classes/gameObjects/Entity';
-import { HealthPointsController } from '3D/classes/gameObjectComponents/HealthPointsController';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 import { BillboardRegistry } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardRegistry';
 import { BillboardRenderer } from '3D/classes/gameObjectComponents/BillboardRenderer/BillboardRenderer';
+import { HealthPointsController } from '3D/classes/gameObjectComponents/HealthPointsController/HealthPointsController';
 import {
   HEALTH_BAR_OFFSET,
   HEALTH_BAR_VISIBLE_DURATION_MS,

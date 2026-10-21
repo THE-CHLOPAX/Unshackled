@@ -4,7 +4,7 @@ import { Text } from 'UI/components/Text/Text';
 import { PlayerStatistics } from 'renderer/types';
 import { COLORS, GRADIENTS } from 'renderer/constants';
 import { usePlayerStats } from '3D/hooks/usePlayerStats';
-import { Player } from '3D/classes/gameObjects/players/Player';
+import { Player } from '3D/classes/gameObjects/Player/Player';
 import { SquarePanel } from 'UI/components/SquarePanel/SquarePanel';
 import { BarAnimated } from 'UI/components/BarAnimated/BarAnimated';
 import { useRecentProgressChange } from 'UI/components/BarAnimated/useRecentProgressChange';

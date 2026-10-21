@@ -5,9 +5,9 @@ import { getModelClone } from '3D/utils/getModelClone';
 import { GameScene } from '3D/classes/scenes/GameScene/GameScene';
 import { MODELS, SPAWN_MARKER_NAME, TEXTURES } from '3D/constants';
 import { GameEventsEmitter, LevelIdentifier } from 'renderer/types';
-import { Skeleton } from '3D/classes/gameObjects/mobs/Skeleton/Skeleton';
+import { Skeleton } from '3D/classes/gameObjects/Skeleton/Skeleton';
 import { ActivePlayerWithProfile } from 'renderer/utils/assignPlayerProfiles';
-import { createSwingTrailWarmupMesh } from '3D/classes/gameObjects/SwingTrail';
+import { createSwingTrailWarmupMesh } from '3D/classes/gameObjects/SwingTrail/SwingTrail';
 import { WarmupFactory } from '3D/classes/scenes/GameScene/ShadersManager/ShadersManager';
 import { OBJECTIVE_ENTITIES_KILLED } from '3D/classes/scenes/GameScene/ProgressTracker/constants';
 

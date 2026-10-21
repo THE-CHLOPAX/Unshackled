@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import * as THREE from 'three';
 
-import { Entity } from '3D/classes/gameObjects/Entity';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 import { MeshMaterial } from '3D/classes/gameObjectComponents/ModelRenderer/ModelRenderer';
 
 export type FlashMaterialFadeOptions = {

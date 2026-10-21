@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import { COLORS } from 'renderer/constants';
 import { flashMaterial } from '3D/utils/flashMaterial';
-import { Entity } from '3D/classes/gameObjects/Entity';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 
 export function flashRed(entity: Entity): void {
   flashMaterial({

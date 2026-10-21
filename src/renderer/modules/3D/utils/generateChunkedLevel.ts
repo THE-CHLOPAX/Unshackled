@@ -6,10 +6,10 @@ import { isInstancedCell } from '3D/utils/isInstancedCell';
 import { WorldCell, WorldOutputData } from 'renderer/types';
 import { getChunkBoundaries } from '3D/utils/getChunkBoundaries';
 import { GameScene } from '3D/classes/scenes/GameScene/GameScene';
-import { RigidStaticObject } from '3D/classes/gameObjects/RigidStaticObject';
 import { FLOOR_TILE_CODES, MODEL_TILE_SCALE, WORLD_CELL_SIZE } from '3D/constants';
 import { createFloorProjectionGeometry } from '3D/utils/createFloorProjectionGeometry';
 import { WORLD_TILE_DEFINITIONS, WORLD_PROP_DEFINITIONS } from 'WorldEditor/worldDefinitions';
+import { RigidStaticObject } from '3D/classes/gameObjects/RigidStaticObject/RigidStaticObject';
 import {
   ColliderGeometryEntry,
   mergeCollidersIntoTrimeshGeometry,

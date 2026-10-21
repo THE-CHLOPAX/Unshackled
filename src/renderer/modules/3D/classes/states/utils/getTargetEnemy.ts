@@ -1,5 +1,5 @@
-import { Entity } from '3D/classes/gameObjects/Entity';
-import { EntityAI } from '3D/classes/gameObjects/EntityAI';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
+import { EntityAI } from '3D/classes/gameObjects/EntityAI/EntityAI';
 import { getEnemiesInRange } from '3D/classes/states/utils/getEnemiesInRange';
 
 export function getTargetEnemy(entity: EntityAI): Entity | null {

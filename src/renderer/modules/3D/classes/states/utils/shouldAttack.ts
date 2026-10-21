@@ -1,5 +1,5 @@
 import { AIAttackAction } from '3D/types';
-import { EntityAI } from '3D/classes/gameObjects/EntityAI';
+import { EntityAI } from '3D/classes/gameObjects/EntityAI/EntityAI';
 import { getTargetEnemy } from '3D/classes/states/utils/getTargetEnemy';
 
 export function shouldAttack(entity: EntityAI, attack: AIAttackAction): boolean {

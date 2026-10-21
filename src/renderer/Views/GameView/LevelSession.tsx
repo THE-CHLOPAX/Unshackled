@@ -10,7 +10,7 @@ import { useLoadScene } from 'renderer/hooks/useLoadScene';
 import { pickRandomLevel } from '3D/utils/pickRandomLevel';
 import { useIsGameOver } from 'renderer/hooks/useIsGameOver';
 import { BIOME_SCENES } from '3D/classes/scenes/biomeScenes';
-import { Player } from '3D/classes/gameObjects/players/Player';
+import { Player } from '3D/classes/gameObjects/Player/Player';
 import { useActivePlayersStore } from 'Store/useActivePlayersStore';
 import { assignPlayerProfiles } from 'renderer/utils/assignPlayerProfiles';
 import { GameOverModal } from 'UI/components/GameUIOverlay/GameOverModal/GameOverModal';

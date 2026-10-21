@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { assert, Scene, SceneEventsMap } from '@tgdf';
 
 import { EntityClass } from '3D/types';
-import { Entity } from '3D/classes/gameObjects/Entity';
-import { Player } from '3D/classes/gameObjects/players/Player';
+import { Entity } from '3D/classes/gameObjects/Entity/Entity';
+import { Player } from '3D/classes/gameObjects/Player/Player';
 import { GameEventsEmitter, GameEventsMap } from 'renderer/types';
 import {
   OBJECTIVE_ENTITIES_KILLED,
