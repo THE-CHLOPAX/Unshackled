@@ -1,9 +1,8 @@
 import { useViewsStore } from '@tgdf';
 
+import { LoadingView } from 'Views/LoadingView';
 import { useReloadSaveFiles } from 'renderer/hooks/useReloadSaveFiles';
-import { useFMODAudioInitialization } from 'renderer/FMOD/hooks/useFMODAudioInitialization';
-
-import { LoadingView } from './LoadingView';
+import { useFMODAudioInitialization } from 'FMOD/hooks/useFMODAudioInitialization';
 
 export const INITIAL_FMOD_BANK_URLS = [
   '/assets/sounds/banks/Master.bank',

@@ -1,13 +1,12 @@
 import { assert, logger } from '@tgdf';
 
-import { VersionLayout } from 'UI';
 import { useRunStore } from 'Store/useRunStore';
+import { LevelSession } from 'Views/GameView/LevelSession';
+import { VersionLayout } from 'Views/layouts/VersionLayout';
 import { writeSaveFile } from 'renderer/utils/writeSaveFile';
 import { getUpdatedRun } from 'renderer/utils/getUpdatedRun';
-import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
 import { Player } from '3D/classes/gameObjects/players/Player';
-
-import { LevelSession } from './LevelSession';
+import { BackToViewLayout } from 'Views/layouts/BackToViewLayout';
 
 export function GameView() {
   const { currentRun, setCurrentRun } = useRunStore();

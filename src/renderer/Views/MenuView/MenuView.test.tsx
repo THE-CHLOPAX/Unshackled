@@ -2,15 +2,14 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { RunIdentifier } from 'renderer/types';
+import { MenuView } from 'Views/MenuView/MenuView';
 import { useSaveFilesStore } from 'Store/useSaveFilesStore';
-
-import { MenuView } from './MenuView';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
 }));
 
-vi.mock('../LoadingView', () => ({
+vi.mock('Views/LoadingView', () => ({
   LoadingView: ({ progress, onComplete }: { progress: number; onComplete: () => void }) => (
     <div data-testid="loading-view" data-progress={progress}>
       <button onClick={onComplete}>complete loading</button>

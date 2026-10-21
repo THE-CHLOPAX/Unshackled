@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { WORLD_LAYER_COUNT } from '../constants';
+import { WORLD_LAYER_COUNT } from 'renderer/constants';
 
 const mockState = vi.hoisted(() => ({ isElectron: false }));
 const mockIpc = vi.hoisted(() => ({
@@ -17,7 +17,7 @@ vi.mock('@tgdf', () => ({
   },
 }));
 
-import { deserializeWorldMap, loadWorldMap } from './loadWorldMap';
+import { deserializeWorldMap, loadWorldMap } from 'renderer/utils/loadWorldMap';
 
 describe('deserializeWorldMap', () => {
   it('revives a `layers` array into Maps, padded to WORLD_LAYER_COUNT', () => {

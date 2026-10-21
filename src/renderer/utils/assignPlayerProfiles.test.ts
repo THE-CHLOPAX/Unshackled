@@ -5,7 +5,7 @@ import { createProfile } from 'renderer/utils/test/createProfile';
 
 vi.mock('Store/useActivePlayersStore', () => ({}));
 
-import { assignPlayerProfiles } from './assignPlayerProfiles';
+import { assignPlayerProfiles } from 'renderer/utils/assignPlayerProfiles';
 
 function createActivePlayer(id: string): ActivePlayerState {
   return { id, name: id, controls: 'keyboard' };

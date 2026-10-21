@@ -2,9 +2,8 @@ import { logger } from '@tgdf';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { RunIdentifier } from 'renderer/types';
+import { useSaveFilesStore } from 'Store/useSaveFilesStore';
 import { loadSaveFiles } from 'renderer/utils/loadSaveFiles';
-
-import { useSaveFilesStore } from './useSaveFilesStore';
 
 vi.mock('@tgdf', () => ({ isElectron: true, logger: vi.fn() }));
 vi.mock('renderer/utils/loadSaveFiles', () => ({ loadSaveFiles: vi.fn() }));

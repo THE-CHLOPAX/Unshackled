@@ -5,9 +5,8 @@ import { PanelScalable, Text } from 'UI';
 import { COLORS } from 'renderer/constants';
 import { RunIdentifier } from 'renderer/types';
 import { useRunStore } from 'Store/useRunStore';
-
-import { EditSaveButton } from './EditSaveButton';
-import { DeleteSaveButton } from './DeleteSaveButton';
+import { EditSaveButton } from 'Views/LoadGameView/EditSaveButton';
+import { DeleteSaveButton } from 'Views/LoadGameView/DeleteSaveButton';
 
 export type LoadGameItemProps = {
   run: RunIdentifier;

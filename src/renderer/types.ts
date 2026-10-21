@@ -3,7 +3,7 @@ import type { GameScene } from '3D/classes/scenes/GameScene/GameScene';
 
 import { Emitter } from '@tgdf';
 
-import { BIOMES } from './constants';
+import { BIOMES } from 'renderer/constants';
 
 export type GameEventsMap = {
   'game-over': undefined;

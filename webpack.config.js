@@ -79,7 +79,7 @@ module.exports = {
           to: 'assets',
         },
         {
-          from: 'src/renderer/FMOD/fmodstudio.wasm',
+          from: 'src/renderer/modules/FMOD/fmodstudio.wasm',
           to: 'fmodstudio.wasm',
         },
       ],
@@ -91,11 +91,12 @@ module.exports = {
       '@tgdf': path.resolve(__dirname, 'src/lib'),
       '@tgdf/*': path.resolve(__dirname, 'src/lib/*'),
       renderer: path.resolve(__dirname, 'src/renderer'),
-      '3D': path.resolve(__dirname, 'src/renderer/3D'),
-      'UI': path.resolve(__dirname, 'src/renderer/UI'),
+      '3D': path.resolve(__dirname, 'src/renderer/modules/3D'),
+      'UI': path.resolve(__dirname, 'src/renderer/modules/UI'),
+      'FMOD': path.resolve(__dirname, 'src/renderer/modules/FMOD'),
       'Store': path.resolve(__dirname, 'src/renderer/Store'),
       'Views': path.resolve(__dirname, 'src/renderer/Views'),
-      'WorldEditor': path.resolve(__dirname, 'src/renderer/WorldEditor')
+      'WorldEditor': path.resolve(__dirname, 'src/renderer/modules/WorldEditor')
     },
   },
   devServer: {

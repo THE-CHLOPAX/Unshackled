@@ -8,7 +8,7 @@ const { keyboard, gamepad } = vi.hoisted(() => ({
 vi.mock('@tgdf', () => ({ PlayerInput: { keyboard, gamepad } }));
 vi.mock('Store/useActivePlayersStore', () => ({}));
 
-import { createActivePlayerInput } from './createActivePlayerInput';
+import { createActivePlayerInput } from 'renderer/utils/createActivePlayerInput';
 
 describe('createActivePlayerInput', () => {
   beforeEach(() => {

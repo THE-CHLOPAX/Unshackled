@@ -3,19 +3,18 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { useSaveFilesStore } from 'Store/useSaveFilesStore';
-import { useFMODAudioInitialization } from 'renderer/FMOD/hooks/useFMODAudioInitialization';
-
-import { InitialLoadView, INITIAL_FMOD_BANK_URLS } from './InitialLoadView';
+import { InitialLoadView, INITIAL_FMOD_BANK_URLS } from 'Views/InitialLoadView';
+import { useFMODAudioInitialization } from 'FMOD/hooks/useFMODAudioInitialization';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
 }));
 
-vi.mock('renderer/FMOD/hooks/useFMODAudioInitialization', () => ({
+vi.mock('FMOD/hooks/useFMODAudioInitialization', () => ({
   useFMODAudioInitialization: vi.fn(),
 }));
 
-vi.mock('./LoadingView', () => ({
+vi.mock('Views/LoadingView', () => ({
   LoadingView: ({ progress, onComplete }: { progress: number; onComplete: () => void }) => (
     <div data-testid="loading-view" data-progress={progress}>
       <button onClick={onComplete}>complete loading</button>

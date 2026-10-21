@@ -2,10 +2,10 @@ import { InternalFlex } from '@tgdf';
 import styled from 'styled-components';
 
 import { COLORS } from 'renderer/constants';
+import { PanelScalable, ScrollableWrapper } from 'UI';
 import { useSaveFilesStore } from 'Store/useSaveFilesStore';
-import { MenuSubviewLayout, PanelScalable, ScrollableWrapper } from 'UI';
-
-import { LoadGameItem } from './LoadGameItem';
+import { LoadGameItem } from 'Views/LoadGameView/LoadGameItem';
+import { MenuSubviewLayout } from 'Views/layouts/MenuSubviewLayout';
 
 export const LoadGameView = () => {
   const { saveFiles, reload } = useSaveFilesStore();

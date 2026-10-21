@@ -1,11 +1,10 @@
 import { NativeFileLocation } from '@tgdf';
 
+import { CampaignIdentifier, LevelIdentifier } from 'renderer/types';
 import {
   OBJECTIVE_ENTITIES_KILLED,
   OBJECTIVE_SURVIVED_TIME,
 } from '3D/classes/scenes/GameScene/ProgressTracker/constants';
-
-import { CampaignIdentifier, LevelIdentifier } from './types';
 
 export const APP_VERSION = __APP_VERSION__;
 

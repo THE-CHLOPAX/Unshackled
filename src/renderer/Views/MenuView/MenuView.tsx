@@ -3,13 +3,12 @@ import { InternalFlex } from '@tgdf';
 import styled from 'styled-components';
 
 import { GRADIENTS } from 'renderer/constants';
-import { VersionLayout } from 'UI/layouts/VersionLayout';
+import { LoadingView } from 'Views/LoadingView';
+import { VersionLayout } from 'Views/layouts/VersionLayout';
 import { useSaveFilesStore } from 'Store/useSaveFilesStore';
+import { useButtonsData } from 'Views/MenuView/useButtonsData';
 import { Button, Ornament, UI_IMAGE_URLS, withUIClick } from 'UI';
 import { useReloadSaveFiles } from 'renderer/hooks/useReloadSaveFiles';
-
-import { LoadingView } from '../LoadingView';
-import { useButtonsData } from './useButtonsData';
 
 export type MenuViewProps = {
   reloadSaveFiles?: boolean;

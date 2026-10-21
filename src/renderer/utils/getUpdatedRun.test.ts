@@ -2,10 +2,9 @@ import type { Player } from '3D/classes/gameObjects/players/Player';
 
 import { describe, it, expect, vi } from 'vitest';
 
+import { getUpdatedRun } from 'renderer/utils/getUpdatedRun';
 import { createProfile } from 'renderer/utils/test/createProfile';
 import { PlayerProfile, RunIdentifier, RunProgress } from 'renderer/types';
-
-import { getUpdatedRun } from './getUpdatedRun';
 
 vi.mock('renderer/constants', () => ({
   CAMPAIGN: [

@@ -14,7 +14,7 @@ import {
 } from '@tgdf';
 
 import { COLORS, GRADIENTS } from 'renderer/constants';
-import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
+import { BackToViewLayout } from 'Views/layouts/BackToViewLayout';
 
 export function SettingsView() {
   const { soundChannels } = useSoundsStore();

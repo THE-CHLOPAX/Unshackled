@@ -4,7 +4,7 @@ const ts = require('typescript');
 const prettier = require('prettier');
 
 const ROOT = path.resolve(__dirname, '..');
-const FMOD_DIR = path.join(ROOT, 'src/renderer/FMOD');
+const FMOD_DIR = path.join(ROOT, 'src/renderer/modules/FMOD');
 const BANKS_DIR = path.join(ROOT, 'src/renderer/assets/sounds/banks');
 const CONSTANTS_PATH = path.join(FMOD_DIR, 'constants.ts');
 const EVENTS_CONSTANT_NAME = 'FMOD_EVENTS';

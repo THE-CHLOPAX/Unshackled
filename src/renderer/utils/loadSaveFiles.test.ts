@@ -40,7 +40,7 @@ vi.mock('renderer/constants', () => ({
   SAVE_FILES_LOCATION_DEV: { root: 'app', directory: 'saveFilesDebug' },
 }));
 
-import { loadSaveFiles } from './loadSaveFiles';
+import { loadSaveFiles } from 'renderer/utils/loadSaveFiles';
 
 function createSaveFile(id: string): { name: string; contents: string } {
   return { name: `${id}.json`, contents: JSON.stringify({ id, name: `Run ${id}` }) };

@@ -4,9 +4,9 @@ import { InternalFlex, InternalText } from '@tgdf';
 
 import { PlayerActionType } from 'renderer/types';
 import { COLORS, GRADIENTS } from 'renderer/constants';
-import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
+import { BackToViewLayout } from 'Views/layouts/BackToViewLayout';
 import { HintBillboard } from 'UI/components/HintBilboard/HintBillboard';
-import { ViewerContext, ViewerContextMockValue } from 'renderer/UI/contexts/ViewerContext';
+import { ViewerContext, ViewerContextMockValue } from 'UI/contexts/ViewerContext';
 import {
   Button,
   ButtonIcon,

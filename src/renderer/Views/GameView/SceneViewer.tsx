@@ -2,13 +2,13 @@ import styled from 'styled-components';
 import { useGraphicsStore } from '@tgdf';
 import { useCallback, useMemo } from 'react';
 
-import { GameUIOverlay } from 'renderer/UI';
-import { Player } from 'renderer/3D/classes/gameObjects/players/Player';
-import { GameScene } from 'renderer/3D/classes/scenes/GameScene/GameScene';
-import { ThreeDViewerPixelated } from 'renderer/UI/components/ThreeDViewerPixelated';
-import { BillboardLayer } from 'renderer/UI/components/BillboardLayer/BillboardLayer';
-import { ViewerContext, ViewerContextValue } from 'renderer/UI/contexts/ViewerContext';
-import { BillboardView } from 'renderer/3D/classes/scenes/GameScene/BillboardRegistry/BillboardView';
+import { GameUIOverlay } from 'UI';
+import { Player } from '3D/classes/gameObjects/players/Player';
+import { GameScene } from '3D/classes/scenes/GameScene/GameScene';
+import { ThreeDViewerPixelated } from 'UI/components/ThreeDViewerPixelated';
+import { BillboardLayer } from 'UI/components/BillboardLayer/BillboardLayer';
+import { ViewerContext, ViewerContextValue } from 'UI/contexts/ViewerContext';
+import { BillboardView } from '3D/classes/scenes/GameScene/BillboardRegistry/BillboardView';
 
 type SceneViewerProps = {
   scene: GameScene;

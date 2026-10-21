@@ -6,8 +6,8 @@ import { loadWorldMap } from 'renderer/utils/loadWorldMap';
 import { saveWorldMap } from 'WorldEditor/utils/saveWorldMap';
 import { WorldGridCanvas } from 'WorldEditor/WorldGridCanvas';
 import { useWorldGrid } from 'WorldEditor/hooks/useWorldGrid';
-import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
 import { useWorldEditorStore } from 'Store/useWorldEditorStore';
+import { BackToViewLayout } from 'Views/layouts/BackToViewLayout';
 import { WorldEditorPalette } from 'WorldEditor/WorldEditorPalette';
 import { WORLD_TILE_DEFINITIONS } from 'WorldEditor/worldDefinitions';
 

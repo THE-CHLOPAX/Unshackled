@@ -2,8 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { useSaveFilesStore } from 'Store/useSaveFilesStore';
-
-import { useReloadSaveFiles } from './useReloadSaveFiles';
+import { useReloadSaveFiles } from 'renderer/hooks/useReloadSaveFiles';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },

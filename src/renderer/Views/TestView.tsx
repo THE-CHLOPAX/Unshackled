@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 
+import { LoadingView } from 'Views/LoadingView';
 import { TestScene } from '3D/classes/scenes/TestScene';
+import { SceneViewer } from 'Views/GameView/SceneViewer';
 import { useLoadScene } from 'renderer/hooks/useLoadScene';
 import { useIsGameOver } from 'renderer/hooks/useIsGameOver';
-import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
+import { BackToViewLayout } from 'Views/layouts/BackToViewLayout';
 import { useActivePlayersStore } from 'Store/useActivePlayersStore';
 import { assignPlayerProfiles } from 'renderer/utils/assignPlayerProfiles';
 import { createNewPlayerProfile } from 'renderer/utils/createNewPlayerProfile';
 import { GameOverModal } from 'UI/components/GameUIOverlay/GameOverModal/GameOverModal';
-
-import { LoadingView } from './LoadingView';
-import { SceneViewer } from './GameView/SceneViewer';
 
 export function TestView() {
   const { scene, loadingProgress, emitter } = useLoadScene((emitter) => {

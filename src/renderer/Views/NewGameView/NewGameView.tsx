@@ -2,17 +2,17 @@ import styled from 'styled-components';
 import { useMemo, useState } from 'react';
 import { InternalFlex, logger, useViewsStore } from '@tgdf';
 
+import { Button, PanelScalable } from 'UI';
 import { COLORS } from 'renderer/constants';
 import { PlayerProfile } from 'renderer/types';
 import { useRunStore } from 'Store/useRunStore';
+import { GameOption } from 'Views/NewGameView/GameOption';
+import { PlayerSlot } from 'Views/NewGameView/PlayerSlot';
 import { createNewRun } from 'renderer/utils/createNewRun';
 import { writeSaveFile } from 'renderer/utils/writeSaveFile';
-import { Button, MenuSubviewLayout, PanelScalable } from 'UI';
+import { MenuSubviewLayout } from 'Views/layouts/MenuSubviewLayout';
 import { useActivePlayersStore } from 'Store/useActivePlayersStore';
 import { createNewPlayerProfile } from 'renderer/utils/createNewPlayerProfile';
-
-import { GameOption } from './GameOption';
-import { PlayerSlot } from './PlayerSlot';
 
 export const NewGameView = () => {
   const { setCurrentRun } = useRunStore();

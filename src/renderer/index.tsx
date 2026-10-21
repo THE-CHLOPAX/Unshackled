@@ -1,9 +1,8 @@
 import { createRoot } from 'react-dom/client';
 
+import App from 'renderer/App';
+import 'renderer/global.css';
 import { preloadUiAssets } from 'UI/utils/preloadUiAssets';
-
-import './global.css';
-import App from './App';
 
 preloadUiAssets();
 

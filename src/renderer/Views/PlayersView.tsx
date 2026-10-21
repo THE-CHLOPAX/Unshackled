@@ -8,7 +8,7 @@ import {
 } from '@tgdf';
 
 import { COLORS } from 'renderer/constants';
-import { BackToViewLayout } from 'UI/layouts/BackToViewLayout';
+import { BackToViewLayout } from 'Views/layouts/BackToViewLayout';
 import { ActivePlayerState, useActivePlayersStore } from 'Store/useActivePlayersStore';
 
 export function PlayersView() {

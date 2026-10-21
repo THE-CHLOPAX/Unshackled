@@ -3,18 +3,17 @@ import { useState, useEffect } from 'react';
 import { useDebouncedCallback } from '@tgdf';
 
 import { RunProgress } from 'renderer/types';
-import { useRunStore } from 'renderer/Store/useRunStore';
+import { useRunStore } from 'Store/useRunStore';
+import { LoadingView } from 'Views/LoadingView';
+import { SceneViewer } from 'Views/GameView/SceneViewer';
 import { useLoadScene } from 'renderer/hooks/useLoadScene';
+import { pickRandomLevel } from '3D/utils/pickRandomLevel';
 import { useIsGameOver } from 'renderer/hooks/useIsGameOver';
-import { pickRandomLevel } from 'renderer/3D/utils/pickRandomLevel';
-import { BIOME_SCENES } from 'renderer/3D/classes/scenes/biomeScenes';
-import { Player } from 'renderer/3D/classes/gameObjects/players/Player';
+import { BIOME_SCENES } from '3D/classes/scenes/biomeScenes';
+import { Player } from '3D/classes/gameObjects/players/Player';
+import { useActivePlayersStore } from 'Store/useActivePlayersStore';
 import { assignPlayerProfiles } from 'renderer/utils/assignPlayerProfiles';
-import { useActivePlayersStore } from 'renderer/Store/useActivePlayersStore';
-import { GameOverModal } from 'renderer/UI/components/GameUIOverlay/GameOverModal/GameOverModal';
-
-import { SceneViewer } from './SceneViewer';
-import { LoadingView } from '../LoadingView';
+import { GameOverModal } from 'UI/components/GameUIOverlay/GameOverModal/GameOverModal';
 
 type LevelSessionProps = {
   progress: RunProgress;

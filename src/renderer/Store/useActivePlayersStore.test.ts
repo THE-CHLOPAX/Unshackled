@@ -23,13 +23,13 @@ const { MockGamepadInstance } = vi.hoisted(() => {
   return { MockGamepadInstance };
 });
 
-vi.mock('../../lib/internal-input/Gamepad/GamepadInstance', () => ({
+vi.mock('@tgdf/internal-input/Gamepad/GamepadInstance', () => ({
   GamepadInstance: MockGamepadInstance,
 }));
 
 import { GamepadManager, useGamepadStore } from '@tgdf';
 
-import { ActivePlayerState, MAX_PLAYERS, useActivePlayersStore } from './useActivePlayersStore';
+import { ActivePlayerState, MAX_PLAYERS, useActivePlayersStore } from 'Store/useActivePlayersStore';
 
 function dispatchGamepadEvent(
   type: 'gamepadconnected' | 'gamepaddisconnected',
