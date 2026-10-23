@@ -60,6 +60,10 @@ export class GameObject extends THREE.Object3D implements InputNotifiable {
     return this._inputSource;
   }
 
+  public get isDestroyed(): boolean {
+    return this._isDestroyed;
+  }
+
   public toggleInput(enabled: boolean): void {
     this._inputEnabled = enabled;
   }

@@ -131,6 +131,12 @@ export const MODELS: Record<string, ModelRecord> = {
     id: 'model-player',
     path: './assets/models/player.glb',
   },
+  ROCK: {
+    type: 'model',
+    id: 'model-rock',
+    path: './assets/models/rock.glb',
+    scale: new THREE.Vector3().setScalar(0.15),
+  },
   DUNGEON_DOOR: {
     type: 'model',
     id: 'model_dungeon_door',

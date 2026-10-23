@@ -1,5 +1,6 @@
 import type * as THREE from 'three';
 import type { GameScene } from '3D/classes/scenes/GameScene/GameScene';
+import type { ModelRendererOptions } from '3D/classes/gameObjectComponents/ModelRenderer/ModelRenderer';
 
 import { Emitter } from '@tgdf';
 
@@ -15,11 +16,11 @@ export enum PlayerActionType {
   IDLE = 'idle',
   RUN = 'run',
   SPRINT = 'sprint',
+  INTERACT = 'interact',
   ACTION_UP = 'action-up',
   ACTION_DOWN = 'action-down',
   ACTION_LEFT = 'action-left',
   ACTION_RIGHT = 'action-right',
-  ACTION_FOCUS = 'action-focus',
 }
 
 export type WorldCell = {
@@ -133,4 +134,12 @@ export type RunIdentifier = {
   progress: RunProgress;
   completedLevelIds: string[];
   players: PlayerProfile[];
+};
+
+export type EquipmentItemRecord = {
+  id: string;
+  name: string;
+  modelOptions: ModelRendererOptions;
+  description?: string;
+  iconUrl?: string;
 };

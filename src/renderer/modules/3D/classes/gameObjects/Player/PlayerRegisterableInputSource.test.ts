@@ -57,7 +57,7 @@ const ACTION_TYPES = [
   PlayerActionType.ACTION_DOWN,
   PlayerActionType.ACTION_LEFT,
   PlayerActionType.ACTION_RIGHT,
-  PlayerActionType.ACTION_FOCUS,
+  PlayerActionType.INTERACT,
 ];
 
 describe('PlayerRegisterableInputSource', () => {
@@ -92,7 +92,7 @@ describe('PlayerRegisterableInputSource', () => {
     { event: { key: 'ArrowDown', code: 'ArrowDown' }, action: PlayerActionType.ACTION_DOWN },
     { event: { key: 'ArrowLeft', code: 'ArrowLeft' }, action: PlayerActionType.ACTION_LEFT },
     { event: { key: 'ArrowRight', code: 'ArrowRight' }, action: PlayerActionType.ACTION_RIGHT },
-    { event: { key: ' ', code: 'Space' }, action: PlayerActionType.ACTION_FOCUS },
+    { event: { key: 'KeyE', code: 'KeyE' }, action: PlayerActionType.INTERACT },
   ])('maps the "$event.code" key to $action', ({ event, action }) => {
     source.pressKey(event);
 
@@ -104,7 +104,7 @@ describe('PlayerRegisterableInputSource', () => {
     { button: 'A' as const, action: PlayerActionType.ACTION_DOWN },
     { button: 'X' as const, action: PlayerActionType.ACTION_LEFT },
     { button: 'B' as const, action: PlayerActionType.ACTION_RIGHT },
-    { button: 'RB' as const, action: PlayerActionType.ACTION_FOCUS },
+    { button: 'RB' as const, action: PlayerActionType.INTERACT },
   ])('maps the gamepad "$button" button to $action', ({ button, action }) => {
     source.pressButton(button);
 

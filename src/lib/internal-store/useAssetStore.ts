@@ -25,6 +25,7 @@ export type AssetState = {
 export type LoadModelOptions = {
   nameExtractor?: string;
   centerOrigin?: boolean;
+  scale?: THREE.Vector3;
 };
 
 export type LoadModelGLTFOptions = LoadModelOptions;
@@ -39,6 +40,7 @@ export type ModelRecord = {
   path: string;
   nameExtractor?: string;
   centerOrigin?: boolean;
+  scale?: THREE.Vector3;
 };
 
 export type TextureRecord = {
@@ -86,11 +88,15 @@ function extractNamedObject(
 function finalizeLoadedModel(
   object: THREE.Object3D,
   animations: THREE.AnimationClip[],
-  options?: Pick<LoadModelOptions, 'centerOrigin'>
+  options?: Pick<LoadModelOptions, 'centerOrigin' | 'scale'>
 ): THREE.Object3D {
   animations.forEach((clip) => {
     clip.name = clip.name.toLowerCase();
   });
+
+  if (options?.scale) {
+    object.scale.copy(options.scale);
+  }
 
   if (options?.centerOrigin) {
     if (object instanceof THREE.Mesh) {

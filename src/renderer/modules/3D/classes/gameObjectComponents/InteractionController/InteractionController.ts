@@ -1,153 +1,147 @@
 import * as THREE from 'three';
-import { GameObject, GameObjectComponent } from '@tgdf';
+import { GameObjectComponent } from '@tgdf';
 
-import { HintBillboardHint } from 'UI';
-import { Interactable } from '3D/types';
 import { PlayerActionType } from 'renderer/types';
-import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 import { Player } from '3D/classes/gameObjects/Player/Player';
+import { isInteractiveObject } from '3D/utils/isInteractiveObject';
+import { DetectionZone } from '3D/classes/gameObjects/DetectionZone/DetectionZone';
+import { InteractiveObject } from '3D/classes/gameObjects/InteractiveObject/InteractiveObject';
 import { PlayerActionEvent } from '3D/classes/gameObjects/Player/PlayerRegisterableInputSource';
-import { PlayerDetectionZone } from '3D/classes/gameObjects/PlayerDetectionZone/PlayerDetectionZone';
-import { HintBillboardRenderer } from '3D/classes/gameObjectComponents/HintBillboardRenderer/HintBillboardRenderer';
-
-export type InteractionDefinition = {
-  hint: HintBillboardHint;
-  onInteract: (entity: Entity) => void;
-  enabled?: boolean;
-};
 
 export type InteractionControllerOptions = {
   interactionRadius: number;
-  interactions: Partial<Record<PlayerActionType, InteractionDefinition>>;
-  name?: {
-    label: string;
-    radius: number;
-  };
+  titleDisplayRadius: number;
 };
 
-type InteractionState = {
-  definition: InteractionDefinition;
-  interactable: Interactable;
-};
+type InteractiveObjectZone = DetectionZone<InteractiveObject>;
 
 export class InteractionController extends GameObjectComponent {
-  private readonly _interactions = new Map<PlayerActionType, InteractionState>();
-  private _interactionZone: PlayerDetectionZone | null = null;
-  private _nameZone: PlayerDetectionZone | null = null;
+  private _interactionZone: InteractiveObjectZone | null = null;
+  private _titleZone: InteractiveObjectZone | null = null;
+  private _currentClosestObject: InteractiveObject | null = null;
+
+  private readonly _playerPosition = new THREE.Vector3();
+  private readonly _objectPosition = new THREE.Vector3();
 
   constructor(
-    gameObject: GameObject,
-    private readonly _hintRenderer: HintBillboardRenderer,
-    private readonly _interactionOptions: InteractionControllerOptions
+    gameObject: Player,
+    private readonly _options: InteractionControllerOptions
   ) {
     super(gameObject);
-
-    for (const [action, definition] of Object.entries(_interactionOptions.interactions) as [
-      PlayerActionType,
-      InteractionDefinition,
-    ][]) {
-      this._interactions.set(action, {
-        definition: { ...definition },
-        interactable: { interact: (entity) => this._interact(action, entity) },
-      });
-    }
-
-    this._hintRenderer.setTitle(_interactionOptions.name?.label);
-    this._updateHints();
   }
 
-  public get players(): Player[] {
-    return this._interactionZone?.players ?? [];
+  public override get gameObject(): Player {
+    return super.gameObject as Player;
   }
 
-  public setHint(action: PlayerActionType, hint: Partial<HintBillboardHint>): void {
-    const interaction = this._interactions.get(action);
-    if (!interaction) return;
-
-    interaction.definition.hint = { ...interaction.definition.hint, ...hint };
-    this._updateHints();
+  public get interactiveObjects(): InteractiveObject[] {
+    return this._interactionZone?.objects ?? [];
   }
 
-  public setInteractionEnabled(action: PlayerActionType, enabled: boolean): void {
-    const interaction = this._interactions.get(action);
-    if (!interaction) return;
-
-    interaction.definition.enabled = enabled;
-    this._updateHints();
-  }
-
-  public isInteractionEnabled(action: PlayerActionType): boolean {
-    const interaction = this._interactions.get(action);
-    return interaction !== undefined && interaction.definition.enabled !== false;
+  public toggleDetection(enabled: boolean): void {
+    this._interactionZone?.toggleDetection(enabled);
+    this._titleZone?.toggleDetection(enabled);
   }
 
   protected override onAwake(): void {
-    const { interactionRadius, name } = this._interactionOptions;
+    const { interactionRadius, titleDisplayRadius } = this._options;
 
     this._interactionZone = this._createZone(interactionRadius);
-    this._interactionZone.playerEvents.on('player-entered', this._updateVisibility);
-    this._interactionZone.playerEvents.on('player-left', this._updateVisibility);
-    this._interactionZone.playerEvents.on('player-action', this._onPlayerAction);
 
-    if (name) {
-      this._nameZone = this._createZone(name.radius);
-      this._nameZone.playerEvents.on('player-entered', this._updateVisibility);
-      this._nameZone.playerEvents.on('player-left', this._updateVisibility);
-    }
+    this._titleZone = this._createZone(titleDisplayRadius);
+    this._titleZone.zoneEvents.on('object-entered', this._onTitleZoneEntered);
+    this._titleZone.zoneEvents.on('object-left', this._onTitleZoneLeft);
+
+    this.gameObject.inputSource.events.on('player-action', this._onPlayerInteraction);
   }
 
   protected override onDestroyed(): void {
-    for (const zone of [this._interactionZone, this._nameZone]) {
-      zone?.playerEvents.removeAll();
+    this.gameObject.inputSource.events.off('player-action', this._onPlayerInteraction);
+
+    for (const object of this._interactionZone?.objects ?? []) {
+      object.hideHintsFor(this.gameObject);
+    }
+    for (const object of this._titleZone?.objects ?? []) {
+      object.hideTitleFor(this.gameObject);
+    }
+
+    for (const zone of [this._interactionZone, this._titleZone]) {
+      zone?.zoneEvents.removeAll();
       zone?.destroy();
     }
     this._interactionZone = null;
-    this._nameZone = null;
-    this._interactions.clear();
+    this._titleZone = null;
   }
 
-  private _createZone(radius: number): PlayerDetectionZone {
-    const zone = new PlayerDetectionZone(this.gameObject.scene, {
-      size: new THREE.Vector3().setScalar(radius * 2),
+  protected override onUpdate(_deltaTime: number): void {
+    const closestObjectInInteractionZone = this._findClosestTarget();
+
+    if (closestObjectInInteractionZone !== this._currentClosestObject) {
+      this._currentClosestObject?.hideHintsFor(this.gameObject);
+      this._currentClosestObject = closestObjectInInteractionZone;
+
+      if (this._currentClosestObject) {
+        this._currentClosestObject.showHintsFor(this.gameObject);
+      }
+    }
+  }
+
+  private _createZone(radius: number): InteractiveObjectZone {
+    const size = new THREE.Vector3().setScalar(radius * 2);
+    const zone = new DetectionZone<InteractiveObject>(this.gameObject.scene, {
+      size,
       shape: 'sphere',
+      filter: isInteractiveObject,
     });
+
+    zone.position.y -= size.y / 2;
+
     this.gameObject.add(zone);
     return zone;
   }
 
-  private _updateVisibility = (): void => {
-    const isInInteractionZone = (this._interactionZone?.players.length ?? 0) > 0;
-    const isInNameZone = (this._nameZone?.players.length ?? 0) > 0;
-
-    this._hintRenderer.setHintsVisible(isInInteractionZone);
-    this._hintRenderer.setTitleVisible(isInInteractionZone || isInNameZone);
+  private _onTitleZoneEntered = ({ object }: { object: InteractiveObject }): void => {
+    object.showTitleFor(this.gameObject);
   };
 
-  private _onPlayerAction = ({
-    player,
-    action,
-  }: {
-    player: Player;
-    action: PlayerActionEvent;
-  }): void => {
-    const interaction = this._interactions.get(action.type);
-    if (!interaction || !this.isInteractionEnabled(action.type)) return;
-
-    player.stateController.requestInteraction(interaction.interactable);
+  private _onTitleZoneLeft = ({ object }: { object: InteractiveObject }): void => {
+    object.hideTitleFor(this.gameObject);
   };
 
-  private _interact(action: PlayerActionType, entity: Entity): void {
-    const interaction = this._interactions.get(action);
-    if (!interaction || !this.isInteractionEnabled(action)) return;
+  private _onPlayerInteraction = (action: PlayerActionEvent): void => {
+    if (action.type !== PlayerActionType.INTERACT) return;
 
-    interaction.definition.onInteract(entity);
-  }
+    const target = this._currentClosestObject;
+    if (!target) return;
 
-  private _updateHints(): void {
-    const hints = [...this._interactions.values()]
-      .filter(({ definition }) => definition.enabled !== false)
-      .map(({ definition }) => definition.hint);
+    const player = this.gameObject;
+    player.stateController.requestInteraction({
+      interact: () => target.interact(action.type, player),
+    });
+  };
 
-    this._hintRenderer.setHints(hints);
+  private _findClosestTarget(): InteractiveObject | null {
+    this.gameObject.getWorldPosition(this._playerPosition);
+
+    let closest: InteractiveObject | null = null;
+    let closestDistance = Infinity;
+
+    for (const object of this.interactiveObjects) {
+      if (!object.isInteractionEnabled(PlayerActionType.INTERACT)) continue;
+
+      const objectPosition = object.getWorldPosition(this._objectPosition);
+
+      const distance = Math.sqrt(
+        (objectPosition.x - this._playerPosition.x) ** 2 +
+          (objectPosition.z - this._playerPosition.z) ** 2
+      );
+
+      if (distance < closestDistance) {
+        closest = object;
+        closestDistance = distance;
+      }
+    }
+
+    return closest;
   }
 }

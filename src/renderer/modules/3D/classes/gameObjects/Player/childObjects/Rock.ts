@@ -1,8 +1,8 @@
-import * as THREE from 'three';
 import { RigidBodyCollisionParams } from '@tgdf';
 
-import { COLORS } from 'renderer/constants';
+import { MODELS } from '3D/constants';
 import { isEntity } from '3D/utils/isEntity';
+import { getModelClone } from '3D/utils/getModelClone';
 import { GameScene } from '3D/classes/scenes/GameScene/GameScene';
 import { Projectile, ProjectileOptions } from '3D/classes/gameObjects/Projectile/Projectile';
 
@@ -11,10 +11,7 @@ export class Rock extends Projectile {
     scene: GameScene,
     public readonly options: Omit<ProjectileOptions, 'model'>
   ) {
-    const geometry = new THREE.BoxGeometry(0.25, 0.25, 0.25);
-    const material = new THREE.MeshBasicMaterial({ color: COLORS.LIGHT_KHAKI });
-    const model = new THREE.Mesh(geometry, material);
-
+    const model = getModelClone(MODELS.ROCK.id);
     super(scene, { ...options, model });
   }
 

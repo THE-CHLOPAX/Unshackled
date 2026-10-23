@@ -60,6 +60,7 @@ export class Projectile extends GameSceneObject {
 
     this._collisionListenerId = `projectile-on-collision-listener-${this.name || this.id}`;
     this.rigidBody.addCollisionListener(this._collisionListenerId, (params) => {
+      if (params.otherBody.isSensor()) return;
       this.onCollision(params);
     });
   }

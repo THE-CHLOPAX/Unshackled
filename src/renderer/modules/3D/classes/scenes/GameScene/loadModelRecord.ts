@@ -7,6 +7,7 @@ export function loadModelRecord(record: ModelRecord): Promise<unknown> {
   const modelOptions = {
     nameExtractor: record.nameExtractor,
     centerOrigin: record.centerOrigin ?? true,
+    scale: record.scale,
   };
 
   switch (extension) {

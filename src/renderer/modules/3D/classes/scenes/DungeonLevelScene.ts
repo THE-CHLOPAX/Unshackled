@@ -25,6 +25,7 @@ export class DungeonLevelScene extends GameScene {
     MODELS.DUNGEON_WALL_TORCH,
     MODELS.DUNGEON_DOOR_FRAME,
     MODELS.DUNGEON_DOOR,
+    MODELS.ROCK,
   ];
 
   protected override additionalWarmupFactories: WarmupFactory[] = [

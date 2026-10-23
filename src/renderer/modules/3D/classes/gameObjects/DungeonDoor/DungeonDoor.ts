@@ -6,27 +6,32 @@ import { PlayerActionType } from 'renderer/types';
 import { MODELS, WORLD_CELL_SIZE } from '3D/constants';
 import { GameScene } from '3D/classes/scenes/GameScene/GameScene';
 import { pixelateModelMaterial } from '3D/utils/pixelateModelMaterial';
-import { HintBillboardRenderer } from '3D/classes/gameObjectComponents/HintBillboardRenderer/HintBillboardRenderer';
-import { InteractionController } from '3D/classes/gameObjectComponents/InteractionController/InteractionController';
+import { InteractiveObject } from '3D/classes/gameObjects/InteractiveObject/InteractiveObject';
 
-const INTERACTION_RADIUS = 1;
-const NAME_DISPLAY_RADIUS = INTERACTION_RADIUS * 2;
 const HINT_OFFSET = new THREE.Vector3(0, 3, 0);
-const TOGGLE_ACTION = PlayerActionType.ACTION_DOWN;
+const TOGGLE_ACTION = PlayerActionType.INTERACT;
 
 const OPEN_ANGLE = -Math.PI / 2;
 const OPEN_CLOSE_DURATION_S = 0.4;
 
-export class DungeonDoor extends GameObject {
+export class DungeonDoor extends InteractiveObject {
   private _leaf: GameObject;
   private _rigidBody: RigidBody;
   private _size = new THREE.Vector3();
-  private _interactionController: InteractionController;
   private _isOpen = false;
   private _rotationTween: gsap.core.Tween | null = null;
 
   constructor(scene: GameScene) {
-    super({ scene });
+    super(scene, {
+      title: 'Dungeon Door',
+      hintOffset: HINT_OFFSET,
+      interactions: {
+        [TOGGLE_ACTION]: {
+          hint: { actionType: TOGGLE_ACTION, label: 'Open' },
+          onInteract: () => this.toggle(),
+        },
+      },
+    });
 
     const doorModel = getModelFromStore(MODELS.DUNGEON_DOOR.id);
     assert(isMesh(doorModel), 'Model is not a mesh');
@@ -55,28 +60,6 @@ export class DungeonDoor extends GameObject {
         colliderShape: 'box',
       })
     );
-
-    const hintRenderer = this.addComponent(
-      'HintBillboardRenderer',
-      new HintBillboardRenderer(this, scene.billboards, { offset: HINT_OFFSET })
-    );
-
-    this._interactionController = this.addComponent(
-      'InteractionController',
-      new InteractionController(this, hintRenderer, {
-        interactionRadius: INTERACTION_RADIUS,
-        name: {
-          label: 'Dungeon Door',
-          radius: NAME_DISPLAY_RADIUS,
-        },
-        interactions: {
-          [TOGGLE_ACTION]: {
-            hint: { actionType: TOGGLE_ACTION, label: 'Open' },
-            onInteract: () => this.toggle(),
-          },
-        },
-      })
-    );
   }
 
   public get isOpen(): boolean {
@@ -94,14 +77,14 @@ export class DungeonDoor extends GameObject {
   public open(): void {
     if (this._isOpen) return;
     this._isOpen = true;
-    this._interactionController.setHint(TOGGLE_ACTION, { label: 'Close' });
+    this.setHint(TOGGLE_ACTION, { label: 'Close' });
     this._rotateLeafTo(OPEN_ANGLE);
   }
 
   public close(): void {
     if (!this._isOpen) return;
     this._isOpen = false;
-    this._interactionController.setHint(TOGGLE_ACTION, { label: 'Open' });
+    this.setHint(TOGGLE_ACTION, { label: 'Open' });
     this._rotateLeafTo(0);
   }
 

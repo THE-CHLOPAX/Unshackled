@@ -5,17 +5,14 @@ import { MockCamera } from '@tgdf/internal-3d/testUtils/MockCamera';
 
 import { Interactable } from '3D/types';
 import { PlayerActionType } from 'renderer/types';
-import { Entity } from '3D/classes/gameObjects/Entity/Entity';
 import { Player } from '3D/classes/gameObjects/Player/Player';
-import { HintBillboardRenderer } from '3D/classes/gameObjectComponents/HintBillboardRenderer/HintBillboardRenderer';
+import { InteractiveObject } from '3D/classes/gameObjects/InteractiveObject/InteractiveObject';
+import { PlayerInputEventMap } from '3D/classes/gameObjects/Player/PlayerRegisterableInputSource';
+import { InteractionController } from '3D/classes/gameObjectComponents/InteractionController/InteractionController';
 import {
-  PlayerDetectionZoneEventMap,
-  PlayerDetectionZoneOptions,
-} from '3D/classes/gameObjects/PlayerDetectionZone/PlayerDetectionZone';
-import {
-  InteractionController,
-  InteractionControllerOptions,
-} from '3D/classes/gameObjectComponents/InteractionController/InteractionController';
+  DetectionZoneEventMap,
+  DetectionZoneOptions,
+} from '3D/classes/gameObjects/DetectionZone/DetectionZone';
 
 vi.mock('electron', () => ({
   ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn(), once: vi.fn() },
@@ -28,83 +25,102 @@ class TestScene extends Scene {
 const zones = vi.hoisted(() => [] as FakeZone[]);
 
 type FakeZone = THREE.Object3D & {
-  options: PlayerDetectionZoneOptions;
-  players: Player[];
-  playerEvents: Emitter<PlayerDetectionZoneEventMap>;
+  options: DetectionZoneOptions;
+  objects: InteractiveObject[];
+  zoneEvents: Emitter<DetectionZoneEventMap<InteractiveObject>>;
+  toggleDetection: ReturnType<typeof vi.fn>;
   destroy: ReturnType<typeof vi.fn>;
 };
 
-vi.mock('3D/classes/gameObjects/PlayerDetectionZone/PlayerDetectionZone', async () => {
+vi.mock('3D/classes/gameObjects/DetectionZone/DetectionZone', async () => {
   const { Object3D } = await import('three');
   const { Emitter: ZoneEmitter } = await import('@tgdf');
 
-  class PlayerDetectionZone extends Object3D {
-    public players: Player[] = [];
-    public playerEvents = new ZoneEmitter<PlayerDetectionZoneEventMap>();
+  class DetectionZone extends Object3D {
+    public objects: InteractiveObject[] = [];
+    public zoneEvents = new ZoneEmitter<DetectionZoneEventMap<InteractiveObject>>();
+    public toggleDetection = vi.fn();
+    public toggleDebug = vi.fn();
     public destroy = vi.fn();
 
     constructor(
       _scene: Scene,
-      public options: PlayerDetectionZoneOptions
+      public options: DetectionZoneOptions
     ) {
       super();
       zones.push(this as unknown as FakeZone);
     }
   }
 
-  return { PlayerDetectionZone };
+  return { DetectionZone };
 });
 
+const INTERACTION_RADIUS = 1.5;
+const TITLE_DISPLAY_RADIUS = 4;
+
 function createPlayer() {
+  const scene = new TestScene();
   const requestInteraction = vi.fn((_target: Interactable) => true);
-  const player = { stateController: { requestInteraction } } as unknown as Player;
-  return { player, requestInteraction };
+  const inputEvents = new Emitter<PlayerInputEventMap>();
+
+  const player = Object.defineProperties(new GameObject({ scene }), {
+    inputSource: { value: { events: inputEvents } },
+    stateController: { value: { requestInteraction } },
+  }) as unknown as Player;
+
+  const controller = player.addComponent(
+    'InteractionController',
+    new InteractionController(player, {
+      interactionRadius: INTERACTION_RADIUS,
+      titleDisplayRadius: TITLE_DISPLAY_RADIUS,
+    })
+  );
+  scene.add(player);
+
+  const [interactionZone, titleZone] = zones.slice(-2);
+
+  return { player, controller, requestInteraction, inputEvents, interactionZone, titleZone };
 }
 
-function createHintRenderer() {
-  return {
-    setTitle: vi.fn(),
-    setHints: vi.fn(),
-    setTitleVisible: vi.fn(),
-    setHintsVisible: vi.fn(),
+function createInteractiveObject(
+  position = new THREE.Vector3(),
+  enabledActions: PlayerActionType[] = [PlayerActionType.ACTION_DOWN]
+) {
+  const object = new THREE.Object3D();
+  object.position.copy(position);
+  const hintViewers = new Set<Player>();
+
+  return Object.assign(object, {
+    isInteractiveObject: true,
+    hintViewers,
+    isInteractionEnabled: vi.fn((action: PlayerActionType) => enabledActions.includes(action)),
+    interact: vi.fn(),
+    showHintsFor: vi.fn((player: Player) => hintViewers.add(player)),
+    hideHintsFor: vi.fn((player: Player) => hintViewers.delete(player)),
+    showTitleFor: vi.fn(),
+    hideTitleFor: vi.fn(),
+  }) as unknown as InteractiveObject & {
+    hintViewers: Set<Player>;
+    interact: ReturnType<typeof vi.fn>;
+    showHintsFor: ReturnType<typeof vi.fn>;
+    hideHintsFor: ReturnType<typeof vi.fn>;
+    showTitleFor: ReturnType<typeof vi.fn>;
+    hideTitleFor: ReturnType<typeof vi.fn>;
   };
 }
 
-function createController(options: Partial<InteractionControllerOptions> = {}) {
-  const scene = new TestScene();
-  const gameObject = new GameObject({ scene });
-  const hintRenderer = createHintRenderer();
-  const onOpen = vi.fn();
-  const onLock = vi.fn();
-
-  const controller = gameObject.addComponent(
-    'InteractionController',
-    new InteractionController(gameObject, hintRenderer as unknown as HintBillboardRenderer, {
-      interactionRadius: 1.5,
-      interactions: {
-        [PlayerActionType.ACTION_DOWN]: { hint: { icon: 'A', label: 'Open' }, onInteract: onOpen },
-        [PlayerActionType.ACTION_LEFT]: { hint: { icon: 'X', label: 'Lock' }, onInteract: onLock },
-      },
-      ...options,
-    })
-  );
-  scene.add(gameObject);
-
-  return { gameObject, controller, hintRenderer, onOpen, onLock };
+function enterZone(zone: FakeZone, object: InteractiveObject) {
+  zone.objects.push(object);
+  zone.zoneEvents.trigger('object-entered', { object });
 }
 
-function enterZone(zone: FakeZone, player: Player) {
-  zone.players.push(player);
-  zone.playerEvents.trigger('player-entered', { player });
+function leaveZone(zone: FakeZone, object: InteractiveObject) {
+  zone.objects.splice(zone.objects.indexOf(object), 1);
+  zone.zoneEvents.trigger('object-left', { object });
 }
 
-function leaveZone(zone: FakeZone, player: Player) {
-  zone.players.splice(zone.players.indexOf(player), 1);
-  zone.playerEvents.trigger('player-left', { player });
-}
-
-function pressAction(zone: FakeZone, player: Player, type: PlayerActionType) {
-  zone.playerEvents.trigger('player-action', { player, action: { type } as never });
+function pressAction(inputEvents: Emitter<PlayerInputEventMap>, type: PlayerActionType) {
+  inputEvents.trigger('player-action', { type } as never);
 }
 
 function lastCall<T extends unknown[]>(mock: { mock: { calls: T[] } }): T {
@@ -117,165 +133,193 @@ describe('InteractionController', () => {
     vi.clearAllMocks();
   });
 
-  it('adds a sphere interaction zone sized from the radius when awake', () => {
-    const { gameObject } = createController();
+  it('attaches sphere interaction and title zones to the player when awake', () => {
+    const { player, interactionZone, titleZone } = createPlayer();
 
-    expect(zones).toHaveLength(1);
-    expect(zones[0].options).toEqual({ size: new THREE.Vector3(3, 3, 3), shape: 'sphere' });
-    expect(zones[0].parent).toBe(gameObject);
+    expect(zones).toHaveLength(2);
+    expect(interactionZone.options).toMatchObject({
+      size: new THREE.Vector3().setScalar(INTERACTION_RADIUS * 2),
+      shape: 'sphere',
+    });
+    expect(titleZone.options).toMatchObject({
+      size: new THREE.Vector3().setScalar(TITLE_DISPLAY_RADIUS * 2),
+      shape: 'sphere',
+    });
+    expect(interactionZone.parent).toBe(player);
+    expect(titleZone.parent).toBe(player);
   });
 
-  it('passes all interaction hints in config order to the renderer', () => {
-    const { hintRenderer } = createController();
+  it('detects only interactive objects', () => {
+    const { interactionZone, titleZone } = createPlayer();
+    const plain = new GameObject({ scene: new TestScene() });
 
-    expect(lastCall(hintRenderer.setHints)[0]).toEqual([
-      { icon: 'A', label: 'Open' },
-      { icon: 'X', label: 'Lock' },
-    ]);
+    for (const zone of [interactionZone, titleZone]) {
+      expect(zone.options.filter(createInteractiveObject() as unknown as GameObject)).toBe(true);
+      expect(zone.options.filter(plain)).toBe(false);
+    }
   });
 
-  it('shows hints only while a player is in the interaction zone', () => {
-    const { hintRenderer } = createController();
-    const { player } = createPlayer();
+  it('shows and hides the title for objects entering and leaving the title zone', () => {
+    const { player, titleZone } = createPlayer();
+    const object = createInteractiveObject();
 
-    enterZone(zones[0], player);
-    expect(lastCall(hintRenderer.setHintsVisible)[0]).toBe(true);
+    enterZone(titleZone, object);
+    expect(object.showTitleFor).toHaveBeenCalledExactlyOnceWith(player);
+    expect(object.showHintsFor).not.toHaveBeenCalled();
 
-    leaveZone(zones[0], player);
-    expect(lastCall(hintRenderer.setHintsVisible)[0]).toBe(false);
+    leaveZone(titleZone, object);
+    expect(object.hideTitleFor).toHaveBeenCalledExactlyOnceWith(player);
   });
 
-  it('keeps hints visible while any player is still in the zone', () => {
-    const { hintRenderer } = createController();
-    const first = createPlayer().player;
-    const second = createPlayer().player;
+  it('ignores actions when no object in the interaction zone supports them', () => {
+    const { requestInteraction, inputEvents, interactionZone, titleZone } = createPlayer();
+    const titleOnly = createInteractiveObject(new THREE.Vector3(), [PlayerActionType.ACTION_UP]);
+    enterZone(interactionZone, createInteractiveObject());
+    enterZone(titleZone, titleOnly);
 
-    enterZone(zones[0], first);
-    enterZone(zones[0], second);
-    leaveZone(zones[0], first);
-
-    expect(lastCall(hintRenderer.setHintsVisible)[0]).toBe(true);
-  });
-
-  it('requests an interaction on the player for a configured action', () => {
-    const { onLock } = createController();
-    const { player, requestInteraction } = createPlayer();
-
-    pressAction(zones[0], player, PlayerActionType.ACTION_LEFT);
-    const [target] = lastCall(requestInteraction);
-    target.interact({} as Entity);
-
-    expect(requestInteraction).toHaveBeenCalledOnce();
-    expect(onLock).toHaveBeenCalledOnce();
-  });
-
-  it('passes the interacting entity to the callback', () => {
-    const { onOpen } = createController();
-    const { player, requestInteraction } = createPlayer();
-    const entity = {} as Entity;
-
-    pressAction(zones[0], player, PlayerActionType.ACTION_DOWN);
-    lastCall(requestInteraction)[0].interact(entity);
-
-    expect(onOpen).toHaveBeenCalledWith(entity);
-  });
-
-  it('ignores actions that are not configured', () => {
-    createController();
-    const { player, requestInteraction } = createPlayer();
-
-    pressAction(zones[0], player, PlayerActionType.ACTION_UP);
+    pressAction(inputEvents, PlayerActionType.ACTION_UP);
 
     expect(requestInteraction).not.toHaveBeenCalled();
   });
 
-  it('updates a hint at runtime', () => {
-    const { controller, hintRenderer } = createController();
+  it('toggles detection on both zones', () => {
+    const { controller, interactionZone, titleZone } = createPlayer();
 
-    controller.setHint(PlayerActionType.ACTION_DOWN, { label: 'Close' });
+    controller.toggleDetection(false);
 
-    expect(lastCall(hintRenderer.setHints)[0]).toEqual([
-      { icon: 'A', label: 'Close' },
-      { icon: 'X', label: 'Lock' },
-    ]);
+    expect(interactionZone.toggleDetection).toHaveBeenCalledWith(false);
+    expect(titleZone.toggleDetection).toHaveBeenCalledWith(false);
   });
 
-  it('hides and ignores disabled interactions', () => {
-    const { controller, hintRenderer } = createController();
-    const { player, requestInteraction } = createPlayer();
+  it('hides its hints and titles and destroys its zones when the player is destroyed', () => {
+    const { player, requestInteraction, inputEvents, interactionZone, titleZone } = createPlayer();
+    const object = createInteractiveObject();
+    enterZone(interactionZone, object);
+    enterZone(titleZone, object);
 
-    controller.setInteractionEnabled(PlayerActionType.ACTION_LEFT, false);
-    pressAction(zones[0], player, PlayerActionType.ACTION_LEFT);
+    player.destroy();
+    pressAction(inputEvents, PlayerActionType.ACTION_DOWN);
 
-    expect(lastCall(hintRenderer.setHints)[0]).toEqual([{ icon: 'A', label: 'Open' }]);
+    expect(object.hideHintsFor).toHaveBeenCalledWith(player);
+    expect(object.hideTitleFor).toHaveBeenCalledWith(player);
+    expect(interactionZone.destroy).toHaveBeenCalledOnce();
+    expect(titleZone.destroy).toHaveBeenCalledOnce();
     expect(requestInteraction).not.toHaveBeenCalled();
   });
 
-  it('skips the callback when the interaction was disabled before it triggered', () => {
-    const { controller, onLock } = createController();
-    const { player, requestInteraction } = createPlayer();
+  describe('closest object hints', () => {
+    const INTERACT = [PlayerActionType.INTERACT];
 
-    pressAction(zones[0], player, PlayerActionType.ACTION_LEFT);
-    controller.setInteractionEnabled(PlayerActionType.ACTION_LEFT, false);
-    lastCall(requestInteraction)[0].interact({} as Entity);
+    function shownHints(...objects: ReturnType<typeof createInteractiveObject>[]): boolean[] {
+      return objects.map((object) => object.hintViewers.size > 0);
+    }
 
-    expect(onLock).not.toHaveBeenCalled();
-  });
+    it('shows hints only for the closest object in the interaction zone', () => {
+      const { player, interactionZone } = createPlayer();
+      const far = createInteractiveObject(new THREE.Vector3(1, 0, 0), INTERACT);
+      const near = createInteractiveObject(new THREE.Vector3(0.4, 0, 0), INTERACT);
+      const middle = createInteractiveObject(new THREE.Vector3(0, 0, 0.7), INTERACT);
+      enterZone(interactionZone, far);
+      enterZone(interactionZone, near);
+      enterZone(interactionZone, middle);
 
-  describe('name', () => {
-    const NAME = { label: 'Dungeon door', radius: 4 };
+      player.update(0);
 
-    it('does not create a name zone or title without a name', () => {
-      const { hintRenderer } = createController();
-
-      expect(zones).toHaveLength(1);
-      expect(hintRenderer.setTitle).toHaveBeenCalledWith(undefined);
+      expect(shownHints(far, near, middle)).toEqual([false, true, false]);
+      expect(far.showHintsFor).not.toHaveBeenCalled();
+      expect(middle.showHintsFor).not.toHaveBeenCalled();
     });
 
-    it('creates a separate name zone and sets the title', () => {
-      const { hintRenderer } = createController({ name: NAME });
+    it('shows no hints while the interaction zone is empty', () => {
+      const { player, titleZone } = createPlayer();
+      const titleOnly = createInteractiveObject(new THREE.Vector3(2, 0, 0), INTERACT);
+      enterZone(titleZone, titleOnly);
 
-      expect(zones).toHaveLength(2);
-      expect(zones[1].options.size).toEqual(new THREE.Vector3(8, 8, 8));
-      expect(hintRenderer.setTitle).toHaveBeenCalledWith('Dungeon door');
+      player.update(0);
+
+      expect(shownHints(titleOnly)).toEqual([false]);
     });
 
-    it('shows only the title while a player is in the name zone alone', () => {
-      const { hintRenderer } = createController({ name: NAME });
-      const { player } = createPlayer();
+    it('moves the hints to another object once it becomes the closest', () => {
+      const { player, interactionZone } = createPlayer();
+      const left = createInteractiveObject(new THREE.Vector3(-1, 0, 0), INTERACT);
+      const right = createInteractiveObject(new THREE.Vector3(1, 0, 0), INTERACT);
+      enterZone(interactionZone, left);
+      enterZone(interactionZone, right);
 
-      enterZone(zones[1], player);
+      player.position.set(-0.5, 0, 0);
+      player.update(0);
+      expect(shownHints(left, right)).toEqual([true, false]);
 
-      expect(lastCall(hintRenderer.setTitleVisible)[0]).toBe(true);
-      expect(lastCall(hintRenderer.setHintsVisible)[0]).toBe(false);
+      player.position.set(0.5, 0, 0);
+      player.update(0);
+      expect(shownHints(left, right)).toEqual([false, true]);
+      expect(left.hideHintsFor).toHaveBeenCalledWith(player);
     });
 
-    it('shows the title and hints while a player is in the interaction zone', () => {
-      const { hintRenderer } = createController({ name: NAME });
-      const { player } = createPlayer();
+    it('moves the hints to the next closest object when the closest one leaves the zone', () => {
+      const { player, interactionZone } = createPlayer();
+      const near = createInteractiveObject(new THREE.Vector3(0.2, 0, 0), INTERACT);
+      const far = createInteractiveObject(new THREE.Vector3(1, 0, 0), INTERACT);
+      enterZone(interactionZone, near);
+      enterZone(interactionZone, far);
+      player.update(0);
 
-      enterZone(zones[0], player);
+      leaveZone(interactionZone, near);
+      player.update(0);
 
-      expect(lastCall(hintRenderer.setTitleVisible)[0]).toBe(true);
-      expect(lastCall(hintRenderer.setHintsVisible)[0]).toBe(true);
+      expect(shownHints(near, far)).toEqual([false, true]);
     });
 
-    it('hides the title once no player is in either zone', () => {
-      const { hintRenderer } = createController({ name: NAME });
-      const { player } = createPlayer();
+    it('hides the hints once the last object leaves the zone', () => {
+      const { player, interactionZone } = createPlayer();
+      const object = createInteractiveObject(new THREE.Vector3(0.5, 0, 0), INTERACT);
+      enterZone(interactionZone, object);
+      player.update(0);
 
-      enterZone(zones[1], player);
-      leaveZone(zones[1], player);
+      leaveZone(interactionZone, object);
+      player.update(0);
 
-      expect(lastCall(hintRenderer.setTitleVisible)[0]).toBe(false);
+      expect(shownHints(object)).toEqual([false]);
     });
-  });
 
-  it('destroys its zones when the game object is destroyed', () => {
-    const { gameObject } = createController({ name: { label: 'Door', radius: 4 } });
+    it('skips closer objects whose interaction is disabled', () => {
+      const { player, interactionZone } = createPlayer();
+      const disabled = createInteractiveObject(new THREE.Vector3(0.1, 0, 0), []);
+      const enabled = createInteractiveObject(new THREE.Vector3(1, 0, 0), INTERACT);
+      enterZone(interactionZone, disabled);
+      enterZone(interactionZone, enabled);
 
-    gameObject.destroy();
+      player.update(0);
 
-    expect(zones.every((zone) => zone.destroy.mock.calls.length === 1)).toBe(true);
+      expect(shownHints(disabled, enabled)).toEqual([false, true]);
+    });
+
+    it('measures distance on the ground plane, ignoring height', () => {
+      const { player, interactionZone } = createPlayer();
+      const above = createInteractiveObject(new THREE.Vector3(0.2, 3, 0), INTERACT);
+      const level = createInteractiveObject(new THREE.Vector3(0.5, 0, 0), INTERACT);
+      enterZone(interactionZone, above);
+      enterZone(interactionZone, level);
+
+      player.update(0);
+
+      expect(shownHints(above, level)).toEqual([true, false]);
+    });
+
+    it('interacts with the object showing the hints', () => {
+      const { player, requestInteraction, inputEvents, interactionZone } = createPlayer();
+      const near = createInteractiveObject(new THREE.Vector3(0.3, 0, 0), INTERACT);
+      const far = createInteractiveObject(new THREE.Vector3(1, 0, 0), INTERACT);
+      enterZone(interactionZone, far);
+      enterZone(interactionZone, near);
+      player.update(0);
+
+      pressAction(inputEvents, PlayerActionType.INTERACT);
+      lastCall(requestInteraction)[0].interact(player);
+
+      expect(near.interact).toHaveBeenCalledExactlyOnceWith(PlayerActionType.INTERACT, player);
+      expect(far.interact).not.toHaveBeenCalled();
+    });
   });
 });
