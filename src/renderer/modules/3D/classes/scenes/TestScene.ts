@@ -21,6 +21,7 @@ export class TestScene extends GameScene {
     TEXTURES.CHECKERBOARD,
     TEXTURES.AIMING_ARROW,
     MODELS.DUNGEON_DOOR,
+    MODELS.ROCK,
   ];
 
   protected override additionalWarmupFactories: WarmupFactory[] = [

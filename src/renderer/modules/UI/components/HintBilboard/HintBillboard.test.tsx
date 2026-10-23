@@ -179,7 +179,9 @@ describe('HintBillboard', () => {
       'falls back to a dash for a %s viewer when the action has no mapped icon',
       (inputType) => {
         renderWithViewer(
-          <HintBillboard hints={[{ actionType: PlayerActionType.ACTION_FOCUS, label: 'Focus' }]} />,
+          <HintBillboard
+            hints={[{ actionType: 'mock-action-type' as PlayerActionType, label: 'Focus' }]}
+          />,
           inputType
         );
 

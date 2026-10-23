@@ -58,6 +58,7 @@ export { ResourceTrackerInstance as ResourceTracker };
 // Internal Game Components
 export * from './internal-game-components';
 export { GameObjectComponent } from './internal-game-components/GameObjectComponent';
+export type { RigidBodyType } from './internal-game-components/RigidBody';
 
 // Internal Math
 export * from './internal-math/utils/clamp';
@@ -74,3 +75,4 @@ export { throttleWithLastValue } from './internal-utils/throttleWithLastValue';
 export { arraysShallowCompare } from './internal-utils/arraysShallowCompare';
 export { isElectron } from './internal-utils/isElectron';
 export { isDev } from './internal-utils/isDev';
+export { getObjectSize } from '@tgdf/internal-3d/utils/getObjectSize';

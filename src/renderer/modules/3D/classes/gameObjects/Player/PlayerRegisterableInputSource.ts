@@ -18,11 +18,11 @@ export type PlayerActionEvent =
   | {
       type:
         | PlayerActionType.IDLE
+        | PlayerActionType.INTERACT
         | PlayerActionType.ACTION_UP
         | PlayerActionType.ACTION_DOWN
         | PlayerActionType.ACTION_LEFT
-        | PlayerActionType.ACTION_RIGHT
-        | PlayerActionType.ACTION_FOCUS;
+        | PlayerActionType.ACTION_RIGHT;
     };
 
 export type PlayerInputEventMap = {
@@ -48,8 +48,8 @@ const ACTION_MAPPINGS = {
     keyboard: KEYBOARD_MAPPINGS.ArrowRight,
     gamepad: GAMEPAD_MAPPINGS.B,
   },
-  [PlayerActionType.ACTION_FOCUS]: {
-    keyboard: KEYBOARD_MAPPINGS.Space,
+  [PlayerActionType.INTERACT]: {
+    keyboard: KEYBOARD_MAPPINGS.KeyE,
     gamepad: GAMEPAD_MAPPINGS.RB,
   },
 } as const;

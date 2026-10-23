@@ -110,7 +110,10 @@ const idleStateNode: StateNode<IdleState> = {
 function getInteractStateNode(target: Interactable): StateNode<InteractState> {
   return {
     state: (entity) =>
-      new InteractState(entity, target, { triggerDelayS: INTERACT_TRIGGER_DELAY_S }),
+      new InteractState(entity, target, {
+        triggerDelayS: INTERACT_TRIGGER_DELAY_S,
+        playbackRate: 1.5,
+      }),
     onUpdate: ({ entity, currentState }) => {
       if (!currentState.isComplete) return null;
 

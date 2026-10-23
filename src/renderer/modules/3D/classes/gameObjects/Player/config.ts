@@ -23,5 +23,9 @@ export const playerConfig: PlayerConfig = {
     maxLongTermStamina: 300,
     maxShortTermStamina: 25,
   },
+  interactionOptions: {
+    interactionRadius: 1,
+    titleDisplayRadius: 2,
+  },
   stateMachine: stateMachinePlayer,
 };

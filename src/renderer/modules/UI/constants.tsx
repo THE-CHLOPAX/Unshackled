@@ -89,11 +89,13 @@ export const PLAYER_ACTION_TO_ICON_MAPPING: Record<
     [PlayerActionType.ACTION_DOWN]: <Icon icon="arrowDown" {...DEFAULT_HINT_ICON_PROPS} />,
     [PlayerActionType.ACTION_LEFT]: <Icon icon="arrowLeft" {...DEFAULT_HINT_ICON_PROPS} />,
     [PlayerActionType.ACTION_RIGHT]: <Icon icon="arrowRight" {...DEFAULT_HINT_ICON_PROPS} />,
+    [PlayerActionType.INTERACT]: 'E',
   },
   gamepad: {
     [PlayerActionType.ACTION_UP]: 'Y',
     [PlayerActionType.ACTION_DOWN]: 'A',
     [PlayerActionType.ACTION_LEFT]: 'X',
     [PlayerActionType.ACTION_RIGHT]: 'B',
+    [PlayerActionType.INTERACT]: 'RB',
   },
 };
